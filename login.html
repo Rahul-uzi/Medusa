@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="La-Medusaa Bar & Lounge – Login to your account">
+    <title>LA-MEDUSAA – Login</title>
+    <script src="assets/js/theme-toggle.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --cream: #f0ebe1;
+            --cream-dark: #e6dfd3;
+            --maroon: #5c1a1a;
+            --maroon-dark: #3e0f0f;
+            --gold: #b8973a;
+            --gold-light: #d4af5a;
+            --text-dark: #2a1a0e;
+            --text-mid: #5a4533;
+            --text-muted: #8a7260;
+            --border: rgba(90, 69, 51, 0.15);
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Jost', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #1a0e08;
+            overflow-x: hidden;
+        }
+
+        /* ── TOP NAV ── */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 70px;
+            background: rgba(15, 7, 3, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(184, 151, 58, 0.12);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            filter: brightness(1.1);
+        }
+
+        .nav-logo-text {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--gold-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .nav-logo-text small {
+            display: block;
+            font-size: 0.58rem;
+            letter-spacing: 4px;
+            font-weight: 400;
+            color: rgba(212, 175, 90, 0.65);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(240, 235, 225, 0.75);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold-light);
+        }
+
+        .nav-reserve {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            border: 1px solid rgba(184, 151, 58, 0.6);
+            padding: 8px 18px;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+
+        .nav-reserve:hover {
+            background: rgba(184, 151, 58, 0.1);
+        }
+
+        /* ── MAIN LAYOUT ── */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&h=1080&fit=crop&q=85');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 7, 3, 0.65);
+            z-index: 0;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 80px;
+            background: #2f1317;
+            border-bottom: none;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .login-layout {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 8% 40px 8%;
+            min-height: calc(100vh - 120px);
+            /* Leave room for feature bar */
+        }
+
+        /* Removed left panel styles */
+
+        /* ── RIGHT PANEL (FLOATING CARD) ── */
+        .right-panel {
+            background: var(--cream);
+            width: 100%;
+            max-width: 580px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-card {
+            width: 100%;
+        }
+
+        /* Brand block */
+        .form-brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .form-brand-icon {
+            font-size: 2.2rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .form-brand-name {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            display: block;
+        }
+
+        .form-brand-sub {
+            font-size: 0.65rem;
+            letter-spacing: 5px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .form-title {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .form-title-ornament {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .form-title-ornament svg {
+            color: var(--gold);
+        }
+
+        /* Field label */
+        .field-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--text-mid);
+            margin-bottom: 7px;
+        }
+
+        /* Input wrapper */
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: transparent;
+            /* match reference */
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-wrapper.focused {
+            border-color: rgba(184, 151, 58, 0.55);
+            box-shadow: 0 0 0 3px rgba(184, 151, 58, 0.08);
+        }
+
+        .input-icon {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 400;
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .input-field:-webkit-autofill,
+        .input-field:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px var(--cream) inset;
+            -webkit-text-fill-color: var(--text-dark);
+        }
+
+        .password-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            padding: 0 2px;
+            transition: color 0.2s;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--text-dark);
+        }
+
+        /* Options row */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-mid);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-label input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--maroon);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.8rem;
+            color: var(--maroon);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--gold);
+        }
+
+        /* Log In button */
+        .btn-login {
+            width: 100%;
+            background: var(--maroon);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.15s;
+            margin-bottom: 20px;
+        }
+
+        .btn-login:hover {
+            background: var(--maroon-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Divider */
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .or-divider span {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .or-divider p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            white-space: nowrap;
+        }
+
+        /* Social buttons */
+        .social-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            text-decoration: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-social:hover {
+            border-color: rgba(90, 69, 51, 0.35);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-social .icon-google {
+            color: #ea4335;
+            font-size: 1rem;
+        }
+
+        .btn-social .icon-facebook {
+            color: #1877F2;
+            font-size: 1rem;
+        }
+
+        .btn-social .icon-apple {
+            color: #000000;
+            font-size: 1.1rem;
+        }
+
+        /* Join now */
+        .join-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .join-text a {
+            color: var(--maroon);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .join-text a:hover {
+            color: var(--gold);
+        }
+
+        /* ── BOTTOM FEATURE BAR ── */
+        .feature-bar {
+            background: var(--maroon);
+            padding: 26px 60px;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: auto;
+        }
+
+        .feature-quote {
+            flex: 1.2;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding-right: 40px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-quote .quote-mark {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            line-height: 1;
+            color: rgba(255, 255, 255, 0.35);
+            margin-top: -6px;
+        }
+
+        .feature-quote p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .feature-items {
+            flex: 3;
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            padding-left: 40px;
+        }
+
+        .feature-item {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 0 24px 0 0;
+        }
+
+        .feature-item:last-child {
+            padding-right: 0;
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .feature-text strong {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 4px;
+        }
+
+        .feature-text p {
+            font-size: 0.77rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--cream);
+            border-radius: 8px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--maroon);
+        }
+
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 1.7rem;
+            font-weight: 400;
+            color: var(--maroon);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .modal-subtitle {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-step {
+            display: none;
+        }
+
+        .modal-step.active {
+            display: block;
+        }
+
+        .modal-msg {
+            font-size: 0.83rem;
+            text-align: center;
+            margin-top: 14px;
+            display: none;
+        }
+
+        .modal-msg.error {
+            color: #c0392b;
+            display: block;
+        }
+
+        .modal-msg.success {
+            color: #27ae60;
+            display: block;
+        }
+
+        .btn-modal {
+            width: 100%;
+            background: var(--maroon);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-modal:hover {
+            background: var(--maroon-dark);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .top-nav {
+                padding: 0 20px;
+            }
+
+            .login-layout {
+                flex-direction: column;
+                padding: 100px 5% 30px;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 40px 30px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .feature-bar {
+                flex-direction: column;
+                gap: 24px;
+                padding: 30px 20px;
+            }
+
+            .feature-quote {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+                padding-bottom: 20px;
+            }
+
+            .feature-items {
+                flex-direction: column;
+                gap: 20px;
+                padding-left: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .top-nav {
+                padding: 0 15px;
+            }
+
+            .nav-logo-text {
+                font-size: 1rem;
+            }
+
+            .nav-reserve {
+                padding: 6px 12px;
+                font-size: 0.65rem;
+            }
+
+            .right-panel {
+                padding: 30px 20px;
+                border-radius: 12px;
+            }
+
+            .form-title {
+                font-size: 1.8rem;
+            }
+
+            .social-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-social {
+                padding: 12px;
+            }
+
+            .modal-content {
+                padding: 24px 20px;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .nav-logo-text {
+                display: none; /* Hide text on very small screens to fit reserve button */
+            }
+            
+            .login-layout {
+                padding: 90px 4% 20px;
+            }
+
+            .right-panel {
+                padding: 25px 15px;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+    </style>
+
+    <!-- Navbar Performance Optimization Links -->
+    <link rel="stylesheet" href="assets/css/components.css">
+        <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === "string" && args[0].includes("cdn.tailwindcss.com should not be used in production")) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                corePlugins: {
+                    preflight: false
+                },
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: '#b8973a',
+                            'gold-light': '#d4af5a',
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- ── NAVIGATION ── -->
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js" defer></script>
+
+    <div class="page-wrapper">
+        <!-- ── CENTERED LAYOUT ── -->
+        <div class="login-layout">
+
+            <!-- FORM PANEL -->
+            <div class="right-panel">
+                <div class="form-card">
+
+                    <!-- Brand -->
+                    <div class="form-brand">
+                        <img src="assets/images/medusaa2(onlylogo).png" alt="La-Medusaa Logo"
+                            style="width: 48px; height: 48px; object-fit: contain; margin-bottom: 8px; filter: invert(0.8) sepia(1) hue-rotate(350deg) saturate(3) brightness(0.6);">
+                        <span class="form-brand-name">La-Medusaa</span>
+                        <span class="form-brand-sub">Bar &amp; Lounge</span>
+                    </div>
+
+                    <h2 class="form-title">Login</h2>
+                    <div class="form-title-ornament">
+                        <svg width="80" height="14" viewBox="0 0 80 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <line x1="0" y1="7" x2="28" y2="7" stroke="currentColor" stroke-width="1" />
+                            <circle cx="40" cy="7" r="3" fill="currentColor" />
+                            <circle cx="33" cy="7" r="1.5" fill="currentColor" />
+                            <circle cx="47" cy="7" r="1.5" fill="currentColor" />
+                            <line x1="52" y1="7" x2="80" y2="7" stroke="currentColor" stroke-width="1" />
+                        </svg>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="loginForm">
+                        <label class="field-label" for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                            <input type="text" id="email" class="input-field" placeholder="Enter your email" required
+                                autocomplete="username">
+                        </div>
+
+                        <label class="field-label" for="password">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" class="input-field" placeholder="Enter your password"
+                                required autocomplete="current-password">
+                            <button type="button" id="togglePassword" class="password-toggle-btn"
+                                aria-label="Toggle password">
+                                <i class="fas fa-eye" id="eyeOpen"></i>
+                                <i class="fas fa-eye-slash" id="eyeClosed" style="display:none;"></i>
+                            </button>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="remember-label">
+                                <input type="checkbox" id="remember">
+                                Remember Me
+                            </label>
+                            <a href="#" class="forgot-link" onclick="openForgotModal(event)">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn-login" id="loginBtn">Log In</button>
+
+                        <div class="or-divider">
+                            <span></span>
+                            <p>or continue with</p>
+                            <span></span>
+                        </div>
+
+                        <div class="social-buttons">
+                            <a href="https://accounts.google.com/signin" target="_blank" class="btn-social">
+                                <svg class="icon-google" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09zM12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23zM5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63zM12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                </svg>
+                                Google
+                            </a>
+                            <a href="https://www.facebook.com/login/" target="_blank" class="btn-social">
+                                <svg class="icon-facebook" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="currentColor">
+                                    <path
+                                        d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" />
+                                </svg>
+                                Facebook
+                            </a>
+                            <a href="https://appleid.apple.com/" target="_blank" class="btn-social">
+                                <svg class="icon-apple" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.54 9.103 1.51 12.06 1.005 1.45 2.17 3.07 3.737 3.01 1.513-.06 2.086-.975 3.913-.975 1.824 0 2.342.975 3.912.945 1.6-.027 2.628-1.47 3.628-2.925 1.157-1.688 1.637-3.322 1.662-3.415-.035-.015-3.197-1.223-3.228-4.834-.027-3.023 2.474-4.478 2.586-4.547-1.42-2.083-3.614-2.325-4.39-2.376-2.036-.162-3.99 1.227-5.01 1.227zm2.464-4.22c.907-1.093 1.518-2.615 1.353-4.13-1.3.053-2.88.868-3.812 1.96-1.11 1.29-1.572 2.825-1.393 4.316 1.45.112 2.945-.724 3.852-2.146z" />
+                                </svg>
+                                Apple
+                            </a>
+                        </div>
+
+                        <p class="join-text">Not a Member? <a href="register.php">Join Now</a></p>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── FEATURE BAR ── -->
+        <div class="feature-bar">
+            <div class="feature-quote">
+                <span class="quote-mark">"</span>
+                <p>Good food, great ambiance and unforgettable memories.</p>
+            </div>
+            <div class="feature-items">
+                <div class="feature-item">
+                    <i class="fas fa-seedling feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Quality Ingredients</strong>
+                        <p>We use only the finest and freshest ingredients.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-leaf feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Seasonal Menu</strong>
+                        <p>Our menu changes with the seasons.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-wine-glass-alt feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Perfect Pairing</strong>
+                        <p>Handpicked wines to elevate your experience.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-heart feature-icon"></i>
+                    <div class="feature-text">
+                        <strong>Memorable Experience</strong>
+                        <p>Creating moments you'll always remember.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FORGOT PASSWORD MODAL ── -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeForgotModal()">&times;</button>
+            <h3 class="modal-title">Reset Password</h3>
+
+            <!-- Step 1: Request OTP -->
+            <div id="step-request" class="modal-step active">
+                <p class="modal-subtitle">Enter your registered email or phone number to receive a verification code.
+                </p>
+                <label class="field-label" for="forgotEmail">Email or Phone</label>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                    <input type="text" id="forgotEmail" class="input-field" placeholder="Email Address or Phone">
+                </div>
+                <button class="btn-modal" id="btnSendOtp" onclick="sendOtp()">Send OTP</button>
+            </div>
+
+            <!-- Step 2: Verify OTP -->
+            <div id="step-verify" class="modal-step">
+                <p class="modal-subtitle">Enter the 6-digit verification code sent to your email.</p>
+                <label class="field-label" for="forgotOtp">Verification Code</label>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-shield-alt"></i></span>
+                    <input type="text" id="forgotOtp" class="input-field" placeholder="6-Digit OTP" maxlength="6">
+                </div>
+                <button class="btn-modal" id="btnVerifyOtp" onclick="verifyOtp()">Verify Code</button>
+            </div>
+
+            <!-- Step 3: Reset Password -->
+            <div id="step-reset" class="modal-step">
+                <p class="modal-subtitle">Enter your new password.</p>
+                <label class="field-label">New Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="newPassword" class="input-field" placeholder="New Password">
+                    <button type="button" class="password-toggle-btn" onclick="toggleModalPwd(this)">
+                        <i class="fas fa-eye eye-open"></i>
+                        <i class="fas fa-eye-slash eye-closed" style="display:none;"></i>
+                    </button>
+                </div>
+                <label class="field-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm Password">
+                    <button type="button" class="password-toggle-btn" onclick="toggleModalPwd(this)">
+                        <i class="fas fa-eye eye-open"></i>
+                        <i class="fas fa-eye-slash eye-closed" style="display:none;"></i>
+                    </button>
+                </div>
+                <button class="btn-modal" id="btnResetPwd" onclick="resetPassword()">Reset Password</button>
+            </div>
+
+            <div id="modalMsg" class="modal-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        // Social login click handlers to open popups
+        document.querySelectorAll('.btn-social').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = btn.getAttribute('href');
+                if (url && url !== '#') {
+                    const width = 500;
+                    const height = 600;
+                    const left = (window.screen.width / 2) - (width / 2);
+                    const top = (window.screen.height / 2) - (height / 2);
+                    window.open(url, '_blank', `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`);
+                }
+            });
+        });
+
+        // Focus ring on input wrappers
+        document.querySelectorAll('.input-field').forEach(input => {
+            const wrapper = input.closest('.input-wrapper');
+            if (!wrapper) return;
+            input.addEventListener('focus', () => wrapper.classList.add('focused'));
+            input.addEventListener('blur', () => wrapper.classList.remove('focused'));
+        });
+
+        // Toggle main password visibility
+        document.getElementById('togglePassword').addEventListener('click', () => {
+            const pw = document.getElementById('password');
+            const open = document.getElementById('eyeOpen');
+            const closed = document.getElementById('eyeClosed');
+            const isHidden = pw.type === 'password';
+            pw.type = isHidden ? 'text' : 'password';
+            open.style.display = isHidden ? 'none' : 'inline';
+            closed.style.display = isHidden ? 'inline' : 'none';
+        });
+
+        document.getElementById('togglePassword').addEventListener('mousedown', e => e.preventDefault());
+
+        function toggleModalPwd(btn) {
+            const input = btn.closest('.input-wrapper').querySelector('input');
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            btn.querySelector('.eye-open').style.display = isHidden ? 'none' : 'inline';
+            btn.querySelector('.eye-closed').style.display = isHidden ? 'inline' : 'none';
+        }
+
+        // Login form submit
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.textContent = 'Logging in…';
+            btn.disabled = true;
+
+            const data = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                remember: document.getElementById('remember').checked
+            };
+
+            try {
+                const res = await fetch('api/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    try {
+                        localStorage.removeItem('foodie_cart');
+                        localStorage.removeItem('foodie_cart_timestamp');
+                    } catch (e) {}
+                    if (result.user && (result.user.role === 'admin' || result.user.role === 'driver')) {
+                        window.location.href = 'admintest/dashboardtest.php';
+                    } else {
+                        window.location.href = 'menutest.html';
+                    }
+                } else if (result.inactive) {
+                    alert(result.message || 'Please verify your account first.');
+                    window.location.href = 'verify_otp.php';
+                } else {
+                    alert(result.message || 'Login failed. Please check your credentials.');
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+
+            btn.textContent = 'Log In';
+            btn.disabled = false;
+        });
+
+        // Forgot Password Modal
+        const modal = document.getElementById('forgotModal');
+        const msgBox = document.getElementById('modalMsg');
+
+        function openForgotModal(e) {
+            e.preventDefault();
+            modal.classList.add('active');
+            showStep('step-request');
+            msgBox.className = 'modal-msg';
+            msgBox.innerHTML = '';
+            document.getElementById('forgotEmail').value = document.getElementById('email').value;
+        }
+
+        function closeForgotModal() {
+            modal.classList.remove('active');
+            ['forgotEmail', 'forgotOtp', 'newPassword', 'confirmPassword'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+
+        function showStep(stepId) {
+            document.querySelectorAll('.modal-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+            msgBox.className = 'modal-msg';
+            msgBox.innerHTML = '';
+        }
+
+        function showModalMsg(text, type) {
+            msgBox.innerHTML = text;
+            msgBox.className = 'modal-msg ' + type;
+        }
+
+        async function sendOtp() {
+            const email = document.getElementById('forgotEmail').value;
+            const btn = document.getElementById('btnSendOtp');
+            if (!email) return showModalMsg('Email is required', 'error');
+            btn.textContent = 'Sending…'; btn.disabled = true;
+            try {
+                const res = await fetch('api/forgot-password.php?action=send_otp', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) { showModalMsg(data.message, 'success'); setTimeout(() => showStep('step-verify'), 1500); }
+                else showModalMsg(data.message, 'error');
+            } catch { showModalMsg('Network error', 'error'); }
+            btn.textContent = 'Send OTP'; btn.disabled = false;
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('forgotEmail').value;
+            const otp = document.getElementById('forgotOtp').value;
+            const btn = document.getElementById('btnVerifyOtp');
+            if (!otp) return showModalMsg('OTP is required', 'error');
+            btn.textContent = 'Verifying…'; btn.disabled = true;
+            try {
+                const res = await fetch('api/forgot-password.php?action=verify_otp', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+                const data = await res.json();
+                if (data.success) { showModalMsg(data.message, 'success'); setTimeout(() => showStep('step-reset'), 1000); }
+                else showModalMsg(data.message, 'error');
+            } catch { showModalMsg('Network error', 'error'); }
+            btn.textContent = 'Verify Code'; btn.disabled = false;
+        }
+
+        async function resetPassword() {
+            const password = document.getElementById('newPassword').value;
+            const confirm_password = document.getElementById('confirmPassword').value;
+            const btn = document.getElementById('btnResetPwd');
+            if (!password || !confirm_password) return showModalMsg('Please fill both fields', 'error');
+            btn.textContent = 'Resetting…'; btn.disabled = true;
+            try {
+                const res = await fetch('api/forgot-password.php?action=reset_password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password, confirm_password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showModalMsg(data.message, 'success');
+                    setTimeout(() => { closeForgotModal(); document.getElementById('password').value = password; }, 2000);
+                } else showModalMsg(data.message, 'error');
+            } catch { showModalMsg('Network error', 'error'); }
+            btn.textContent = 'Reset Password'; btn.disabled = false;
+        }
+    </script>
+
+</body>
+
+</html>

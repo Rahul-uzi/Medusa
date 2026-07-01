@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Shopping Cart - Medusa</title>
+    <!-- Global Theme Controller -->
+    <script src="assets/js/theme-toggle.js"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+
+    <style>
+        :root {
+            --bg-dark: #050a07;
+            /* Super Dark Forest Green / Black */
+            --bg-card: #0b1411;
+            /* Dark Card Green */
+            --gold: #C09B5B;
+            /* Premium Medusa Gold */
+            --gold-hover: #dfc89f;
+            --rosewood: #5a1827;
+            /* Royal Maroon */
+            --rosewood-hover: #7b2235;
+            --text-light: #FAF7F0;
+            /* Warm White */
+            --text-muted: #8A9A91;
+            /* Soft Muted Green-Gray */
+            --card-border: rgba(192, 155, 91, 0.12);
+            /* Subtle Gold Border */
+        }
+
+        body {
+            background-color: var(--bg-dark) !important;
+            color: var(--text-light) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* --- Header Navigation Bar --- */
+        .navbar-medusa {
+            background-color: var(--bg-dark);
+            height: 90px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-medusa .navbar-brand {
+            padding-left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 70px;
+            width: 200px;
+            overflow: hidden;
+        }
+
+        .navbar-medusa .navbar-brand img {
+            height: 120px;
+            width: auto;
+            max-width: none;
+            flex-shrink: 0;
+            margin-left: -10px; /* Optional adjustment to crop left padding */
+        }
+
+        .navbar-medusa .nav-links {
+            display: flex;
+            gap: 30px;
+            margin: 0 auto;
+        }
+
+        .navbar-medusa .nav-link {
+            color: var(--text-light) !important;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: 'Lato', sans-serif;
+            transition: color 0.3s ease;
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .navbar-medusa .nav-link:hover {
+            color: var(--gold) !important;
+        }
+
+        .navbar-medusa .nav-link.active {
+            color: var(--gold) !important;
+            text-decoration: underline;
+            text-underline-offset: 8px;
+            text-decoration-thickness: 2px;
+            text-decoration-color: var(--gold);
+        }
+
+        .navbar-medusa .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-right: 20px;
+        }
+
+        .navbar-medusa .nav-icon {
+            color: var(--text-light);
+            font-size: 1.25rem;
+            text-decoration: none;
+            position: relative;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-medusa .nav-icon:hover {
+            color: var(--gold);
+        }
+
+        .navbar-medusa .nav-icon .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--rosewood);
+            color: var(--text-light);
+            font-size: 0.65rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--bg-dark);
+        }
+
+        .navbar-medusa .separator {
+            width: 1px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .navbar-medusa .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-decoration: none;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-medusa .user-avatar:hover {
+            background-color: rgba(192, 155, 91, 0.1);
+            color: var(--text-light);
+        }
+
+        /* --- Page Title Area --- */
+        .cart-header-row {
+            margin-top: 3.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header-title {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .cart-title-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background-color: var(--rosewood);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        .cart-title-text h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .cart-title-text h1 span {
+            color: var(--gold);
+        }
+
+        .cart-title-text p {
+            color: var(--text-muted);
+            margin: 4px 0 0 0;
+            font-size: 0.92rem;
+        }
+
+        .btn-back-menu {
+            border: 1.5px solid var(--gold) !important;
+            background: transparent !important;
+            color: var(--gold) !important;
+            padding: 0.6rem 1.4rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px !important;
+            text-transform: uppercase !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+        }
+
+        .btn-back-menu:hover {
+            background-color: var(--gold) !important;
+            color: var(--bg-dark) !important;
+            transform: translateY(-2px);
+        }
+
+        /* --- Left Column layout --- */
+        .cart-card-wrapper {
+            background-color: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2.2rem;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            margin-bottom: 2rem;
+        }
+
+        /* Table styles */
+        .table-cart {
+            width: 100%;
+            margin-bottom: 0;
+            border-collapse: collapse;
+        }
+
+        .table-cart th {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 0.75rem 1rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(192, 155, 91, 0.15);
+        }
+
+        .table-cart td {
+            padding: 1.8rem 1rem;
+            border-bottom: 1px solid rgba(192, 155, 91, 0.08);
+            vertical-align: middle;
+            color: var(--text-light);
+        }
+
+        .table-cart td.item-col {
+            padding-left: 0.5rem;
+        }
+
+        .cart-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .dish-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-item-name {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--text-light);
+        }
+
+        .diet-label {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .diet-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            display: inline-block;
+        }
+
+        .dot-veg {
+            background-color: #16a34a;
+            /* Green dot for veg */
+        }
+
+        .dot-nonveg {
+            background-color: #dc2626;
+            /* Red dot for non-veg */
+        }
+
+        .cart-item-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            max-width: 320px;
+        }
+
+        .cart-item-price {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        /* Capsule Qty Controller */
+        .quantity-controller-inline {
+            display: inline-flex;
+            align-items: center;
+            background: #050a07;
+            border: 1px solid rgba(192, 155, 91, 0.28);
+            border-radius: 30px;
+            padding: 4px 10px;
+        }
+
+        .quantity-controller-inline .qty-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 1.1rem;
+            border: none;
+            background: transparent;
+            color: var(--gold);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-controller-inline .qty-btn:hover {
+            color: var(--gold-hover);
+            transform: scale(1.15);
+        }
+
+        .quantity-controller-inline .qty-number {
+            width: 32px;
+            text-align: center;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .cart-item-total {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        /* Trash Remove Button */
+        .btn-remove {
+            color: #dc2626;
+            background: transparent;
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-remove:hover {
+            background-color: #dc2626;
+            color: var(--text-light);
+            border-color: #dc2626;
+            transform: scale(1.05);
+        }
+
+        /* Clear Cart Button */
+        .btn-clear-cart {
+            border: 1.5px solid #dc2626 !important;
+            background: transparent !important;
+            color: #dc2626 !important;
+            padding: 0.6rem 1.4rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px !important;
+            border-radius: 8px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-clear-cart:hover {
+            background-color: #dc2626 !important;
+            color: var(--text-light) !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        }
+
+        /* --- Features List Block --- */
+        .features-wrapper-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2.2rem 1.8rem;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            margin-bottom: 4rem;
+        }
+
+        .feature-item-col {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            padding: 0 10px;
+        }
+
+        .feature-icon-box {
+            font-size: 2rem;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .feature-text-box h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: var(--gold);
+            font-weight: 600;
+            margin: 0 0 6px 0;
+        }
+
+        .feature-text-box p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .feature-divider-col {
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 767px) {
+            .feature-divider-col {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                padding-bottom: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* --- Right Column: Order Summary --- */
+        .summary-wrapper-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2.2rem;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+            margin-bottom: 2rem;
+        }
+
+        .summary-header-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(192, 155, 91, 0.15);
+            padding-bottom: 1rem;
+        }
+
+        .summary-header-icon {
+            font-size: 1.35rem;
+            color: var(--gold);
+        }
+
+        .summary-header-row h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .summary-line-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.1rem;
+            font-size: 0.98rem;
+            color: var(--text-muted);
+        }
+
+        .summary-line-item span:first-child {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-line-item span:last-child {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .summary-line-item.grand-total-row {
+            border-top: 1px solid rgba(192, 155, 91, 0.15);
+            padding-top: 1.25rem;
+            margin-top: 1.25rem;
+            margin-bottom: 1.5rem;
+            align-items: baseline;
+        }
+
+        .summary-line-item.grand-total-row span:first-child {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .summary-line-item.grand-total-row span:last-child {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        /* Coupon Section styles */
+        .coupon-box {
+            border: 1px dashed rgba(192, 155, 91, 0.35);
+            background: rgba(192, 155, 91, 0.02);
+            border-radius: 10px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .coupon-title-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        .coupon-input-element-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.8rem;
+        }
+
+        .coupon-input-element-group input {
+            background-color: #050a07;
+            border: 1px solid rgba(192, 155, 91, 0.28);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .coupon-input-element-group input:focus {
+            border-color: var(--gold);
+        }
+
+        .coupon-input-element-group button {
+            background-color: var(--rosewood);
+            color: var(--text-light);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .coupon-input-element-group button:hover {
+            background-color: var(--rosewood-hover);
+        }
+
+        .coupon-message {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* Scooter Delivery Badge */
+        .scooter-delivery-card {
+            background-color: rgba(22, 163, 74, 0.05);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .scooter-icon-box {
+            font-size: 1.8rem;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scooter-text-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scooter-text-box h5 {
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0 0 2px 0;
+        }
+
+        .scooter-text-box p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 0;
+            line-height: 1.35;
+        }
+
+        /* Large Action Buttons */
+        .btn-checkout-summary {
+            background-color: var(--rosewood) !important;
+            color: var(--text-light) !important;
+            border: 1px solid var(--gold) !important;
+            border-radius: 8px !important;
+            padding: 1.1rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+            box-shadow: 0 8px 25px rgba(90, 24, 39, 0.45);
+        }
+
+        .btn-checkout-summary:hover {
+            background-color: var(--rosewood-hover) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(90, 24, 39, 0.6);
+        }
+
+        .btn-continue-summary {
+            background-color: transparent !important;
+            color: var(--gold) !important;
+            border: 1.5px solid var(--gold) !important;
+            border-radius: 8px !important;
+            padding: 1.1rem !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            width: 100% !important;
+            display: block !important;
+            text-align: center !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+            margin-top: 1rem !important;
+        }
+
+        .btn-continue-summary:hover {
+            background-color: var(--gold) !important;
+            color: var(--bg-dark) !important;
+        }
+
+        /* --- Footer Section --- */
+        /* --- Luxury Footer Section --- */
+        .lux-footer {
+            background-color: #050a07;
+            /* Matches body background exactly */
+            padding: 2.5rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .footer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .footer-block {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-vertical-line {
+            width: 1px;
+            height: 45px;
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Block 1: Logo */
+        .logo-block {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 70px;
+            width: 160px;
+            overflow: hidden;
+        }
+
+        .logo-block img {
+            height: 110px;
+            width: auto;
+            max-width: none;
+            flex-shrink: 0;
+            margin: 0;
+        }
+
+        /* Block 2: Follow Us */
+        .follow-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding-left: 20px;
+        }
+
+        .footer-label {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .footer-socials a {
+            color: var(--text-light);
+            font-size: 1.15rem;
+            transition: color 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .footer-socials a:hover {
+            color: var(--gold);
+        }
+
+        /* Block 3: We Accept */
+        .accept-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding-left: 20px;
+        }
+
+        .payment-badges-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .payment-badge-wrapper {
+            background-color: #07110d;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            height: 38px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .font-visa {
+            font-family: 'Liberation Sans', sans-serif;
+            font-style: italic;
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: #FAF7F0;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .mastercard-circles {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle-red {
+            width: 14px;
+            height: 14px;
+            background: #eb001b;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .circle-orange {
+            width: 14px;
+            height: 14px;
+            background: #ff5f00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: -6px;
+            opacity: 0.95;
+        }
+
+        .font-amex {
+            font-family: 'Liberation Sans', sans-serif;
+            font-weight: 800;
+            font-size: 0.75rem;
+            background: #016fd0;
+            color: #fff;
+            padding: 1px 4px;
+            border-radius: 2px;
+            letter-spacing: 0.5px;
+            line-height: 1;
+        }
+
+        .font-upi {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: #FAF7F0;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        /* Block 4: Secure Payments */
+        .secure-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 20px;
+        }
+
+        .secure-icon-container {
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .secure-text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .secure-title {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .secure-desc {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 4px 0 0 0;
+            line-height: 1.35;
+        }
+
+        .footer-bottom-row {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 2.5rem;
+            padding-top: 1.8rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .footer-row {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .footer-vertical-line {
+                display: none;
+            }
+
+            .footer-block {
+                flex-direction: column;
+                align-items: center;
+                padding-left: 0;
+            }
+
+            .follow-block,
+            .accept-block {
+                align-items: center;
+            }
+
+            .secure-block {
+                text-align: center;
+            }
+
+            .secure-text-container {
+                align-items: center;
+            }
+
+            .footer-bottom-row {
+                margin-top: 1.5rem;
+            }
+        }
+
+        /* Premium Popover Styling for Medusa */
+        .popover {
+            background-color: #0b1411 !important;
+            border: 1px solid #C09B5B !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+            border-radius: 8px !important;
+        }
+
+        .popover-body {
+            color: #FAF7F0 !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 0.85rem !important;
+        }
+
+        .bs-popover-auto[data-po-reference-parent]>.popover-arrow::after,
+        .bs-popover-top>.popover-arrow::after {
+            border-top-color: #0b1411 !important;
+        }
+
+        .bs-popover-auto[data-po-reference-parent]>.popover-arrow::before,
+        .bs-popover-top>.popover-arrow::before {
+            border-top-color: #C09B5B !important;
+        }
+    </style>
+
+    <!-- Navbar Performance Optimization Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+        <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === "string" && args[0].includes("cdn.tailwindcss.com should not be used in production")) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                corePlugins: {
+                    preflight: false
+                },
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: '#b8973a',
+                            'gold-light': '#d4af5a',
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Luxury Header Navbar -->
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js" defer></script>
+
+    <!-- Main Content Container -->
+    <div class="container fade-up">
+        <!-- Title Block -->
+        <div class="cart-header-row">
+            <div class="cart-header-title">
+                <div class="cart-title-icon-wrapper">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <div class="cart-title-text">
+                    <h1>Your Shopping <span>Cart</span></h1>
+                    <p>Review your items and proceed to checkout</p>
+                </div>
+            </div>
+            <a href="menutest.html" class="btn-back-menu" id="backToMenuBtn">
+                <i class="fa-solid fa-arrow-left"></i> Back to Menu
+            </a>
+        </div>
+
+        <div class="row g-5">
+            <!-- Left Column: Items Table & Features List -->
+            <div class="col-lg-8">
+                <!-- Cart Items Wrapper Card -->
+                <div class="cart-card-wrapper">
+                    <div class="table-responsive">
+                        <table class="table-cart">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">ITEM</th>
+                                    <th style="width: 15%;">PRICE</th>
+                                    <th style="width: 15%;">QUANTITY</th>
+                                    <th style="width: 15%;">TOTAL</th>
+                                    <th style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading items...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Features Card -->
+                <div class="features-wrapper-card">
+                    <div class="row g-4">
+                        <div class="col-md-4 feature-divider-col">
+                            <div class="feature-item-col">
+                                <div class="feature-icon-box">
+                                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                        class="feather feather-shield">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        <path d="m9 11 2 2 4-4" stroke-width="2"></path>
+                                    </svg>
+                                </div>
+                                <div class="feature-text-box">
+                                    <h4>Secure Checkout</h4>
+                                    <p>Your payment information is safe with us.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 feature-divider-col">
+                            <div class="feature-item-col">
+                                <div class="feature-icon-box">
+                                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                        class="feather feather-clock">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="feature-text-box">
+                                    <h4>Fast Delivery</h4>
+                                    <p>Quick and reliable delivery at your doorstep.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-item-col">
+                                <div class="feature-icon-box">
+                                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                        class="feather feather-headphones">
+                                        <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                                        <path
+                                            d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div class="feature-text-box">
+                                    <h4>Need Help?</h4>
+                                    <p>Our support team is here to assist you.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Summary Card -->
+            <div class="col-lg-4">
+                <!-- Order Summary wrapper -->
+                <div class="summary-wrapper-card">
+                    <div class="summary-header-row">
+                        <i class="fa-regular fa-file-lines summary-header-icon"></i>
+                        <h3>Order Summary</h3>
+                    </div>
+
+                    <div class="summary-line-item">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₹0.00</span>
+                    </div>
+
+                    <!-- Hidden Coupon Row -->
+                    <div class="summary-line-item" id="couponDiscountRow" style="display: none; color: #16a34a;">
+                        <span>Coupon Discount</span>
+                        <span id="couponDiscountAmount" style="color: #16a34a;">-₹0.00</span>
+                    </div>
+
+                    <div class="summary-line-item">
+                        <span id="gstLabel">GST (18%):</span>
+                        <span id="gstAmount">₹0.00</span>
+                    </div>
+
+                    <div class="summary-line-item">
+                        <span>Packing Charges</span>
+                        <span id="packingAmount">₹0.00</span>
+                    </div>
+
+                    <div class="summary-line-item">
+                        <span>Delivery Charge <i class="fa-solid fa-circle-info text-muted" id="deliveryInfoBtn"
+                                style="font-size:0.85rem; cursor:pointer;" data-bs-toggle="popover"
+                                data-bs-placement="top"></i></span>
+                        <span id="deliveryAmount">₹40.00</span>
+                    </div>
+
+                    <div class="summary-line-item grand-total-row">
+                        <span>Grand Total</span>
+                        <span id="totalAmount">₹0.00</span>
+                    </div>
+
+                    <!-- Call to action buttons -->
+                    <a href="checkouttest.php" id="btnCheckout" class="btn-checkout-summary">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="menutest.html" id="btnContinue" class="btn-continue-summary">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Luxury Footer Section -->
+    <footer class="lux-footer">
+        <div class="container">
+            <div class="footer-row">
+                <!-- Block 1: Logo -->
+                <div class="footer-block logo-block">
+                    <img src="assets/images/logo_right.png" alt="Medusa Logo">
+                </div>
+
+                <!-- Vertical Line -->
+                <div class="footer-vertical-line"></div>
+
+                <!-- Block 2: Follow Us -->
+                <div class="footer-block follow-block">
+                    <span class="footer-label">Follow Us</span>
+                    <div class="footer-socials">
+                        <a href="https://www.instagram.com/la_medusaa_mohali?igsh=MXVwcHA3Nm9wbXV1dQ%3D%3D"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <!-- Vertical Line -->
+                <div class="footer-vertical-line"></div>
+
+                <!-- Block 3: We Accept -->
+                <div class="footer-block accept-block">
+                    <span class="footer-label">We Accept</span>
+                    <div class="payment-badges-container">
+                        <div class="payment-badge-wrapper">
+                            <span class="font-visa">VISA</span>
+                        </div>
+                        <div class="payment-badge-wrapper">
+                            <div class="mastercard-circles">
+                                <span class="circle-red"></span>
+                                <span class="circle-orange"></span>
+                            </div>
+                        </div>
+                        <div class="payment-badge-wrapper">
+                            <span class="font-amex">AMEX</span>
+                        </div>
+                        <div class="payment-badge-wrapper">
+                            <span class="font-upi">UPI<span
+                                    style="display: inline-flex; margin-left: 4px; gap: 2px;"><span
+                                        style="width: 3px; height: 11px; background-color: #ff5f00; transform: skewX(-20deg); display: inline-block;"></span><span
+                                        style="width: 3px; height: 11px; background-color: #00be2a; transform: skewX(-20deg); display: inline-block;"></span></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vertical Line -->
+                <div class="footer-vertical-line"></div>
+
+                <!-- Block 4: Secure Payments -->
+                <div class="footer-block secure-block">
+                    <div class="secure-icon-container" style="font-size: 1.6rem;">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div class="secure-text-container">
+                        <span class="secure-title">100% Secure Payments</span>
+                        <span class="secure-desc">All transactions are encrypted<br>and secure.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer copyright bottom row -->
+            <div class="row">
+                <div class="col-12 footer-bottom-row">
+                    &copy; 2026 Medusa Restaurant, Bar & Lounge. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Cart Core Javascript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tableCode = params.get('table');
+            if (tableCode) {
+                document.getElementById('btnCheckout').href = 'qr_checkout.php?table=' + tableCode;
+                document.getElementById('btnContinue').href = 'menutest.html?table=' + tableCode;
+                const backBtn = document.getElementById('backToMenuBtn');
+                if (backBtn) backBtn.href = 'menutest.html?table=' + tableCode;
+            }
+
+            // Pre-load session/stored username initial for the avatar
+            fetch('api/check-session.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.logged_in && data.user_name) {
+                        const avatarEl = document.getElementById('headerUserAvatar');
+                        if (avatarEl) {
+                            avatarEl.textContent = data.user_name.charAt(0).toUpperCase();
+                        }
+                    }
+                }).catch(err => console.warn('check-session API error:', err));
+
+            // Initialize Delivery Info Popover
+            const infoBtn = document.getElementById('deliveryInfoBtn');
+            if (infoBtn && typeof bootstrap !== 'undefined') {
+                new bootstrap.Popover(infoBtn, {
+                    trigger: 'hover focus click',
+                    placement: 'top',
+                    html: true,
+                    content: '<div style="font-family:\'Plus Jakarta Sans\', sans-serif; font-size:0.85rem; padding: 2px;">Standard flat delivery charge of <strong>₹40.00</strong> applies to all home delivery orders.</div>'
+                });
+            }
+        });
+    </script>
+
+    <script>
+        // Check 36-hour cart expiry
+        try {
+            const timestamp = localStorage.getItem('foodie_cart_timestamp');
+            if (timestamp) {
+                const hours = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+                if (hours > 36) {
+                    localStorage.removeItem('foodie_cart');
+                    localStorage.removeItem('foodie_cart_timestamp');
+                }
+            }
+        } catch (e) { }
+
+        let localItems = [];
+        let GST_RATE = 18;
+        let PACKING_CHARGE = 0.00;
+        let appliedCoupon = null; // Stores applied coupon: { code, discount_type, discount_value }
+
+        // Fetch pre-loaded coupon state if exists
+        const savedCouponCode = sessionStorage.getItem('applied_coupon_code');
+        if (savedCouponCode) {
+            // Restore coupon details
+            fetch(`api/validate-coupon.php?code=${encodeURIComponent(savedCouponCode)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.coupon_code) {
+                        appliedCoupon = {
+                            code: data.coupon_code,
+                            discount_type: data.discount_type || 'percentage',
+                            discount_value: parseFloat(data.discount_value)
+                        };
+                        const inputEl = document.getElementById('couponInput');
+                        const msgEl = document.getElementById('couponMessage');
+                        if (inputEl) inputEl.value = data.coupon_code;
+                        if (msgEl) {
+                            msgEl.textContent = `Coupon "${data.coupon_code}" is applied.`;
+                            msgEl.className = 'coupon-message text-success';
+                            msgEl.style.display = 'block';
+                        }
+                        // Recompute subtotal and totals with the restored coupon
+                        const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                        updateTotals(localItems, subtotal);
+                    }
+                }).catch(err => console.warn('Restore coupon error:', err));
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetch('api/get-settings.php');
+                if (response.ok) {
+                    const settings = await response.json();
+                    GST_RATE = (settings.gst_rate !== undefined) ? parseInt(settings.gst_rate) : 18;
+                    PACKING_CHARGE = (settings.packing_charge !== undefined) ? parseFloat(settings.packing_charge) : 0.00;
+                }
+            } catch (e) {
+                console.warn('Failed to load settings from get-settings.php, using defaults.', e);
+            }
+        }
+
+        async function loadCart() {
+            await loadSettings();
+            try {
+                // Fetch cart data from backend
+                const response = await fetch('api/get-cart.php', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                
+                if (response.status === 401 || (result && result.message && result.message.includes('Unauthorized'))) {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('table')) {
+                        throw new Error('Guest mode, using local cart');
+                    } else {
+                        alert('Please login first');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                }
+
+                if (result.success && result.items.length > 0) {
+                    localItems = result.items;
+                    displayCartItems(localItems);
+                    updateHeaderCartCount(localItems);
+                    const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    updateTotals(localItems, subtotal);
+                    localStorage.setItem('foodie_cart', JSON.stringify(localItems));
+                } else {
+                    showEmptyCart();
+                }
+            } catch (e) {
+                console.warn('API get-cart failed, using local cart state.', e);
+                const savedCart = localStorage.getItem('foodie_cart');
+                if (savedCart) {
+                    try {
+                        localItems = JSON.parse(savedCart);
+                    } catch (err) {
+                        localItems = [];
+                    }
+                }
+                if (localItems.length > 0) {
+                    displayCartItems(localItems);
+                    updateHeaderCartCount(localItems);
+                    const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    updateTotals(localItems, subtotal);
+                } else {
+                    showEmptyCart();
+                }
+            }
+        }
+
+        function displayCartItems(items) {
+            const tbody = document.getElementById('cartTableBody');
+            tbody.innerHTML = items.map(item => {
+                let imgSrc = item.image_url || '';
+                if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                    if (!imgSrc.startsWith('uploads/')) {
+                        imgSrc = 'uploads/' + imgSrc;
+                    }
+                }
+                if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop';
+
+                // Retrieve description and veg status if present, otherwise fallback
+                const desc = item.description || 'Fresh premium dish crafted with quality ingredients.';
+                const isVeg = item.is_veg !== undefined ? parseInt(item.is_veg) : (item.name.toLowerCase().includes('chicken') || item.name.toLowerCase().includes('lamb') || item.name.toLowerCase().includes('fish') || item.name.toLowerCase().includes('prawn') || item.name.toLowerCase().includes('ribs') || item.name.toLowerCase().includes('wings') ? 0 : 1);
+
+                const dotClass = isVeg === 1 ? 'dot-veg' : 'dot-nonveg';
+                const labelText = isVeg === 1 ? 'Veg' : 'Non-Veg';
+
+                return `
+                <tr>
+                    <td class="item-col">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${imgSrc}" class="cart-img" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
+                            <div class="dish-details">
+                                <span class="cart-item-name">${item.name}</span>
+                                <div class="diet-label mt-1">
+                                    <span class="diet-dot ${dotClass}"></span>
+                                    <span>${labelText}</span>
+                                </div>
+                                <div class="cart-item-desc mt-1">${desc}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="cart-item-price">₹${parseFloat(item.price).toFixed(2)}</td>
+                    <td>
+                        <div class="quantity-controller-inline">
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                            <span class="qty-number" id="qty-${item.id}">${item.quantity}</span>
+                            <button class="qty-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                        </div>
+                    </td>
+                    <td class="cart-item-total">₹${(item.price * item.quantity).toFixed(2)}</td>
+                    <td>
+                        <button class="btn-remove" onclick="removeItem(${item.id})">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            }).join('') + `
+                <tr>
+                    <td colspan="5" class="border-0 pt-4 px-1">
+                        <button class="btn-clear-cart" onclick="clearCart()">
+                            <i class="fa-solid fa-trash-can me-2"></i>Clear Cart
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function showEmptyCart() {
+            const emptyHtml = `
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-3x mb-3" style="color: var(--gold);"></i>
+                    <h4>Your cart is empty</h4>
+                    <p class="text-muted">Looks like you haven't added any items yet.</p>
+                    <a href="menutest.html" class="btn-back-menu d-inline-block mt-3" style="padding: 0.8rem 2rem !important;">Browse Menu</a>
+                </div>
+            `;
+            document.getElementById('cartTableBody').innerHTML = `<tr><td colspan="5" class="border-0">${emptyHtml}</td></tr>`;
+            updateTotals([], 0);
+            updateHeaderCartCount([]);
+        }
+
+        function updateHeaderCartCount(items) {
+            const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+            const badge = document.getElementById('headerCartCount');
+            if (badge) {
+                badge.textContent = totalQty;
+                badge.style.display = totalQty > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function updateTotals(items, subtotal) {
+            const delivery = items.length > 0 ? 40 : 0;
+            const packing = items.length > 0 ? PACKING_CHARGE : 0;
+
+            // Apply coupon discount if set
+            let couponDiscount = 0;
+            if (appliedCoupon && items.length > 0) {
+                if (appliedCoupon.discount_type === 'percentage') {
+                    couponDiscount = subtotal * (appliedCoupon.discount_value / 100);
+                } else if (appliedCoupon.discount_type === 'fixed') {
+                    couponDiscount = appliedCoupon.discount_value;
+                }
+                couponDiscount = Math.min(couponDiscount, subtotal);
+            }
+
+            const discountedSubtotal = Math.max(0, subtotal - couponDiscount);
+            const gstAmount = discountedSubtotal * (GST_RATE / 100);
+            const total = discountedSubtotal + delivery + packing + gstAmount;
+
+            document.getElementById('subtotal').textContent = `₹${parseFloat(subtotal).toFixed(2)}`;
+
+            // Show/hide coupon discount row
+            const couponRow = document.getElementById('couponDiscountRow');
+            if (couponDiscount > 0) {
+                couponRow.style.display = 'flex';
+                document.getElementById('couponDiscountAmount').textContent = `-₹${couponDiscount.toFixed(2)}`;
+            } else {
+                couponRow.style.display = 'none';
+            }
+
+            document.getElementById('gstLabel').textContent = `GST (${GST_RATE}%):`;
+            document.getElementById('gstAmount').textContent = `₹${gstAmount.toFixed(2)}`;
+            document.getElementById('packingAmount').textContent = `₹${parseFloat(packing).toFixed(2)}`;
+            document.getElementById('deliveryAmount').textContent = `₹${parseFloat(delivery).toFixed(2)}`;
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        async function updateQuantity(id, newQty) {
+            if (newQty < 1) {
+                await removeItem(id);
+                return;
+            }
+            try {
+                const response = await fetch('api/update-cart-qty.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ food_item_id: id, quantity: newQty })
+                });
+                if (response.ok) {
+                    loadCart();
+                    return;
+                }
+                throw new Error('API failed');
+            } catch (e) {
+                localItems = localItems.map(item => {
+                    if (item.id === id) {
+                        item.quantity = newQty;
+                    }
+                    return item;
+                });
+                localStorage.setItem('foodie_cart', JSON.stringify(localItems));
+                localStorage.setItem('foodie_cart_timestamp', Date.now());
+                displayCartItems(localItems);
+                updateHeaderCartCount(localItems);
+                const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                updateTotals(localItems, subtotal);
+            }
+        }
+
+        async function removeItem(id) {
+            try {
+                const response = await fetch('api/remove-from-cart.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ food_item_id: id })
+                });
+                if (response.ok) {
+                    loadCart();
+                    return;
+                }
+                throw new Error('API failed');
+            } catch (e) {
+                localItems = localItems.filter(item => item.id !== id);
+                localStorage.setItem('foodie_cart', JSON.stringify(localItems));
+                localStorage.setItem('foodie_cart_timestamp', Date.now());
+                if (localItems.length > 0) {
+                    displayCartItems(localItems);
+                    updateHeaderCartCount(localItems);
+                    const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    updateTotals(localItems, subtotal);
+                } else {
+                    showEmptyCart();
+                }
+            }
+        }
+
+        async function clearCart() {
+            try {
+                const response = await fetch('api/clear-cart.php', { method: 'POST' });
+                if (response.ok) {
+                    localStorage.removeItem('foodie_cart');
+                    localStorage.removeItem('foodie_cart_timestamp');
+                    sessionStorage.removeItem('applied_coupon_code');
+                    appliedCoupon = null;
+                    const cInput = document.getElementById('couponInput');
+                    const cMsg = document.getElementById('couponMessage');
+                    if (cInput) cInput.value = '';
+                    if (cMsg) cMsg.style.display = 'none';
+                    loadCart();
+                    return;
+                }
+                throw new Error('API failed');
+            } catch (e) {
+                localStorage.removeItem('foodie_cart');
+                localStorage.removeItem('foodie_cart_timestamp');
+                sessionStorage.removeItem('applied_coupon_code');
+                appliedCoupon = null;
+                const cInput = document.getElementById('couponInput');
+                const cMsg = document.getElementById('couponMessage');
+                if (cInput) cInput.value = '';
+                if (cMsg) cMsg.style.display = 'none';
+                localItems = [];
+                showEmptyCart();
+            }
+        }
+
+        async function applyCoupon() {
+            const code = document.getElementById('couponInput').value.trim();
+            const msgEl = document.getElementById('couponMessage');
+            if (!code) {
+                msgEl.textContent = 'Please enter a coupon code.';
+                msgEl.className = 'coupon-message text-danger';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`api/validate-coupon.php?code=${encodeURIComponent(code)}`);
+                const result = await response.json();
+
+                if (result.success && result.coupon_code) {
+                    appliedCoupon = {
+                        code: result.coupon_code,
+                        discount_type: result.discount_type || 'percentage',
+                        discount_value: parseFloat(result.discount_value)
+                    };
+                    msgEl.textContent = `Coupon "${result.coupon_code}" applied successfully! (${result.discount_value}% OFF)`;
+                    msgEl.className = 'coupon-message text-success';
+                    msgEl.style.display = 'block';
+
+                    // Save to sessionStorage for checkout page integration
+                    sessionStorage.setItem('applied_coupon_code', result.coupon_code);
+
+                    // Recalculate totals
+                    const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    updateTotals(localItems, subtotal);
+                } else {
+                    appliedCoupon = null;
+                    sessionStorage.removeItem('applied_coupon_code');
+                    msgEl.textContent = result.message || 'Invalid coupon code.';
+                    msgEl.className = 'coupon-message text-danger';
+                    msgEl.style.display = 'block';
+
+                    const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    updateTotals(localItems, subtotal);
+                }
+            } catch (e) {
+                appliedCoupon = null;
+                sessionStorage.removeItem('applied_coupon_code');
+                msgEl.textContent = 'Failed to validate coupon.';
+                msgEl.className = 'coupon-message text-danger';
+                msgEl.style.display = 'block';
+
+                const subtotal = localItems.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                updateTotals(localItems, subtotal);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCart);
+    </script>
+</body>
+
+</html>

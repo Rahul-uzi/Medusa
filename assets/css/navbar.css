@@ -1,0 +1,36 @@
+/* ==========================================================================
+   Restaurant Shared Navbar Stylesheet (Single Source of Truth)
+   ========================================================================== */
+
+/* Prevent page jumps / layout shifts */
+#navbar-placeholder {
+    min-height: 80px;
+}
+
+#navbar-spacer {
+    height: 80px;
+}
+
+/* Force visual standard font family stacks */
+#main-navbar,
+#nav-mobile-drawer {
+    font-family: 'Inter', sans-serif !important;
+}
+
+#main-navbar .font-serif {
+    font-family: 'Playfair Display', serif !important;
+}
+
+/* Link item offsets and line-heights */
+#main-navbar .nav-link-item,
+#nav-mobile-drawer .nav-link-item {
+    line-height: normal;
+}
+
+/* Active state highlight */
+#main-navbar .nav-link-item.active,
+#nav-mobile-drawer .nav-link-item.active {
+    color: #C8A25A;
+    border-bottom: 2px solid #C8A25A;
+    padding-bottom: 4px;
+}

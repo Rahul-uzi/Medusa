@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medusa - Ambitions</title>
+
+    <!-- Global Theme Controller -->
+    <script src="assets/js/theme-toggle.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --gold: #dfba86;
+            --gold-hover: #f3dfc1;
+            --dark: #0b0a09;
+            --border-light: rgba(223, 186, 134, 0.12);
+            --border-hover: rgba(223, 186, 134, 0.4);
+            --card-bg: rgba(255, 255, 255, 0.01);
+            --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            background: var(--dark);
+            color: #f7f5f2;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            letter-spacing: 0.2px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: rgba(11, 10, 9, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 16px 0;
+            transition: var(--transition-smooth);
+        }
+
+        .navbar-brand {
+            color: var(--gold) !important;
+            font-size: 2rem;
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 2px;
+        }
+
+        .navbar-brand img {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar-brand:hover img {
+            transform: rotate(360deg) scale(1.08);
+        }
+
+        .nav-link {
+            color: #eae5df !important;
+            margin-left: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 8px;
+            right: 8px;
+            height: 1px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--gold) !important;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* HERO SECTION */
+        .ambitions-hero {
+            position: relative;
+            padding: 220px 0 140px;
+            background: linear-gradient(rgba(11, 10, 9, 0.5), rgba(11, 10, 9, 0.95)),
+                        url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1800&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            text-align: center;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .hero-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 25px;
+            display: inline-block;
+            border: 1px solid rgba(223, 186, 134, 0.3);
+            padding: 6px 22px;
+            border-radius: 50px;
+            background: rgba(223, 186, 134, 0.02);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4.5rem;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            line-height: 1.1;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: #a09a93;
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-weight: 300;
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* SECTION INTROS */
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .section-header p {
+            font-size: 0.95rem;
+            color: #a09a93;
+            max-width: 600px;
+            margin: 20px auto 0;
+            line-height: 1.7;
+        }
+
+        /* AMBITION CARDS */
+        .ambition-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            overflow: hidden;
+            height: 100%;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .ambition-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-hover);
+            box-shadow: 0 20px 45px rgba(223, 186, 134, 0.05);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ambition-card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(11, 10, 9, 0.85);
+            border: 1.5px solid var(--gold);
+            color: var(--gold);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 2;
+        }
+
+        .card-body-content {
+            padding: 40px;
+        }
+
+        .card-icon {
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 25px;
+            display: inline-block;
+            transition: var(--transition-smooth);
+        }
+
+        .ambition-card:hover .card-icon {
+            transform: scale(1.1);
+            color: var(--gold-hover);
+            text-shadow: 0 0 15px rgba(223, 186, 134, 0.4);
+        }
+
+        .card-body-content h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.85rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-body-content p {
+            font-size: 0.92rem;
+            line-height: 1.8;
+            color: #a09a93;
+            margin-bottom: 0;
+        }
+
+        /* METRICS COUNTERS */
+        .metrics-section {
+            background: linear-gradient(90deg, rgba(11, 10, 9, 0.95) 0%, rgba(20, 18, 16, 0.95) 100%);
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            color: var(--gold);
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 8px;
+            text-shadow: 0 0 12px rgba(223, 186, 134, 0.15);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: #eae5df;
+            font-weight: 500;
+        }
+
+        /* SCROLL REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 80px 0 40px;
+            background: #060505;
+            border-top: 1px solid var(--border-light);
+            color: #a09a93;
+            margin-top: auto;
+        }
+
+        footer h2 {
+            margin-bottom: 20px;
+        }
+
+        footer h5 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            color: #ffffff;
+            letter-spacing: 1.5px;
+        }
+
+        footer ul li a {
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        footer ul li a:hover {
+            color: var(--gold) !important;
+            padding-left: 5px;
+        }
+
+        /* Light Mode Styling Overrides */
+        html.light-mode body {
+            background: #f8f9fa;
+            color: #333333;
+        }
+
+        html.light-mode .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            border-bottom: 1px solid rgba(223, 186, 134, 0.25);
+        }
+
+        html.light-mode .nav-link {
+            color: #333333 !important;
+        }
+
+        html.light-mode .nav-link.active, html.light-mode .nav-link:hover {
+            color: var(--gold) !important;
+        }
+
+        html.light-mode .ambitions-hero {
+            background: linear-gradient(rgba(248, 249, 250, 0.75), rgba(248, 249, 250, 0.98)),
+                        url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1800&auto=format&fit=crop');
+        }
+
+        html.light-mode .hero-title {
+            color: #111111;
+        }
+
+        html.light-mode .hero-subtitle {
+            color: #555555;
+        }
+
+        html.light-mode .ambition-card {
+            background: #ffffff;
+            border-color: rgba(223, 186, 134, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        html.light-mode .ambition-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 15px 40px rgba(223, 186, 134, 0.15);
+        }
+
+        html.light-mode .card-body-content h3 {
+            color: #111111;
+        }
+
+        html.light-mode .card-body-content p {
+            color: #555555;
+        }
+
+        html.light-mode .metrics-section {
+            background: linear-gradient(90deg, #eae5df 0%, #f7f5f2 100%);
+            border-top-color: rgba(223, 186, 134, 0.25);
+            border-bottom-color: rgba(223, 186, 134, 0.25);
+        }
+
+        html.light-mode .metric-label {
+            color: #555555;
+        }
+
+        html.light-mode footer {
+            background: #eae5df;
+            border-top-color: rgba(223, 186, 134, 0.25);
+            color: #555555;
+        }
+
+        html.light-mode footer h2 span, html.light-mode footer h5 {
+            color: #111111 !important;
+        }
+
+        html.light-mode footer .text-secondary {
+            color: #555555 !important;
+        }
+
+        html.light-mode footer ul li a {
+            color: #555555 !important;
+        }
+
+        html.light-mode footer ul li a:hover {
+            color: var(--gold) !important;
+        }
+    </style>
+
+    <!-- Navbar Performance Optimization Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/components.css">
+        <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === "string" && args[0].includes("cdn.tailwindcss.com should not be used in production")) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+<script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                corePlugins: {
+                    preflight: false
+                },
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: '#b8973a',
+                            'gold-light': '#d4af5a',
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js" defer></script>
+
+    <!-- HERO SECTION -->
+    <header class="ambitions-hero">
+        <div class="container">
+            <span class="hero-badge">Pioneering Luxury</span>
+            <h1 class="hero-title">Our Ambitions</h1>
+            <p class="hero-subtitle">Redefining the fine dining paradigm by synthesizing eco-luxury gastronomy, global expansion, sensory technology, and nurturing local talent.</p>
+        </div>
+    </header>
+
+    <!-- METRICS BANNER -->
+    <section class="metrics-section">
+        <div class="container">
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-3 col-6 reveal">
+                    <div class="metric-item">
+                        <div class="metric-number">2028</div>
+                        <div class="metric-label">Carbon Neutral</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 reveal">
+                    <div class="metric-item">
+                        <div class="metric-number">3+</div>
+                        <div class="metric-label">Global Cities</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 reveal">
+                    <div class="metric-item">
+                        <div class="metric-number">100%</div>
+                        <div class="metric-label">Organic Sourcing</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 reveal">
+                    <div class="metric-item">
+                        <div class="metric-number">₹10M+</div>
+                        <div class="metric-label">Scholarship Fund</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AMBITIONS DETAILS -->
+    <main class="py-5 my-4">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2>Our Visionary Pillars</h2>
+                <p>An inside look at our long-term roadmap to shape the future of luxury hospitality and high gastronomy.</p>
+            </div>
+
+            <div class="row g-5">
+                <!-- Ambition 1: Culinary Innovation Lab & Eco-Luxury -->
+                <div class="col-md-6 reveal">
+                    <div class="ambition-card">
+                        <div class="card-img-wrapper">
+                            <span class="card-tag">Sustainability</span>
+                            <img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=800&auto=format&fit=crop" alt="Culinary Innovation Lab">
+                        </div>
+                        <div class="card-body-content">
+                            <div class="card-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <h3>Eco-Luxury & Innovation Lab</h3>
+                            <p>We are establishing a Culinary Innovation Lab dedicated to designing sustainable haute cuisine. Our ambition is to build direct-trade farm partnerships with biodynamic family estates, completely eliminate single-use plastics, and transition to a fully carbon-neutral kitchen operation by 2028.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ambition 2: Global Footprint -->
+                <div class="col-md-6 reveal">
+                    <div class="ambition-card">
+                        <div class="card-img-wrapper">
+                            <span class="card-tag">Expansion</span>
+                            <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=800&auto=format&fit=crop" alt="Global Cities">
+                        </div>
+                        <div class="card-body-content">
+                            <div class="card-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3>Global Footprint & Expansion</h3>
+                            <p>We believe that Medusa's signature palatial design and bespoke hospitality belong on the global stage. Our development roadmap targets establishing new fine dining landmarks in Dubai (Downtown), London (Mayfair), and Mumbai (Colaba) between 2027 and 2029.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ambition 3: Sensory Dining Chambers -->
+                <div class="col-md-6 reveal">
+                    <div class="ambition-card">
+                        <div class="card-img-wrapper">
+                            <span class="card-tag">Technology</span>
+                            <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=800&auto=format&fit=crop" alt="Sensory Dining">
+                        </div>
+                        <div class="card-body-content">
+                            <div class="card-icon">
+                                <i class="fas fa-wand-magic-sparkles"></i>
+                            </div>
+                            <h3>Sensory Dining Chambers</h3>
+                            <p>Gastronomy is a multisensory art. We are designing immersive, projection-mapped dining rooms where acoustic choreography, custom spatial scent diffusion, and lighting systems synchronize with chef Giovanni Vance’s tasting menus to create a theatrical three-dimensional dining experience.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ambition 4: Medusa Culinary Foundation -->
+                <div class="col-md-6 reveal">
+                    <div class="ambition-card">
+                        <div class="card-img-wrapper">
+                            <span class="card-tag">Academy</span>
+                            <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop" alt="Culinary Academy">
+                        </div>
+                        <div class="card-body-content">
+                            <div class="card-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>Culinary Arts Foundation</h3>
+                            <p>Our final pillar is dedicated to giving back. The Medusa Culinary Arts Foundation will provide full scholarships and mentorship programs to support talented, aspiring young chefs across India, enabling them to study and apprentice at top-tier culinary academies in Italy and France.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-3">
+                    <h2 class="d-flex align-items-center gap-2" style="color:var(--gold); font-family:'Playfair Display',serif; font-size: 1.8rem; font-weight: 600;">
+                        <img src="assets/images/versace_logo.png" alt="Medusa Logo" style="height: 36px; border-radius: 50%; border: 1px solid var(--gold); padding: 1.5px; background: rgba(0,0,0,0.3);">
+                        <span>Medusa</span>
+                    </h2>
+                    <p class="mt-4 text-secondary">
+                        Luxury dining experience crafted for unforgettable moments.
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="mb-4">Navigation</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><a href="index.html" class="text-secondary text-decoration-none">Home</a></li>
+                        <li class="mb-3"><a href="menutest.html" class="text-secondary text-decoration-none auth-required">Our Menu</a></li>
+                        <li class="mb-3"><a href="book-table-test.html" class="text-secondary text-decoration-none">Reservations</a></li>
+                        <li class="mb-3"><a href="about.html" class="text-secondary text-decoration-none">About Us</a></li>
+                        <li class="mb-3"><a href="register.html" class="text-secondary text-decoration-none">Create Account</a></li>
+                        <li class="mb-3"><a href="ambitions.html" class="text-secondary text-decoration-none text-gold">Ambitions</a></li>
+                        <li class="mb-3"><a href="career.html" class="text-secondary text-decoration-none">Career</a></li>
+                        <li class="mb-3"><a href="login.html" class="text-secondary text-decoration-none" id="footerAuthLink">Login</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="mb-4">Contact</h5>
+                    <p class="text-secondary">Elite Avenue<br>Chandigarh, India</p>
+                    <p class="text-secondary">+91 98765 43210</p>
+                    <p class="text-secondary">contact@medusa.com</p>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="mb-4">Join Our Circle</h5>
+                    <p class="text-secondary mb-4">Get exclusive offers and premium updates.</p>
+                    <div class="d-flex">
+                        <input type="email" class="form-control" placeholder="Email Address" style="border-radius: 8px 0 0 8px; border-color: rgba(223, 186, 134, 0.2); background: transparent; color: white;">
+                        <button class="btn btn-outline-warning" style="border-radius: 0 8px 8px 0; border-color: var(--gold); color: var(--gold); width: 60px;">→</button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-5" style="border-color:rgba(255,255,255,0.1);">
+            <p class="text-center text-secondary mb-0">
+                © 2026 Medusa. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let loggedIn = false;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Check session to update Login/Logout link
+            try {
+                const res = await fetch('api/check-session.php');
+                const data = await res.json();
+                if (data.success && data.logged_in) {
+                    loggedIn = true;
+                    const authLink = document.getElementById('authLink');
+                    if (authLink) {
+                        authLink.textContent = 'Logout';
+                        authLink.href = 'api/logout.php';
+                    }
+                    const footerAuthLink = document.getElementById('footerAuthLink');
+                    if (footerAuthLink) {
+                        footerAuthLink.textContent = 'Logout';
+                        footerAuthLink.href = 'api/logout.php';
+                    }
+                }
+            } catch (e) {
+                console.error("Session check failed:", e);
+            }
+
+            // Intercept clicks on links requiring authentication
+            document.querySelectorAll('.auth-required').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    if (!loggedIn) {
+                        e.preventDefault();
+                        alert('Login first');
+                        window.location.href = 'login.html';
+                    }
+                });
+            });
+
+            // Scroll Reveal Observer
+            const revealCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const revealObserver = new IntersectionObserver(revealCallback, {
+                root: null,
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            document.querySelectorAll('.reveal').forEach(element => {
+                revealObserver.observe(element);
+            });
+        });
+    </script>
+</body>
+
+</html>

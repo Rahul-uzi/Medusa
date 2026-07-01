@@ -1,0 +1,17 @@
+{
+    "inactivity_months": 3,
+    "inactivity_deduction_percent": 20,
+    "points_earning_percent": 2,
+    "bronze_discount": 10,
+    "silver_threshold": 25000,
+    "silver_discount": 15,
+    "gold_threshold": 75000,
+    "gold_discount": 20,
+    "platinum_threshold": 150000,
+    "platinum_discount": 25,
+    "last_annual_reset_year": 2026,
+    "restaurant_name": "Medusa",
+    "gst_rate": 16,
+    "packing_charge": 4.06,
+    "opening_hours": "11:00 AM - 11:00 PM"
+}

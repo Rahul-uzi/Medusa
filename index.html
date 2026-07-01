@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medusa Bar & Lounge</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #120a07;
+            --bg-header-footer: #2f1317;
+            --bg-cream: #ece8df;
+            --bg-green: #193627;
+
+            --text-gold: #c39255;
+            --text-white: #ffffff;
+            --text-light: #d8d3cd;
+            --text-dark: #1c1815;
+            --text-burgundy: #2f1317;
+
+            --btn-burgundy: #521c22;
+            --btn-green: #1c3628;
+
+            --font-serif: 'Cinzel', serif;
+            --font-playfair: 'Playfair Display', serif;
+            --font-sans: 'Lato', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        #navbar-placeholder {
+            height: 80px;
+        }
+
+        /* ----- HEADER ----- */
+        header {
+            background-color: var(--bg-header-footer);
+            padding: 9px 0;
+            position: relative;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-white);
+        }
+
+        .logo-box img {
+            max-height: 70px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 25px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--text-white);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-gold);
+            color: var(--text-gold);
+        }
+
+        /* ----- HERO SECTION ----- */
+        .hero {
+            position: relative;
+            min-height: calc(100vh - 100px);
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-dark);
+            padding-bottom: 50px;
+        }
+
+        .hero-content {
+            flex: 0 0 55%;
+            padding-right: 50px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-serif);
+            color: var(--text-gold);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 4rem;
+            line-height: 1.15;
+            color: var(--text-white);
+            margin-bottom: 25px;
+            font-weight: 400;
+        }
+
+        .hero-divider {
+            width: 50px;
+            height: 1px;
+            background-color: var(--text-gold);
+            margin-bottom: 30px;
+            opacity: 0.7;
+        }
+
+        .hero-text {
+            font-size: 1.05rem;
+            max-width: 400px;
+            margin-bottom: 45px;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 35px;
+        }
+
+        .btn-solid-green {
+            background-color: var(--btn-green);
+            color: var(--text-white);
+            padding: 16px 35px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-solid-green:hover {
+            background-color: #12241b;
+        }
+
+        .play-btn {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .play-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-white);
+        }
+
+        .play-text {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .hero-image-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .hero-image-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            opacity: 0.55;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Dark gradient on left half to keep text legible */
+        .hero-image-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 65%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(18, 10, 7, 0.92) 0%, rgba(18, 10, 7, 0.55) 60%, transparent 100%);
+            z-index: 2;
+        }
+
+        /* Subtle vignette over the entire section */
+        .hero-image-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(18, 10, 7, 0.25) 0%, transparent 40%, rgba(18, 10, 7, 0.4) 100%);
+            z-index: 2;
+        }
+
+        /* ----- FEATURES SECTION ----- */
+        .features {
+            background-image: url('assets/images/torn_paper.png');
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+            background-position: center top;
+            background-color: transparent;
+            color: var(--text-dark);
+            padding: calc(60px + 9.27vw) 0 80px;
+            margin-top: -12.27vw;
+            position: relative;
+            z-index: 10;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            text-align: center;
+            padding-top: 2rem;
+        }
+
+        .feature-item {
+            padding: 0 30px;
+            position: relative;
+        }
+
+        .feature-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 15%;
+            height: 70%;
+            width: 1px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            color: #8c7258;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+
+        .feature-title {
+            font-family: var(--font-serif);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+        }
+
+        .feature-text {
+            font-size: 0.85rem;
+            color: #444;
+            max-width: 220px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ----- ABOUT US SECTION ----- */
+        .about-split {
+            display: flex;
+            min-height: 550px;
+        }
+
+        .about-content {
+            flex: 0 0 40%;
+            background-color: var(--bg-green);
+            padding: 80px 8%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .about-subtitle {
+            font-family: var(--font-serif);
+            color: var(--text-gold);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .about-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            line-height: 1.2;
+            color: var(--text-white);
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .about-divider {
+            width: 30px;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 25px;
+        }
+
+        .about-text {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 380px;
+            line-height: 1.7;
+        }
+
+        .btn-solid-burgundy {
+            background-color: var(--btn-burgundy);
+            color: var(--text-white);
+            padding: 16px 35px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            align-self: flex-start;
+            transition: background-color 0.3s;
+        }
+
+        .btn-solid-burgundy:hover {
+            background-color: #3f1519;
+        }
+
+        .about-image {
+            flex: 1;
+            background-image: url('assets/images/restaurant_interior.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* ----- STICKY GALLERY SECTION ----- */
+        .gallery {
+            background-color: var(--bg-cream);
+            padding: 100px 40px;
+            position: relative;
+        }
+
+        .gallery-wrapper {
+            display: flex;
+            gap: 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .gallery-left {
+            position: sticky;
+            top: 120px; /* Sits cleanly below the fixed navbar */
+            width: 35%;
+            text-align: left;
+        }
+
+        .gallery-header {
+            margin-bottom: 25px;
+            color: var(--text-burgundy);
+        }
+
+        .gallery-title {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-weight: 400;
+        }
+
+        .gallery-subtitle {
+            font-family: var(--font-playfair);
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--text-gold);
+            position: relative;
+            display: inline-block;
+        }
+
+        .gallery-subtitle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 40px;
+            height: 1px;
+            background-color: var(--text-gold);
+            margin-left: 15px;
+        }
+
+        .gallery-description {
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            opacity: 0.8;
+            margin-bottom: 35px;
+            max-width: 380px;
+        }
+
+        .btn-gallery-more {
+            display: inline-block;
+            color: var(--text-burgundy);
+            border: 1px solid var(--text-burgundy);
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 12px 28px;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-gallery-more:hover {
+            background-color: var(--text-burgundy);
+            color: var(--text-white);
+        }
+
+        /* Right Column scrolling items */
+        .gallery-right {
+            width: 65%;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        /* Asymmetric/masonry grid for luxury feel */
+        .gallery-item {
+            position: relative;
+            padding-top: 110%; /* Tall aspect ratio for premium look */
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Asymmetric heights/offsets for masonry layout on desktop */
+        @media (min-width: 1025px) {
+            .gallery-grid {
+                align-items: start;
+            }
+            .gallery-item:nth-child(even) {
+                margin-top: 50px; /* Offset every second card to create masonry effect */
+            }
+        }
+
+        /* Hover overlay */
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.3s ease-in-out;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .gallery-item:hover::after {
+            background: rgba(0, 0, 0, 0.28);
+        }
+
+        .gallery-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease-in-out;
+            will-change: transform;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Responsive stack for tablets and mobile */
+        @media (max-width: 1024px) {
+            .gallery-wrapper {
+                flex-direction: column;
+                gap: 50px;
+            }
+            .gallery-left {
+                position: static;
+                width: 100%;
+                text-align: center;
+            }
+            .gallery-left .gallery-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .gallery-subtitle::before {
+                display: none; /* Hide single-sided line */
+            }
+            /* Restoring symmetrical visual lines for centered headers on tablet/mobile */
+            .gallery-subtitle::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 100%;
+                width: 40px;
+                height: 1px;
+                background-color: var(--text-gold);
+                margin-left: 15px;
+            }
+            .gallery-subtitle::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 100%;
+                width: 40px;
+                height: 1px;
+                background-color: var(--text-gold);
+                margin-right: 15px;
+                display: inline-block;
+            }
+            .gallery-right {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .gallery-item:nth-child(even) {
+                margin-top: 0;
+            }
+            .gallery {
+                padding: 60px 20px;
+            }
+        }
+
+        /* ----- FOOTER ----- */
+        footer {
+            background-color: var(--bg-header-footer);
+            color: var(--text-white);
+            padding: 70px 0 30px;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .footer-col {
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .footer-logo {
+            flex: 1.5;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding-right: 40px;
+        }
+
+        .footer-logo-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .footer-logo .logo-icon {
+            font-size: 2rem;
+            color: var(--text-gold);
+        }
+
+        .footer-logo .logo-text h2 {
+            font-size: 1.3rem;
+            letter-spacing: 4px;
+            margin-bottom: 0;
+            text-align: left;
+        }
+
+        .footer-logo .logo-text span {
+            font-size: 0.5rem;
+            text-align: left;
+            display: block;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            max-width: 220px;
+            line-height: 1.6;
+        }
+
+        .footer-heading {
+            font-family: var(--font-serif);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .footer-col p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .footer-col a {
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--text-gold);
+        }
+
+        .btn-view-map {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--text-gold);
+            color: var(--text-gold) !important;
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-decoration: none !important;
+            margin-top: 10px;
+        }
+
+        .btn-view-map:hover {
+            background-color: var(--text-gold);
+            color: var(--bg-header-footer) !important;
+        }
+
+        .footer-col span.lbl {
+            width: 60px;
+            display: inline-block;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: var(--text-white);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .social-icons a:hover {
+            border-color: var(--text-gold);
+            color: var(--text-gold);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 3.2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 50px;
+            }
+
+            .feature-item:nth-child(2)::after {
+                display: none;
+            }
+
+            .about-split {
+                flex-direction: column;
+            }
+
+            .about-image {
+                min-height: 400px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                flex-wrap: wrap;
+                gap: 40px;
+            }
+
+            .footer-logo {
+                border-right: none;
+                flex: 100%;
+                padding-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-image-wrapper {
+                width: 100%;
+                position: static;
+                height: 350px;
+            }
+
+            .hero-content {
+                padding-right: 0;
+                padding-top: 50px;
+                text-align: center;
+            }
+
+            .hero-actions {
+                justify-content: center;
+            }
+
+            .hero-divider {
+                margin: 0 auto 30px;
+            }
+
+            .hero-text {
+                margin: 0 auto 40px;
+            }
+
+            .hero {
+                flex-direction: column;
+            }
+        }
+
+        /* ----- BRAND THEME & INTEGRATED SECTIONS VARIABLES ----- */
+        :root {
+            --gold: #dfba86;
+            --gold-hover: #f3dfc1;
+            --formal-garden: #132F20;
+            --formal-garden-light: #1C3B2B;
+            --formal-garden-deep: #0D2016;
+            --rosewood: #5A1827;
+            --rosewood-light: #7E2638;
+            --warm-ivory: #FAF7F0;
+            --card-bg: rgba(13, 32, 22, 0.6);
+            --border-light: rgba(223, 186, 134, 0.12);
+            --border-hover: rgba(223, 186, 134, 0.35);
+            --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ----- REVEAL ANIMATIONS ----- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ----- BOOTSTRAP UTILITIES RE-IMPLEMENTATION ----- */
+        #luxury-story-section,
+        #reviews-section,
+        #faqs-section {
+            font-family: var(--font-sans);
+        }
+
+        #reviews-section .stars {
+            font-family: var(--font-sans) !important;
+        }
+
+        .section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 3.4rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--gold);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 600;
+            margin-bottom: 70px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+
+        .row>[class*="col-"] {
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 100%;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .g-4 {
+            margin-left: -12px;
+            margin-right: -12px;
+        }
+
+        .g-4>[class*="col-"] {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .g-5 {
+            margin-left: -24px;
+            margin-right: -24px;
+        }
+
+        .g-5>[class*="col-"] {
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .col-lg-4 {
+                flex: 0 0 33.33333%;
+                max-width: 33.33333%;
+            }
+
+            .col-lg-5 {
+                flex: 0 0 41.66667%;
+                max-width: 41.66667%;
+            }
+
+            .col-lg-7 {
+                flex: 0 0 58.33333%;
+                max-width: 58.33333%;
+            }
+
+            .d-lg-block {
+                display: block !important;
+            }
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .rounded-4 {
+            border-radius: 1rem !important;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+        }
+
+        .text-start {
+            text-align: left !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .mb-5 {
+            margin-bottom: 3rem !important;
+        }
+
+        .fs-5 {
+            font-size: 1.25rem !important;
+        }
+
+        .text-secondary {
+            color: #a09a93 !important;
+        }
+
+        .px-5 {
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
+        }
+
+        .py-3 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+
+        .p-4 {
+            padding: 1.5rem !important;
+        }
+
+        .w-100 {
+            width: 100% !important;
+        }
+
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+
+        @media (min-width: 992px) {
+            .p-lg-5 {
+                padding: 3rem !important;
+            }
+        }
+
+        /* ----- NEW SECTIONS LAYOUT SPECIFIC ----- */
+        .premium-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: var(--transition-smooth);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .premium-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-hover);
+            box-shadow: 0 25px 50px rgba(223, 186, 134, 0.08);
+        }
+
+        .premium-card .img-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .premium-card img {
+            width: 100%;
+            height: 290px;
+            object-fit: cover;
+            transition: var(--transition-smooth);
+        }
+
+        .premium-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .floating-img {
+            animation: float 6s ease-in-out infinite;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+            transition: var(--transition-smooth);
+        }
+
+        .floating-img:hover {
+            border-color: var(--border-hover);
+            transform: scale(1.02);
+        }
+
+        .btn-gold {
+            background: var(--rosewood);
+            color: var(--gold) !important;
+            border: 1px solid var(--rosewood);
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 15px rgba(90, 24, 39, 0.25);
+            text-align: center;
+            display: inline-block;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-gold:hover {
+            background: var(--rosewood-light);
+            border-color: var(--rosewood-light);
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(90, 24, 39, 0.45);
+        }
+
+        .btn-outline-gold {
+            border: 1px solid var(--gold);
+            color: var(--gold) !important;
+            background: transparent;
+            transition: var(--transition-smooth);
+            text-align: center;
+            display: inline-block;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-outline-gold:hover {
+            background: rgba(90, 24, 39, 0.25);
+            border-color: var(--gold-hover);
+            color: var(--gold-hover) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Testimonials */
+        .review-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 40px;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+        }
+
+        .review-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 15px 35px rgba(223, 186, 134, 0.05);
+        }
+
+        .stars {
+            color: var(--gold);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        .review-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-style: italic;
+            color: #eae5df;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reviewer-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid var(--gold);
+            object-fit: cover;
+        }
+
+        .reviewer-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .reviewer-title {
+            font-size: 0.75rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* FAQ Accordion */
+        .faq-accordion {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border-light);
+            padding: 24px 0;
+        }
+
+        .faq-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: var(--transition-smooth);
+        }
+
+        .faq-header:hover h3 {
+            color: var(--gold);
+        }
+
+        .faq-header h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #ffffff;
+            margin: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .faq-icon {
+            color: var(--gold);
+            font-size: 1rem;
+            transition: transform 0.4s ease;
+        }
+
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), padding 0.4s ease;
+        }
+
+        .faq-content p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #a09a93;
+            margin: 0;
+            padding-top: 15px;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-item.active .faq-content {
+            max-height: 200px;
+            transition: max-height 0.4s cubic-bezier(1, 0, 1, 0), padding 0.4s ease;
+        }
+
+        /* Theme Styling Overrides */
+        #luxury-story-section {
+            background: var(--formal-garden-deep);
+        }
+
+        #luxury-story-section .premium-card {
+            background: rgba(90, 24, 39, 0.15) !important;
+            border-color: rgba(223, 186, 134, 0.15) !important;
+            padding-bottom: 80px !important;
+        }
+
+        #luxury-story-section .premium-card:hover {
+            border-color: var(--border-hover) !important;
+            background: rgba(90, 24, 39, 0.25) !important;
+        }
+
+        #reviews-section {
+            background: #ffffff !important;
+        }
+
+        #reviews-section .section-title {
+            color: var(--formal-garden-deep) !important;
+        }
+
+        #reviews-section .section-subtitle {
+            color: var(--rosewood) !important;
+        }
+
+        #reviews-section .review-card {
+            background: #5a1827 !important;
+            border-color: rgba(223, 186, 134, 0.15) !important;
+        }
+
+        #reviews-section .review-card:hover {
+            border-color: var(--border-hover) !important;
+            background: #7E2638 !important;
+            box-shadow: 0 15px 35px rgba(90, 24, 39, 0.15) !important;
+        }
+
+        #faqs-section {
+            background: var(--formal-garden-deep);
+        }
+
+        #faqs-section .faq-item {
+            border-bottom-color: rgba(223, 186, 134, 0.15);
+        }
+
+        #faqs-section .faq-header:hover h3 {
+            color: var(--gold);
+        }
+
+        #faqs-section .faq-content p {
+            color: #A8A196;
+        }
+    </style>
+
+    <!-- Navbar Performance Optimization Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                corePlugins: {
+                    preflight: false
+                },
+                theme: {
+                    extend: {
+                        colors: {
+                            gold: '#b8973a',
+                            'gold-light': '#d4af5a',
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- TOP NAV -->
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js" defer></script>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container" style="display:flex; width:100%;">
+            <div class="hero-content">
+                <div class="hero-subtitle">FINE FOR MOMENTS</div>
+                <h1 class="hero-title">Taste the Difference,<br>Savor the Moment.</h1>
+                <div class="hero-divider"></div>
+                <p class="hero-text">An exceptional culinary experience crafted with passion and the finest ingredients.
+                </p>
+
+                <div class="hero-actions">
+                    <button class="btn-solid-green" onclick="window.location.href='book-table-test.html'">BOOK A
+                        TABLE</button>
+                    <div class="play-btn">
+                        <div class="play-icon"><i class="fa-solid fa-play" style="margin-left:3px;"></i></div>
+                        <span class="play-text">WATCH OUR VIDEO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-image-wrapper">
+            <video autoplay loop muted playsinline>
+                <source src="assets/video/into_video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </section>
+
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container features-grid">
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="width: 40px; height: 40px; margin: 0 auto 25px; display: block; color: #8c7258;">
+                    <path d="M18 18V21H6V18" />
+                    <path d="M12 18v3" />
+                    <path
+                        d="M6 18C4 18 3 17 3 15C3 13 4 12 6 12C6.5 12 7 12.2 7.5 12.5C8 9.5 10 7.5 12 7.5C14 7.5 16 9.5 16.5 12.5C17 12.2 17.5 12 18 12C20 12 21 13 21 15C21 17 20 18 18 18" />
+                </svg>
+                <h4 class="feature-title">QUALITY INGREDIENTS</h4>
+                <p class="feature-text">We use only the finest<br>and freshest ingredients.</p>
+            </div>
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="width: 40px; height: 40px; margin: 0 auto 25px; display: block; color: #8c7258;">
+                    <path
+                        d="M12 2C12 2 14.5 5.5 14.5 8C14.5 10.5 12 13 12 13C12 13 9.5 10.5 9.5 8C9.5 5.5 12 2 12 2Z" />
+                    <path
+                        d="M12 13C12 13 15.5 14.5 18 14.5C20.5 14.5 23 12 23 12C23 12 20.5 9.5 18 9.5C15.5 9.5 12 13 12 13Z" />
+                    <path d="M12 13C12 13 8.5 14.5 6 14.5C3.5 14.5 1 12 1 12C1 12 3.5 9.5 6 9.5C8.5 9.5 12 13 12 13Z" />
+                    <path
+                        d="M12 13C12 13 13.5 16.5 13.5 19C13.5 21.5 12 23 12 23C12 23 10.5 21.5 10.5 19C10.5 16.5 12 13 12 13Z" />
+                </svg>
+                <h4 class="feature-title">SEASONAL MENU</h4>
+                <p class="feature-text">Our menu changes with<br>the seasons.</p>
+            </div>
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="width: 40px; height: 40px; margin: 0 auto 25px; display: block; color: #8c7258;">
+                    <path
+                        d="M12 2C7.5 6 5.5 9.5 5.5 13.5C5.5 17.5 8.5 20.5 12 22C15.5 20.5 18.5 17.5 18.5 13.5C18.5 9.5 16.5 6 12 2Z" />
+                    <path
+                        d="M9 7.5H15M9 7.5C9 10.5 10.5 12 12 12C13.5 12 15 10.5 15 7.5M9 7.5V7M15 7.5V7M12 12V17M9.5 17H14.5" />
+                </svg>
+                <h4 class="feature-title">PERFECT PAIRING</h4>
+                <p class="feature-text">Handpicked wines to<br>elevate your experience.</p>
+            </div>
+            <div class="feature-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="width: 40px; height: 40px; margin: 0 auto 25px; display: block; color: #8c7258;">
+                    <path d="M12 22V14" />
+                    <path
+                        d="M12 14C15 14 17.5 11.5 17.5 8.5C17.5 5.5 15 3 12 3C9 3 6.5 5.5 6.5 8.5C6.5 11.5 9 14 12 14Z" />
+                    <path
+                        d="M12 8.5C13.5 8.5 14.5 7.5 14.5 6C14.5 4.5 13.5 3.5 12 3.5C10.5 3.5 9.5 4.5 9.5 6C9.5 7.5 10.5 8.5 12 8.5Z" />
+                    <path d="M9 14C9.5 15.5 10.5 16.5 12 16.5C13.5 16.5 14.5 15.5 15 14" />
+                </svg>
+                <h4 class="feature-title">MEMORABLE EXPERIENCE</h4>
+                <p class="feature-text">Creating moments you'll<br>always remember.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="about-split">
+        <div class="about-content">
+            <div class="about-subtitle">ABOUT US</div>
+            <h2 class="about-title">More Than Just<br>a Restaurant</h2>
+            <div class="about-divider"></div>
+            <p class="about-text">Medusa Bar & Lounge is more than just a place to eat. It's a place to enjoy
+                unforgtbble food, create unforgetiable memories.</p>
+            <button class="btn-solid-burgundy" onclick="window.location.href='about.html'">DISCOVER OUR STORY</button>
+        </div>
+        <div class="about-image"></div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery">
+        <div class="gallery-wrapper">
+            <div class="gallery-left">
+                <div class="gallery-header">
+                    <h2 class="gallery-title">GALLERY</h2>
+                    <div class="gallery-subtitle">Explore</div>
+                </div>
+                <p class="gallery-description">
+                    Immerse yourself in the culinary artistry and elegant ambiance of La Medusaa. Every dish is a masterpiece, crafted to delight all your senses.
+                </p>
+                <a href="gallery.php" class="btn-gallery-more">View Full Gallery</a>
+            </div>
+            <div class="gallery-right">
+                <div class="gallery-grid">
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-01.webp" alt="Gallery 1"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-02.webp" alt="Gallery 2"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-03.webp" alt="Gallery 3"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-04.webp" alt="Gallery 4"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-05.webp" alt="Gallery 5"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-06.webp" alt="Gallery 6"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-07.webp" alt="Gallery 7"></div>
+                    <div class="gallery-item"><img src="assets/images/gallery/gallery-08.webp" alt="Gallery 8"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE ESSENCE SECTION -->
+    <section class="section" id="luxury-story-section">
+        <div class="container">
+            <div class="premium-card p-4 p-lg-5 reveal">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5">
+                        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=800&auto=format&fit=crop"
+                            class="img-fluid rounded-4 floating-img" alt="Chef">
+                    </div>
+                    <div class="col-lg-7">
+                        <p class="hero-subtitle">
+                            THE ESSENCE
+                        </p>
+                        <h2 class="section-title text-start mb-4">
+                            A Culinary Experience Beyond Taste
+                        </h2>
+                        <p class="text-secondary fs-5 mb-4">
+                            Medusa combines premium ingredients, luxury atmosphere, and culinary artistry to create
+                            unforgettable dining.
+                        </p>
+                        <p class="text-secondary fs-5 mb-5">
+                            Every dish is carefully crafted to deliver elegance, emotion, and exceptional flavor.
+                        </p>
+                        <a href="about.html#philosophy" class="btn btn-outline-gold px-5 py-3">
+                            Discover Our Philosophy →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SIGNATURE REVIEWS / GUEST EXPERIENCES -->
+    <section class="section" id="reviews-section">
+        <div class="container">
+            <h2 class="section-title reveal">Guest Experiences</h2>
+            <p class="section-subtitle reveal">Accolades from our esteemed patrons</p>
+
+            <div class="row g-4">
+                <!-- REVIEW 1 -->
+                <div class="col-md-6 col-lg-4 reveal">
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">"Medusa is not merely a restaurant; it's a sensory performance. The
+                            butter chicken customizations are absolutely exquisite. A truly majestic fine dining
+                            encounter."</div>
+                        <div class="reviewer-info">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop"
+                                class="reviewer-avatar" alt="Patron Avatar">
+                            <div>
+                                <div class="reviewer-name">Vikram Malhotra</div>
+                                <div class="reviewer-title">Elite Member</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- REVIEW 2 -->
+                <div class="col-md-6 col-lg-4 reveal">
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">"The private cellar wine options paired with the custom pizza was
+                            incredibly divine. The candlelit atmosphere creates a level of elegance unmatched in the
+                            city."</div>
+                        <div class="reviewer-info">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop"
+                                class="reviewer-avatar" alt="Patron Avatar">
+                            <div>
+                                <div class="reviewer-name">Ananya Sen</div>
+                                <div class="reviewer-title">Food Critic</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- REVIEW 3 -->
+                <div class="col-md-6 col-lg-4 reveal d-md-none d-lg-block">
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <div class="review-text">"Flawless reservation system and outstanding service. The dessert list
+                            is a masterpiece of flavors. Easily the finest dining establishment in the region."</div>
+                        <div class="reviewer-info">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop"
+                                class="reviewer-avatar" alt="Patron Avatar">
+                            <div>
+                                <div class="reviewer-name">Rohan Verma</div>
+                                <div class="reviewer-title">Gourmand</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQS ACCORDION -->
+    <section class="section" id="faqs-section">
+        <div class="container">
+            <h2 class="section-title reveal">Frequently Asked Questions</h2>
+            <p class="section-subtitle reveal">Your inquiries, resolved</p>
+
+            <div class="faq-accordion reveal">
+                <!-- FAQ 1 -->
+                <div class="faq-item">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <h3>What is the dress code at Medusa?</h3>
+                        <div class="faq-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+                    <div class="faq-content">
+                        <p>We maintain a smart casual to formal dress code to preserve the elegant atmosphere of our
+                            dining rooms. Sportswear, sandals, and sleeveless shirts are discouraged.</p>
+                    </div>
+                </div>
+                <!-- FAQ 2 -->
+                <div class="faq-item">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <h3>Do I need to reserve a table in advance?</h3>
+                        <div class="faq-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+                    <div class="faq-content">
+                        <p>While walk-ins are welcome if space allows, we highly recommend booking a table via our
+                            online system to ensure availability, especially for weekend dinner reservations.</p>
+                    </div>
+                </div>
+                <!-- FAQ 3 -->
+                <div class="faq-item">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <h3>Can you accommodate specific dietary restrictions?</h3>
+                        <div class="faq-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+                    <div class="faq-content">
+                        <p>Yes, absolutely. Our culinary team is highly experienced in preparing custom options for
+                            gluten-free, vegan, nut allergies, and other dietary preferences. Simply specify when
+                            reserving or ordering.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-col footer-logo">
+                <img src="assets/images/logo.png" alt="La Medusaa Logo" style="max-height: 90px; margin-bottom: 25px;">
+                <p class="footer-text">The Signature of Elegance!</p>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">NAVIGATION</h4>
+                <p><a href="index.html">Home</a></p>
+                <p><a href="menutest.html">Our Menu</a></p>
+                <p><a href="book-table-test.html">Reservations</a></p>
+                <p><a href="about.html">About Us</a></p>
+                <p><a href="contact.html">Contact Us</a></p>
+                <p><a href="register.html">Create Account</a></p>
+                <p><a href="career.html#career-form">Career</a></p>
+                <p><a href="login.html">Login</a></p>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">CONTACT</h4>
+                <p>SCO 44,45, District One Market<br>Sector 68, SAS Nagar<br>Punjab 140308</p>
+                <p style="margin-top: 15px;">+91 94272 72798</p>
+                <p><a href="contact.html">contact@medusa.com</a></p>
+                <button class="btn-view-map" onclick="openMapModal()" style="background:transparent; cursor:pointer;">
+                    <i class="fa-solid fa-location-dot"></i> VIEW ON MAP
+                </button>
+            </div>
+
+            <div class="footer-col" style="padding-right:0;">
+                <h4 class="footer-heading">FOLLOW US</h4>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/la_medusaa_mohali?igsh=MXVwcHA3Nm9wbXV1dQ=="><i
+                            class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-solid fa-globe"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2026 Medusa Restaurant. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- GOOGLE MAPS LOCATION MODAL -->
+    <div id="mapModal"
+        style="position:fixed;inset:0;background:rgba(10,10,10,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:10000;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s ease;">
+        <button onclick="closeMapModal()"
+            style="position:absolute;top:30px;right:40px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;z-index:10010;">&times;</button>
+        <div style="max-width:700px;width:95%;text-align:center;transform:scale(0.95);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);"
+            id="mapContent">
+            <div
+                style="border-radius:16px;overflow:hidden;border:1px solid rgba(223,186,134,0.2);box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+                <iframe id="mapIframe" src="" width="100%" height="400" style="border:0;display:block;" allowfullscreen
+                    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <h4 style="font-family:var(--font-serif);color:#fff;margin-top:16px;font-size:1.3rem;">La Medusaa</h4>
+            <p
+                style="color:var(--text-gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">
+                SCO 44,45, District One Market, Sector 68, SAS Nagar</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=SCO+44+45+District+One+Market+Sector+68+Sahibzada+Ajit+Singh+Nagar+Punjab+140308"
+                target="_blank" rel="noopener"
+                style="display:inline-block;margin-top:12px;color:var(--text-gold);font-size:0.85rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-decoration:none;">Open
+                in Google Maps <i class="fa-solid fa-arrow-up-right-from-square ms-1"
+                    style="font-size:0.75rem;"></i></a>
+        </div>
+    </div>
+
+    <script>
+        // --- Map Modal Logic ---
+        const MAP_EMBED_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2885.413030890794!2d76.71954153075983!3d30.680322781741616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fef0030d303dd%3A0xc81adde575ebd2ce!2sMedusa-bar%20and%20lounge!5e0!3m2!1sen!2sin!4v1780853698088!5m2!1sen!2sin';
+        function openMapModal() {
+            const modal = document.getElementById('mapModal');
+            document.getElementById('mapIframe').src = MAP_EMBED_URL;
+            modal.style.opacity = '1'; modal.style.visibility = 'visible';
+            document.getElementById('mapContent').style.transform = 'scale(1)';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMapModal() {
+            const modal = document.getElementById('mapModal');
+            modal.style.opacity = '0'; modal.style.visibility = 'hidden';
+            document.getElementById('mapContent').style.transform = 'scale(0.95)';
+            document.body.style.overflow = '';
+            setTimeout(() => { document.getElementById('mapIframe').src = ''; }, 350);
+        }
+        document.getElementById('mapModal').addEventListener('click', (e) => { if (e.target.id === 'mapModal') closeMapModal(); });
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('mapModal').style.visibility === 'visible') closeMapModal(); });
+
+        // --- FAQ Accordion Toggle ---
+        function toggleFaq(headerElement) {
+            const item = headerElement.closest('.faq-item');
+            const isActive = item.classList.contains('active');
+
+            // Close other items
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        }
+
+        // --- Scroll Reveal Observer ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const revealCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            };
+
+            const revealObserver = new IntersectionObserver(revealCallback, {
+                root: null,
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+
+            document.querySelectorAll('.reveal').forEach(element => {
+                revealObserver.observe(element);
+            });
+        });
+
+
+    </script>
+
+    <!-- ═══════════════════════════════════════════
+         GALLERY SCROLL ANIMATIONS — GSAP + ScrollTrigger
+         Strictly scoped to .gallery section only.
+         No layout, no structure, no other sections touched.
+    ═══════════════════════════════════════════ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script>
+    (function() {
+        function initGalleryAnimations() {
+            if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                // Retry once after short delay if GSAP not yet loaded
+                setTimeout(initGalleryAnimations, 100);
+                return;
+            }
+
+            gsap.registerPlugin(ScrollTrigger);
+
+            var gallerySection = document.querySelector('.gallery');
+            if (!gallerySection) return;
+
+            // ── 1. Left Content Animation (title, subtitle, description, CTA) ──
+            var leftEls = gallerySection.querySelectorAll('.gallery-title, .gallery-subtitle, .gallery-description, .btn-gallery-more');
+            gsap.set(leftEls, { opacity: 0, y: 30 });
+
+            gsap.to(leftEls, {
+                opacity: 1,
+                y: 0,
+                ease: 'power1.out',
+                stagger: 0.15,
+                scrollTrigger: {
+                    trigger: gallerySection,
+                    start: 'top 85%',
+                    end: 'top 55%',
+                    scrub: 1
+                }
+            });
+
+            // ── 2. Gallery cards scroll-linked reveal ──
+            var cards = gallerySection.querySelectorAll('.gallery-item');
+            cards.forEach(function(card) {
+                gsap.set(card, { opacity: 0, y: 50 });
+                gsap.to(card, {
+                    opacity: 1,
+                    y: 0,
+                    ease: 'power1.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top 95%',
+                        end: 'top 70%',
+                        scrub: 1
+                    }
+                });
+            });
+        }
+
+        // Run after all deferred scripts have loaded
+        window.addEventListener('load', initGalleryAnimations);
+    })();
+    </script>
+</body>
+
+</html>

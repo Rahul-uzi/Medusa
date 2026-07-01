@@ -1,0 +1,2026 @@
+﻿diff --git a/admintest/dashboardtest.php b/admintest/dashboardtest.php
+index c8a70d9..3606704 100644
+--- a/admintest/dashboardtest.php
++++ b/admintest/dashboardtest.php
+@@ -323,7 +323,61 @@ if (isset($_REQUEST['action'])) {
+     $action = $_REQUEST['action'];
+     
+     // Proxy external images locally to resolve CORS and hotlinking restrictions in preview
+-    if ($action === 'proxy_image') {
++    
++    if ($action === 'get_dashboard_metrics') {
++        syncOrdersJsonToDb($pdo);
++
++        $total_orders = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn() ?: 0;
++        $total_revenue = $pdo->query("SELECT SUM(total_amount) FROM orders WHERE order_status = 'completed'")->fetchColumn() ?: 0;
++        $online_orders_count = $pdo->query("SELECT COUNT(*) FROM orders WHERE delivery_address NOT LIKE 'Table %'")->fetchColumn() ?: 0;
++        
++        $today_sales = $pdo->query("SELECT SUM(total_amount) FROM orders WHERE DATE(order_date) = CURDATE() AND order_status = 'completed'")->fetchColumn() ?: 0;
++        if (floatval($today_sales) === 0.0) {
++            $latest_date = $pdo->query("SELECT DATE(order_date) FROM orders ORDER BY order_date DESC LIMIT 1")->fetchColumn();
++            if ($latest_date) {
++                $today_sales = $pdo->query("SELECT SUM(total_amount) FROM orders WHERE DATE(order_date) = '$latest_date' AND order_status = 'completed'")->fetchColumn() ?: 0;
++            }
++        }
++
++        $top_selling_dish = $pdo->query("SELECT item_name, SUM(quantity) as qty FROM order_items GROUP BY item_name ORDER BY qty DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC);
++
++        $active_order_stmt = $pdo->query("SELECT delivery_address FROM orders WHERE order_status IN ('pending', 'processing', 'out_for_delivery') AND delivery_address LIKE 'Table %'");
++        $occupied_tables = [];
++        while ($row = $active_order_stmt->fetch(PDO::FETCH_ASSOC)) {
++            if (preg_match('/Table\s+([A-Za-z0-9]+)/i', $row['delivery_address'], $matches)) {
++                $occupied_tables[] = trim($matches[1]);
++            }
++        }
++        $active_tables_count = count(array_unique($occupied_tables));
++
++        $chart_stmt = $pdo->query("SELECT * FROM (SELECT DATE(order_date) as d, SUM(total_amount) as total FROM orders WHERE order_status = 'completed' GROUP BY DATE(order_date) ORDER BY DATE(order_date) DESC LIMIT 7) sub ORDER BY d ASC");
++        $chart_labels = [];
++        $chart_data = [];
++        while ($row = $chart_stmt->fetch(PDO::FETCH_ASSOC)) {
++            $chart_labels[] = date('d M', strtotime($row['d']));
++            $chart_data[] = floatval($row['total']);
++        }
++        if (empty($chart_data)) {
++            $chart_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
++            $chart_data = [0, 0, 0, 0, 0, 0, 0];
++        }
++
++        echo json_encode([
++            'success' => true,
++            'total_orders' => $total_orders,
++            'total_revenue' => number_format((float)$total_revenue, 2),
++            'online_orders_count' => $online_orders_count,
++            'today_sales' => number_format((float)$today_sales, 2),
++            'top_dish' => $top_selling_dish ? $top_selling_dish['item_name'] : 'N/A',
++            'active_tables_count' => $active_tables_count,
++            'chart_labels' => $chart_labels,
++            'chart_data' => $chart_data
++        ]);
++        exit;
++    }
++
++
++      if ($action === 'proxy_image') {
+         $url = $_GET['url'] ?? '';
+         if (empty($url)) {
+             http_response_code(400);
+@@ -1353,7 +1407,201 @@ while ($row = $active_order_stmt->fetch(PDO::FETCH_ASSOC)) {
+ $active_tables_count = count(array_unique($occupied_tables));
+ 
+ // 7-day Sales Chart Query
+-$chart_stmt = $pdo->query("SELECT DATE(order_date) as d, SUM(total_amount) as total FROM orders WHERE order_status = 'completed' GROUP BY DATE(order_date) ORDER BY DATE(order_date) ASC LIMIT 7");
++$chart_stmt = $pdo->query("SELECT * FROM (SELECT DATE(order_date) as d, SUM(total_amount) as total FROM orders WHERE order_status = 'completed' GROUP BY DATE(order_date) ORDER BY DATE(order_date) DESC LIMIT 7) sub ORDER BY d ASC");
++$chart_labels = [];
++$chart_data = [];
++while ($row = $chart_stmt->fetch(PDO::FETCH_ASSOC)) {
++    $chart_labels[] = date('d M', strtotime($row['d']));
++    $chart_data[] = floatval($row['total']);
++}
++if (empty($chart_data)) {
++    $chart_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
++    $chart_data = [0, 0, 0, 0, 0, 0, 0];
++}
++
++// 10 Recent Orders
++$recent_orders = $pdo->query("SELECT *, (SELECT rating FROM feedback WHERE order_number = orders.order_number LIMIT 1) AS rating, (SELECT review FROM feedback WHERE order_number = orders.order_number LIMIT 1) AS review FROM orders ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
++
++// Full Menu List
++$menu_list = $pdo->query("SELECT * FROM food_items ORDER BY category, id ASC")->fetchAll(PDO::FETCH_ASSOC);
++
++// Customers list
++$customer_list_raw = $pdo->query("SELECT 
++                                     o.customer_name, 
++                                     o.customer_phone, 
++                                     u.email,
++                                     u.id as customer_id,
++                                     COUNT(o.id) as order_count, 
++                                     SUM(o.total_amount) as total_spent,
++                                     MAX(o.order_date) as last_order_date
++                                 FROM orders o
++                                 LEFT JOIN users u ON o.user_id = u.id
++                                 GROUP BY o.customer_phone, o.customer_name 
++                                 ORDER BY total_spent DESC LIMIT 30")->fetchAll(PDO::FETCH_ASSOC);
++$customer_list = [];
++foreach ($customer_list_raw as $c) {
++    // Favorite dish
++    $fav_stmt = $pdo->prepare("SELECT item_name, SUM(quantity) as qty FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE customer_phone = ? AND customer_name = ?) GROUP BY item_name ORDER BY qty DESC LIMIT 1");
++    $fav_stmt->execute([$c['customer_phone'], $c['customer_name']]);
++    $fav = $fav_stmt->fetch(PDO::FETCH_ASSOC);
++    $c['favorite_dish'] = $fav ? $fav['item_name'] : 'N/A';
++    
++    // Payment summary
++    $pay_stmt = $pdo->prepare("SELECT 
++                                   SUM(CASE WHEN order_status = 'completed' THEN 1 ELSE 0 END) as paid_count,
++                                   SUM(CASE WHEN order_status = 'cancelled' THEN 1 ELSE 0 END) as failed_count,
++                                   SUM(CASE WHEN order_status NOT IN ('completed', 'cancelled') THEN 1 ELSE 0 END) as pending_count
++                               FROM orders 
++                               WHERE customer_phone = ? AND customer_name = ?");
++    $pay_stmt->execute([$c['customer_phone'], $c['customer_name']]);
++    $c['payment_summary'] = $pay_stmt->fetch(PDO::FETCH_ASSOC);
++    
++    $customer_list[] = $c;
++}
++
++// All Tables Definition matching book-table-test.html
++$table_zones = [
++    'VIP Area' => ['T01','T02','T03','T04','T05','T06','T07','T08','R1','R2'],
++    'Indoor Dining' => ['A01','A02','A03','A04','B01','B02','B03','B04','RD1','RD2','RD3','C01','C02','C03','C04'],
++    'Outdoor / Garden' => ['G01','G02','G03','G04','G05','G06','G07','G08'],
++    'Booth Seating' => ['F01','F02','F03','F04','F05','F06'],
++    'Banquet & Communal' => ['L01','L02','BQ1','BQ2']
++];
++?>
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <title><?php echo htmlspecialchars($settings['restaurant_name']); ?> - Luxury Dashboard</title>
++    <!-- Bootstrap CSS -->
++    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
++    <!-- FontAwesome Icons -->
++    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
++    <!-- Google Fonts -->
++    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
++    <!-- Chart.js -->
++    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
++    
++    <script>
++        (function() {
++            // Theme check
++            const theme = localStorage.getItem('medusa_admin_theme');
++            if (theme === 'light') {
++                document.documentElement.classList.add('light-mode');
++            }
++
++            // Tab check (flicker prevention)
++            const activeTab = localStorage.getItem('medusa_active_admin_tab');
++            if (activeTab && activeTab !== 'dashboard-tab') {
++                const style = document.createElement('style');
++                style.id = 'temp-tab-css';
++                style.innerHTML = `
++                    #dashboard-tab.tab-panel.active { display: none !important; }
++                    #${activeTab}.tab-panel { display: block !important; }
++                    .sidebar-link[onclick*="dashboard-tab"] { background-color: transparent !important; color: var(--gray) !important; }
++                    .sidebar-link[onclick*="${activeTab}"] { color: var(--gold) !important; background-color: rgba(223, 186, 134, 0.08) !important; }
++                `;
++                document.head.appendChild(style);
++            }
++        })();
++    </script>
++    
++    <style>
++        :root {
++            --bg-dark: #0a0a0a;
++            --bg-secondary: #121111;
++            --gold: #dfba86;
++            --gold-light: #e6c89f;
++            --white: #f3f3f3;
++            --gray: #a09f9f;
++            --gray-dark: #222222;
++            --success-color: #2ec4b6;
++            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
++            --radius: 16px;
++        }
++
++        body {
++            background-color: var(--bg-dark);
++            color: var(--white);
++            font-family: 'Plus Jakarta Sans', sans-serif;
++            min-height: 100vh;
++            overflow-x: hidden;
++        }
++
++        /* Sidebar Styling */
++        .sidebar {
++            width: 260px;
++            background-color: var(--bg-secondary);
++            border-right: 1px solid rgba(255, 255, 255, 0.05);
++            position: fixed;
++            top: 0;
++            bottom: 0;
++            left: 0;
++            z-index: 100;
++            padding: 2rem 1.5rem;
++            display: flex;
++            flex-direction: column;
++            gap: 2.5rem;
++        }
++
++        .sidebar-brand {
++            font-family: 'Playfair Display', serif;
++            font-size: 1.5rem;
++            color: var(--gold);
++            font-weight: 700;
++            display: flex;
++            align-items: center;
++            gap: 10px;
++        }
++
++        .sidebar-menu {
++            list-style: none;
++            padding: 0;
++            margin: 0;
++            display: flex;
++            flex-direction: column;
++            gap: 0.5rem;
++        }
++
++        .sidebar-link {
++            display: flex;
++            align-items: center;
++            gap: 12px;
++            color: var(--gray);
++            padding: 0.8rem 1rem;
++            border-radius: 8px;
++            text-decoration: none;
++            font-weight: 500;
++            font-size: 0.95rem;
++            transition: var(--transition);
++            cursor: pointer;
++        }
++
++        .sidebar-link:hover, .sidebar-link.active {
++            color: var(--gold);
++            background-color: rgba(223, 186, 134, 0.08);
++        }
++
++        /* Main Content wrapper */
++        .main-content {
++            margin-left: 260px;
++            padding: 2.5rem;
++            min-height: 100vh;
++        }
++
++        /* Header block */
++        .page-header {
++            margin-bottom: 2.5rem;
++        }
++
++        .page-title {
++            font-family: 'Playfair Display', serif;
++            font-size: 2.2rem;
++            font-weight: 700;
++            color: #ffffff;
++// 7-day Sales Chart Query
++$chart_stmt = $pdo->query("SELECT * FROM (SELECT DATE(order_date) as d, SUM(total_amount) as total FROM orders WHERE order_status = 'completed' GROUP BY DATE(order_date) ORDER BY DATE(order_date) DESC LIMIT 7) sub ORDER BY d ASC");
+ $chart_labels = [];
+ $chart_data = [];
+ while ($row = $chart_stmt->fetch(PDO::FETCH_ASSOC)) {
+@@ -1561,6 +1809,12 @@ $table_zones = [
+             margin-bottom: 2.5rem;
+         }
+ 
++        @media (min-width: 1200px) {
++            #dashboard-metrics-grid {
++                grid-template-columns: repeat(3, 1fr);
++            }
++        }
++
+         .metric-card {
+             background-color: var(--bg-secondary);
+             border: 1px solid rgba(255, 255, 255, 0.05);
+@@ -1928,1336 +2182,331 @@ $table_zones = [
+ 
+         html.light-mode .list-group-item.bg-dark {
+             background-color: var(--bg-secondary) !important;
+-            color: var(--white) !important;
+-            border-color: rgba(0, 0, 0, 0.08) !important;
+-        }
+-
+-        html.light-mode .list-group-item.bg-dark:hover {
+-            background-color: rgba(223, 186, 134, 0.08) !important;
+-        }
+-
+-        html.light-mode .content-card,
+-        html.light-mode .metric-card,
+-        html.light-mode .qr-card-view,
+-        html.light-mode .kitchen-col,
+-        html.light-mode .kitchen-card,
+-        html.light-mode .tables-zone-box {
+-            background-color: var(--bg-secondary);
+-            border: 1px solid rgba(0, 0, 0, 0.08);
+-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+-        }
+-
+-        html.light-mode .table-cell {
+-            background-color: #f1f5f9;
+-            border-color: rgba(0, 0, 0, 0.08);
+-        }
+-
+-        html.light-mode .table-cell.occupied {
+-            background-color: rgba(223, 186, 134, 0.1);
+-            border-color: var(--gold);
+-        }
+-
+-        html.light-mode .table-cell .table-name {
+-            color: var(--white);
+-        }
+-
+-        html.light-mode .premium-table th {
+-            color: var(--gray);
+-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+-        }
+-
+-        html.light-mode .premium-table td {
+-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+-        }
+-
+-        html.light-mode .form-control-dashboard,
+-        html.light-mode .form-control,
+-        html.light-mode .form-select {
+-            background-color: #f1f5f9 !important;
+-            color: var(--white) !important;
+-            border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+-        }
+-
+-        html.light-mode .form-control-dashboard:focus,
+-        html.light-mode .form-control:focus,
+-        html.light-mode .form-select:focus {
+-            border-color: var(--gold) !important;
+-            background-color: #ffffff !important;
+-        }
+-
+-        html.light-mode .modal-content {
+-            background-color: var(--bg-secondary) !important;
+-            color: var(--white) !important;
+-            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15) !important;
+-        }
+-
+-        html.light-mode .btn-close {
+-            filter: invert(1) grayscale(100%) brightness(0%);
+-        }
+-
+-        html.light-mode .btn-outline-light {
+-            border-color: #cbd5e1;
+-            color: #475569;
+-        }
+-
+-        html.light-mode .btn-outline-light:hover {
+-            background-color: #f1f5f9;
+-            color: #1e293b;
+-        }
+-
+-        html.light-mode .status-pending {
+-            background-color: rgba(223, 186, 134, 0.15);
+-        }
+-
+-        html.light-mode .status-preparing {
+-            background-color: rgba(59, 130, 246, 0.15);
+-        }
+-
+-        html.light-mode .status-ready {
+-            background-color: rgba(46, 196, 182, 0.15);
+-        }
+-
+-        html.light-mode .status-completed {
+-            background-color: rgba(40, 167, 69, 0.15);
+-        }
+-
+-        html.light-mode .status-cancelled {
+-            background-color: rgba(220, 53, 69, 0.15);
+-        }
+-
+-        /* Smooth Transition */
+-        body, 
+-        .sidebar, 
+-        .sidebar-link, 
+-        .main-content, 
+-        .content-card, 
+-        .metric-card, 
+-        .kitchen-col, 
+-        .kitchen-card, 
+-        .table-cell, 
+-        .form-control, 
+-        .form-select, 
+-        .form-control-dashboard,
+-        .premium-table td,
+-        .page-title,
+-        .card-header-premium {
+-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+-        }
+-    
+-
+-/* ===== CHATGPT FINAL UI FIX ===== */
+-.sidebar{
+-    transition:all .3s ease;
+-    width:260px;
+-    height: 100vh;
+-    overflow-y: auto;
+-}
+-.sidebar::-webkit-scrollbar {
+-    width: 6px;
+-}
+-.sidebar::-webkit-scrollbar-track {
+-    background: transparent;
+-}
+-.sidebar::-webkit-scrollbar-thumb {
+-    background: rgba(223, 186, 134, 0.4);
+-    border-radius: 4px;
+-}
+-.sidebar::-webkit-scrollbar-thumb:hover {
+-    background: rgba(223, 186, 134, 0.8);
+-}
+-.sidebar.collapsed{
+-    width:80px;
+-    padding-left:.8rem;
+-    padding-right:.8rem;
+-}
+-.sidebar.collapsed .sidebar-brand span,
+-.sidebar.collapsed .sidebar-link span{
+-    display:none;
+-}
+-.sidebar.collapsed .sidebar-link{
+-    justify-content:center;
+-}
+-.main-content{
+-    transition:all .3s ease;
+-}
+-.main-content.expanded{
+-    margin-left:80px!important;
+-}
+-
+-/* Burger button: bottom-left, always visible */
+-#sidebarToggle{
+-    position:fixed;
+-    left:1.15rem;
+-    bottom:1.15rem;
+-    z-index:2000;
+-    width:46px;
+-    height:46px;
+-    border-radius:14px;
+-    border:1px solid rgba(148,163,184,.28);
+-    background:var(--bg-secondary);
+-    color:var(--gold);
+-    display:flex;
+-    align-items:center;
+-    justify-content:center;
+-    box-shadow:0 8px 18px rgba(0,0,0,.12);
+-    transition:all .25s ease, background-color .25s ease, border-color .25s ease;
+-}
+-#sidebarToggle:hover{
+-    transform:translateY(-1px);
+-    border-color:rgba(223,186,134,.55);
+-}
+-html.light-mode #sidebarToggle{
+-    background:#ffffff;
+-    border-color:rgba(15,23,42,.12);
+-}
+-#sidebarToggle.closed{
+-    left:1.15rem;
+-}
+-
+-/* Gold action buttons: consistent and no wrapping */
+-.btn-gold-action{
+-    width:auto!important;
+-    min-width:108px!important;
+-    height:42px!important;
+-    min-height:42px!important;
+-    padding:0 14px!important;
+-    display:inline-flex!important;
+-    align-items:center!important;
+-    justify-content:center!important;
+-    gap:8px!important;
+-    white-space:nowrap!important;
+-    line-height:1!important;
+-    flex-wrap:nowrap!important;
+-    vertical-align:middle;
+-}
+-.btn-gold-action i{
+-    flex:0 0 auto;
+-}
+-.btn-action-form{
+-    min-width:112px!important;
+-}
+-.btn-action-wide{
+-    min-width:148px!important;
+-}
+-.btn-action-full{
+-    width:100%!important;
+-    min-width:0!important;
+-}
+-.btn-icon-only{
+-    min-width:42px!important;
+-    width:42px!important;
+-    padding:0!important;
+-}
+-.content-card .btn-gold-action{
+-    max-height:42px!important;
+-}
+-
+-/* Dark mode visibility fixes */
+-html:not(.light-mode) .form-label,
+-html:not(.light-mode) label,
+-html:not(.light-mode) th,
+-html:not(.light-mode) .text-muted,
+-html:not(.light-mode) .small,
+-html:not(.light-mode) .card-header-premium,
+-html:not(.light-mode) .page-subtitle{
+-    color:#cbd5e1!important;
+-}
+-html:not(.light-mode) input,
+-html:not(.light-mode) select,
+-html:not(.light-mode) textarea,
+-.form-control-dashboard{
+-    color:var(--white)!important;
+-}
+-html:not(.light-mode) input::placeholder,
+-html:not(.light-mode) textarea::placeholder{
+-    color:#9ca3af!important;
+-    opacity:1;
+-}
+-html:not(.light-mode) .premium-table td{
+-    color:#f5f5f5!important;
+-}
+-html:not(.light-mode) .premium-table th{
+-    color:#94a3b8!important;
+-}
+-html:not(.light-mode) .form-control-dashboard:focus,
+-html:not(.light-mode) .form-control:focus,
+-html:not(.light-mode) .form-select:focus{
+-    color:var(--white)!important;
+-}
+-
+-/* Align buttons in filter rows a bit closer to fields */
+-.content-card form .row.g-3 > [class*="col-"]{
+-    align-self:flex-start;
+-}
+-.content-card form .row.g-3 > [class*="col-"]:has(.btn-gold-action){
+-    align-self:end;
+-}
+-
+-/* Mobile drawer */
+-@media(max-width:768px){
+-    .sidebar{
+-        transform:translateX(-100%);
+-        width:260px;
+-        z-index:2500;
+-    }
+-    .sidebar.mobile-open{
+-        transform:translateX(0);
+-        width:260px;
+-    }
+-    .main-content{
+-        margin-left:0!important;
+-        padding-left:1rem;
+-        padding-right:1rem;
+-    }
+-    .main-content.expanded{
+-        margin-left:0!important;
+-    }
+-    #sidebarToggle{
+-        left:1rem!important;
+-        bottom:1rem!important;
+-    }
+-}
+-
+-/* Orders Management filter box tuning */
+-#ordersSearchForm .row.g-3{
+-    align-items:end;
+-}
+-
+-#ordersSearchForm .form-label{
+-    margin-bottom:.35rem;
+-    font-size:.72rem;
+-    letter-spacing:.4px;
+-}
+-
+-#ordersSearchForm .form-control-dashboard,
+-#ordersSearchForm .form-select{
+-    min-height:48px;
+-    height:48px;
+-    padding-top:.6rem !important;
+-    padding-bottom:.6rem !important;
+-    font-size:.95rem;
+-}
+-
+-#ordersSearchForm .premium-search-group .form-control-dashboard{
+-    min-height:48px;
+-    height:48px;
+-}
+-
+-#ordersSearchForm .premium-search-group .search-icon{
+-    top:50%;
+-    transform:translateY(-50%);
+-}
+-
+-#ordersSearchForm .btn-action-form{
+-    min-width:96px!important;
+-    width:auto!important;
+-    height:48px!important;
+-    min-height:48px!important;
+-    padding:0 12px!important;
+-}
+-
+-/* Kitchen quick status alignment */
+-#kitchen-tab .content-card.mb-4 .d-flex.gap-2.flex-wrap{
+-    margin-top:0 !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .btn.btn-outline-light.btn-sm{
+-    height:36px;
+-    padding:.35rem .7rem;
+-    line-height:1;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .form-label.mb-1{
+-    margin-bottom:.35rem !important;
+-}
+-
+-/* ===== END FIX ===== */
+-
+-
+-
+-/* ===== V10 FINAL FILTER COLUMN GAP FIX ===== */
+-.content-card form .row.g-3 > .d-flex:has(.btn-gold-action),
+-.filter-btn-wrapper{
+-    width:auto!important;
+-    flex:0 0 auto!important;
+-    max-width:max-content!important;
+-    margin-left:0!important;
+-    margin-top:0!important;
+-    padding-left:4px!important;
+-    padding-right:4px!important;
+-    justify-content:flex-start!important;
+-    align-items:flex-end!important;
+-}
+-
+-.content-card form .row.g-3 > [class*="col-"]:has(.btn-gold-action){
+-    width:auto!important;
+-    flex:0 0 auto!important;
+-    max-width:max-content!important;
+-    justify-content:flex-start!important;
+-}
+-
+-.btn-gold-action{
+-    width:auto!important;
+-    min-width:110px!important;
+-    height:42px!important;
+-    margin:0!important;
+-    flex:none!important;
+-}
+-/* ===== END V10 FIX ===== */
+-/* ===== V13 SIZE TWEAKS ONLY ===== */
+-
+-/* Keep the working layout, only tighten control sizing */
+-#ordersSearchForm .btn-action-form,
+-#paymentsSearchForm .btn-action-form,
+-#menuSearchForm .btn-action-form{
+-    min-width: 104px !important;
+-    width: auto !important;
+-    height: 44px !important;
+-    min-height: 44px !important;
+-    padding: 0 12px !important;
+-    font-size: 0.92rem;
+-}
+-
+-#customersSearchForm .btn-action-wide{
+-    min-width: 140px !important;
+-    width: auto !important;
+-    height: 44px !important;
+-    min-height: 44px !important;
+-    padding: 0 14px !important;
+-    font-size: 0.92rem;
+-}
+-
+-#reportsFilterForm .btn-action-wide{
+-    min-width: 178px !important;
+-    width: auto !important;
+-    height: 44px !important;
+-    min-height: 44px !important;
+-    padding: 0 14px !important;
+-    font-size: 0.92rem;
+-}
+-
+-/* Align the action columns closer to their fields */
+-#customersSearchForm .col-md-3.d-flex.align-items-end.justify-content-end.ms-md-1,
+-#reportsFilterForm .col-md-3.d-flex.align-items-end.justify-content-end.ms-md-1,
+-#paymentsSearchForm .col-md-2.d-flex.align-items-end.justify-content-end,
+-#ordersSearchForm .col-auto.d-flex.align-items-end,
+-#paymentsSearchForm .col-auto.d-flex.align-items-end{
+-    margin-left: 0 !important;
+-    padding-left: 4px !important;
+-    padding-right: 4px !important;
+-}
+-
+-/* Keep the controls at a consistent visual height */
+-#ordersSearchForm .form-control-dashboard,
+-#ordersSearchForm .form-select,
+-#paymentsSearchForm .form-control-dashboard,
+-#paymentsSearchForm .form-select,
+-#menuSearchForm .form-control-dashboard,
+-#menuSearchForm .form-select,
+-#customersSearchForm .form-control-dashboard,
+-#reportsFilterForm .form-control-dashboard,
+-#reportsFilterForm .form-select{
+-    min-height: 44px !important;
+-    height: 44px !important;
+-}
+-
+-/* Match the icon size to the tighter buttons */
+-#ordersSearchForm .btn-gold-action i,
+-#paymentsSearchForm .btn-gold-action i,
+-#menuSearchForm .btn-gold-action i,
+-#customersSearchForm .btn-gold-action i,
+-#reportsFilterForm .btn-gold-action i{
+-    font-size: 14px;
+-}
+-
+-/* Prevent text wrapping in the wider buttons */
+-#customersSearchForm .btn-action-wide span,
+-#reportsFilterForm .btn-action-wide span,
+-#ordersSearchForm .btn-action-form span,
+-#paymentsSearchForm .btn-action-form span,
+-#menuSearchForm .btn-action-form span{
+-    white-space: nowrap !important;
+-}
+-
+-/* ===== Kitchen monitor size alignment fix ONLY ===== */
+-
+-#kitchen-tab .content-card.mb-4 .row{
+-    align-items: end !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .col-md-6{
+-    width: 50% !important;
+-    flex: 0 0 50% !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .premium-search-group{
+-    width: 100% !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .form-control-dashboard{
+-    height: 48px !important;
+-    min-height: 48px !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .d-flex.gap-2.flex-wrap{
+-    height: 48px !important;
+-    align-items: center !important;
+-    gap: 10px !important;
+-}
+-
+-#kitchen-tab .content-card.mb-4 .btn.btn-outline-light.btn-sm{
+-    height: 38px !important;
+-    padding: 0 14px !important;
+-    display: inline-flex !important;
+-    align-items: center !important;
+-    justify-content: center !important;
+-}
+-
+-/* ===== END V13 SIZE TWEAKS ONLY ===== */
+-
+-/* ===== Careers Portal Premium Action Styles ===== */
+-.btn-action-circle {
+-    width: 32px;
+-    height: 32px;
+-    border-radius: 50%;
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
+-    padding: 0;
+-    font-size: 0.85rem;
+-    transition: all 0.2s ease;
+-    border: 1px solid transparent;
+-    background: rgba(255, 255, 255, 0.04);
+-}
+-.btn-action-circle:hover {
+-    transform: translateY(-2px);
+-}
+-.btn-action-circle-success {
+-    color: #2ec4b6;
+-    border-color: rgba(46, 196, 182, 0.2);
+-    background: rgba(46, 196, 182, 0.05);
+-}
+-.btn-action-circle-success:hover {
+-    background: #2ec4b6;
+-    color: #0b0a09 !important;
+-    box-shadow: 0 4px 12px rgba(46, 196, 182, 0.2);
+-}
+-.btn-action-circle-danger {
+-    color: #ef4444;
+-    border-color: rgba(239, 68, 68, 0.2);
+-    background: rgba(239, 68, 68, 0.05);
+-}
+-.btn-action-circle-danger:hover {
+-    background: #ef4444;
+-    color: #ffffff !important;
+-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+-}
+-.btn-action-circle-info {
+-    color: #00d2d3;
+-    border-color: rgba(0, 210, 211, 0.2);
+-    background: rgba(0, 210, 211, 0.05);
+-}
+-.btn-action-circle-info:hover {
+-    background: #00d2d3;
+-    color: #0b0a09 !important;
+-    box-shadow: 0 4px 12px rgba(0, 210, 211, 0.2);
+-}
+-.btn-action-circle-light {
+-    color: #dfba86;
+-    border-color: rgba(223, 186, 134, 0.2);
+-    background: rgba(223, 186, 134, 0.05);
+-}
+-
+-        /* --- Notification Bell & Badge --- */
+-        .notification-dropdown-wrapper {
+-            position: relative;
+-        }
+-
+-        .notification-badge {
+-            position: absolute;
+-            top: -5px;
+-            right: -5px;
+-            background-color: #ef4444;
+-            color: #ffffff;
+-            font-size: 0.72rem;
+-            font-weight: 700;
+-            min-width: 18px;
+-            height: 18px;
+-            border-radius: 50%;
+-            display: flex;
+-            align-items: center;
+-            justify-content: center;
+-            padding: 0 4px;
+-            border: 2px solid var(--bg-secondary);
+-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+-            animation: pulseBadge 2s infinite;
+-        }
+-
+-        @keyframes pulseBadge {
+-            0%, 100% { transform: scale(1); }
+-            50% { transform: scale(1.15); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+-        }
+-
+-        .bell-bounce {
+-            animation: bellRing 0.8s ease-in-out;
+-        }
+-
+-        @keyframes bellRing {
+-            0%, 100% { transform: rotate(0); }
+-            15% { transform: rotate(25deg); }
+-            30% { transform: rotate(-20deg); }
+-            45% { transform: rotate(15deg); }
+-            60% { transform: rotate(-10deg); }
+-            75% { transform: rotate(5deg); }
+-        }
+-
+-        /* --- Dropdown Menu --- */
+-        .notification-dropdown-menu {
+-            position: absolute;
+-            top: calc(100% + 12px);
+-            right: 0;
+-            width: 360px;
+-            background: rgba(18, 17, 17, 0.95);
+-            border: 1px solid rgba(223, 186, 134, 0.15);
+-            border-radius: 16px;
+-            box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+-            backdrop-filter: blur(10px);
+-            -webkit-backdrop-filter: blur(10px);
+-            z-index: 1100;
+-            display: none;
+-            flex-direction: column;
+-            overflow: hidden;
+-            transform-origin: top right;
+-            animation: dropdownScale 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+-        }
+-
+-        .notification-dropdown-menu.show {
+-            display: flex;
+-        }
+-
+-        @keyframes dropdownScale {
+-            from { transform: scale(0.9) translateY(-10px); opacity: 0; }
+-            to { transform: scale(1) translateY(0); opacity: 1; }
+-        }
+-
+-        .dropdown-header-premium {
+-            display: flex;
+-            justify-content: space-between;
+-            align-items: center;
+-            padding: 1.15rem 1.25rem;
+-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+-            font-family: 'Plus Jakarta Sans', sans-serif;
+-            font-weight: 700;
+-            font-size: 0.95rem;
+-            color: #ffffff;
+-        }
+-
+-        .mark-all-read-btn {
+-            background: transparent;
+-            border: none;
+-            color: var(--gold);
+-            font-size: 0.78rem;
+-            font-weight: 600;
+-            cursor: pointer;
+-            transition: var(--transition);
+-            text-transform: uppercase;
+-            letter-spacing: 0.5px;
+-        }
+-
+-        .mark-all-read-btn:hover {
+-            color: var(--gold-light);
+-            text-decoration: underline;
+-        }
+-
+-        .dropdown-notification-list {
+-            max-height: 380px;
+-            overflow-y: auto;
+-        }
+-
+-        .dropdown-footer-premium {
+-            padding: 1rem;
+-            text-align: center;
+-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+-            background: rgba(0,0,0,0.2);
+-        }
+-
+-        .dropdown-footer-premium a {
+-            color: var(--gold);
+-            text-decoration: none;
+-            font-size: 0.85rem;
+-            font-weight: 600;
+-            transition: var(--transition);
+-        }
+-
+-        .dropdown-footer-premium a:hover {
+-            color: var(--gold-light);
+-            text-decoration: underline;
+-        }
+-
+-        /* --- Notification Item --- */
+-        .notification-item {
+-            display: flex;
+-            gap: 12px;
+-            padding: 1rem 1.25rem;
+-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+-            transition: var(--transition);
+-            cursor: pointer;
+-            position: relative;
+-        }
+-
+-        .notification-item:hover {
+-            background: rgba(255, 255, 255, 0.02);
+-        }
+-
+-        .notification-item.unread {
+-            background: rgba(223, 186, 134, 0.03);
+-            border-left: 3px solid var(--gold);
+-        }
+-
+-        .notif-icon-circle {
+-            width: 38px;
+-            height: 38px;
+-            border-radius: 50%;
+-            display: flex;
+-            align-items: center;
+-            justify-content: center;
+-            font-size: 1.15rem;
+-            flex-shrink: 0;
+-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+-        }
+-
+-        /* Type Colors */
+-        .notif-order { background: rgba(223, 186, 134, 0.1); color: var(--gold); border: 1px solid rgba(223, 186, 134, 0.2); }
+-        .notif-payment { background: rgba(46, 196, 182, 0.1); color: #2ec4b6; border: 1px solid rgba(46, 196, 182, 0.2); }
+-        .notif-kitchen { background: rgba(253, 150, 68, 0.1); color: #fd9644; border: 1px solid rgba(253, 150, 68, 0.2); }
+-        .notif-reservation { background: rgba(0, 210, 211, 0.1); color: #00d2d3; border: 1px solid rgba(0, 210, 211, 0.2); }
+-        .notif-staff { background: rgba(165, 94, 234, 0.1); color: #a55eea; border: 1px solid rgba(165, 94, 234, 0.2); }
+-        .notif-system { background: rgba(235, 94, 85, 0.1); color: #eb5e55; border: 1px solid rgba(235, 94, 85, 0.2); }
+-
+-        .notif-details {
+-            display: flex;
+-            flex-direction: column;
+-            gap: 2px;
+-            flex-grow: 1;
+-        }
+-
+-        .notif-title-row {
+-            display: flex;
+-            justify-content: space-between;
+-            align-items: baseline;
+-        }
+-
+-        .notif-title-text {
+-            font-family: 'Plus Jakarta Sans', sans-serif;
+-            font-weight: 600;
+-            font-size: 0.88rem;
+-            color: #ffffff;
+-        }
+-
+-        .notif-time {
+-            font-size: 0.72rem;
+-            color: var(--gray);
+-        }
+-
+-        .notif-body-text {
+-            font-size: 0.78rem;
+-            color: var(--gray);
+-            line-height: 1.4;
+-            margin: 0;
+-            display: -webkit-box;
+-            -webkit-line-clamp: 2;
+-            -webkit-box-orient: vertical;
+-            overflow: hidden;
+-        }
+-
+-        .notif-unread-dot {
+-            width: 8px;
+-            height: 8px;
+-            background-color: var(--gold);
+-            border-radius: 50%;
+-            position: absolute;
+-            right: 1.25rem;
+-            bottom: 1.25rem;
+-            box-shadow: 0 0 6px var(--gold);
+-        }
+-
+-        /* --- Toasts System --- */
+-        .toast-container-medusa {
+-            position: fixed;
+-            bottom: 2rem;
+-            right: 2rem;
+-            z-index: 9999;
+-            display: flex;
+-            flex-direction: column;
+-            gap: 12px;
+-            max-width: 360px;
+-            width: 90%;
+-            pointer-events: none;
+-        }
+-
+-        .toast-medusa {
+-            background: rgba(18, 17, 17, 0.95);
+-            border: 1px solid rgba(223, 186, 134, 0.15);
+-            border-radius: 12px;
+-            padding: 1rem 1.25rem;
+-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+-            display: flex;
+-            align-items: flex-start;
+-            gap: 12px;
+-            backdrop-filter: blur(8px);
+-            -webkit-backdrop-filter: blur(8px);
+-            pointer-events: auto;
+-            transform: translateY(30px);
+-            opacity: 0;
+-            animation: slideInToast 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+-            transition: opacity 0.3s, transform 0.3s;
+-        }
+-
+-        @keyframes slideInToast {
+-            to { transform: translateY(0); opacity: 1; }
+-        }
+-
+-        .toast-medusa.fade-out {
+-            transform: translateY(-20px);
+-            opacity: 0;
+-        }
+-
+-        .toast-medusa-icon {
+-            font-size: 1.25rem;
+-            flex-shrink: 0;
+-        }
+-
+-        .toast-medusa-content {
+-            flex-grow: 1;
+-        }
+-
+-        .toast-medusa-title {
+-            font-family: 'Plus Jakarta Sans', sans-serif;
+-            font-weight: 700;
+-            font-size: 0.88rem;
+-            color: #ffffff;
+-            margin-bottom: 2px;
+-        }
+-
+-        .toast-medusa-body {
+-            font-size: 0.78rem;
+-            color: var(--gray);
+-            margin: 0;
+-            line-height: 1.35;
+-        }
+-
+-        .toast-medusa-close {
+-            background: transparent;
+-            border: none;
+-            color: var(--gray);
+-            font-size: 0.8rem;
+-            cursor: pointer;
+-            padding: 0;
+-            flex-shrink: 0;
+-            transition: var(--transition);
+-        }
+-
+-        .toast-medusa-close:hover {
+-            color: #ffffff;
+-        }
+-
+-        /* --- Empty State Styles --- */
+-        .notif-empty-state {
+-            text-align: center;
+-            padding: 2.5rem 1.5rem;
+-            color: var(--gray);
+-        }
+-
+-        .notif-empty-icon {
+-            font-size: 2.5rem;
+-            color: rgba(223, 186, 134, 0.15);
+-            margin-bottom: 1rem;
+-        }
+-
+-        .notif-empty-title {
+-            font-family: 'Plus Jakarta Sans', sans-serif;
+-            font-weight: 600;
+-            font-size: 0.95rem;
+-            color: #ffffff;
+-            margin-bottom: 4px;
+-        }
+-
+-        .notif-empty-desc {
+-            font-size: 0.78rem;
+-            margin: 0;
+-        }
+-
+-        /* --- Filters & Badges on Center Page --- */
+-        .notif-filter-btn {
+-            background: rgba(255, 255, 255, 0.02);
+-            border: 1px solid rgba(255, 255, 255, 0.06);
+-            color: var(--gray);
+-            padding: 0.5rem 1rem;
+-            border-radius: 20px;
+-            font-size: 0.85rem;
+-            font-weight: 600;
+-            transition: var(--transition);
+-            cursor: pointer;
+-        }
+-
+-        .notif-filter-btn:hover {
+-            border-color: rgba(223, 186, 134, 0.3);
+-            color: #ffffff;
+-        }
+-
+-        .notif-filter-btn.active {
+-            background: rgba(223, 186, 134, 0.08);
+-            border-color: var(--gold);
+-            color: var(--gold);
+-        }
+-
+-        /* Read state for row */
+-        .notif-row.read-row {
+-            opacity: 0.72;
+-        }
+-        .notif-row.unread-row {
+-            background: rgba(223, 186, 134, 0.015);
+-        }
+-
+-        /* Sound Control Switch */
+-        .sound-toggle-container {
+-            display: flex;
+-            align-items: center;
+-            gap: 8px;
+-            font-size: 0.82rem;
+-            color: var(--gray);
+-        }
+-
+-        /* Light Mode Visible Overrides */
+-        html.light-mode .notification-dropdown-menu {
+-            background: rgba(255, 255, 255, 0.98);
+-            border-color: rgba(223, 186, 134, 0.35);
+-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+-        }
+-        html.light-mode .dropdown-header-premium, 
+-        html.light-mode .notif-title-text,
+-        html.light-mode .notif-empty-title {
+-            color: #0f172a;
+-        }
+-        html.light-mode .toast-medusa {
+-            background: rgba(255, 255, 255, 0.98);
+-            border-color: rgba(223, 186, 134, 0.35);
+-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+-        }
+-        html.light-mode .toast-medusa-title {
+-            color: #0f172a;
+-        }
+-        html.light-mode .notification-item.unread {
+-            background: rgba(223, 186, 134, 0.05);
+-        }
+-        html.light-mode .notif-filter-btn {
+-            background: rgba(0,0,0,0.02);
+-            border-color: rgba(0,0,0,0.08);
+-        }
+-        html.light-mode .notif-filter-btn.active {
+-            background: rgba(223, 186, 134, 0.1);
+-            color: #b89225;
+-        }
+-        html.light-mode .notif-row-title {
+-            color: #0f172a !important;
+-        }
+-
+-        /* --- Image Dropzone & Selector --- */
+-        .image-dropzone-premium {
+-            border: 2px dashed rgba(223, 186, 134, 0.3);
+-            border-radius: 12px;
+-            background: rgba(255, 255, 255, 0.01);
+-            padding: 1.5rem 1rem;
+-            text-align: center;
+-            cursor: pointer;
+-            transition: var(--transition);
+-        }
+-        .image-dropzone-premium:hover, 
+-        .image-dropzone-premium.dragover {
+-            border-color: var(--gold);
+-            background: rgba(223, 186, 134, 0.04);
+-        }
+-        .dropzone-icon {
+-            font-size: 2.2rem;
+-            color: var(--gold);
+-            margin-bottom: 8px;
+-            opacity: 0.8;
+-            transition: var(--transition);
+-        }
+-        .image-dropzone-premium:hover .dropzone-icon {
+-            transform: translateY(-2px);
+-            opacity: 1;
+-        }
+-        .dropzone-text {
+-            font-size: 0.82rem;
+-            color: #ffffff;
+-            font-weight: 500;
+-            margin-bottom: 4px;
+-        }
+-        .dropzone-text span {
+-            color: var(--gold);
+-            text-decoration: underline;
+-        }
+-        .dropzone-subtext {
+-            font-size: 0.72rem;
+-            color: var(--gray);
+-        }
+-        .btn-outline-gold {
+-            border: 1px solid rgba(223, 186, 134, 0.4);
+-            color: var(--gold);
+-            background: transparent;
+-            font-size: 0.78rem;
+-            font-weight: 600;
+-            padding: 0.35rem 0.85rem;
+-            border-radius: 20px;
+-            transition: var(--transition);
+-        }
+-        .btn-outline-gold:hover,
+-        .btn-outline-gold.active {
+-            background: var(--gold) !important;
+-            color: #000000 !important;
+-            border-color: var(--gold) !important;
+-        }
+-        html.light-mode .dropzone-text {
+-            color: #0f172a;
+-        }
+-
+-        /* Luxury Action Buttons Styles */
+-        .btn-luxury-action {
+-            display: inline-flex;
+-            align-items: center;
+-            justify-content: center;
+-            height: 38px;
+-            width: 42px;
+-            padding: 0;
+-            border-radius: 8px;
+-            font-size: 0.95rem;
+-            font-weight: 600;
+-            border: 1px solid transparent;
+-            transition: var(--transition);
+-            background: transparent;
+-            color: #ffffff;
+-            cursor: pointer;
+-        }
+-
+-        /* Customization manager button width override to contain badge */
+-        .btn-luxury-action.btn-luxury-custom {
+-            border-color: rgba(223, 186, 134, 0.3);
+-            background: rgba(223, 186, 134, 0.05);
+-            color: var(--gold);
+-            width: auto;
+-            padding: 0 14px;
+-        }
+-        .btn-luxury-action.btn-luxury-custom:hover {
+-            border-color: var(--gold);
+-            background: rgba(223, 186, 134, 0.15);
+-            color: var(--gold-light);
+-            box-shadow: 0 0 12px rgba(223, 186, 134, 0.15);
+-        }
+-        .btn-luxury-action.btn-luxury-custom.active {
+-            background-color: var(--gold);
+-            color: #000000;
+-            border-color: var(--gold);
++            color: var(--white) !important;
++            border-color: rgba(0, 0, 0, 0.08) !important;
+         }
+-        .btn-luxury-action.btn-luxury-custom.active:hover {
+-            background-color: var(--gold-light);
+-            border-color: var(--gold-light);
++
++        html.light-mode .list-group-item.bg-dark:hover {
++            background-color: rgba(223, 186, 134, 0.08) !important;
+         }
+ 
+-        /* Customization count badge */
+-        .luxury-badge.bg-gold-badge {
+-            background-color: var(--gold);
+-            color: #0a0a0a;
+-            font-size: 0.72rem;
+-            font-weight: 700;
+-            padding: 2px 6px;
+-            border-radius: 4px;
+-            margin-left: 6px;
+-            display: inline-block;
+-            line-height: 1;
+-            transition: var(--transition);
++        html.light-mode .content-card,
++        html.light-mode .metric-card,
++        html.light-mode .qr-card-view,
++        html.light-mode .kitchen-col,
++        html.light-mode .kitchen-card,
++        html.light-mode .tables-zone-box {
++            background-color: var(--bg-secondary);
++            border: 1px solid rgba(0, 0, 0, 0.08);
++            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+         }
+-        .btn-luxury-action.btn-luxury-custom.active .luxury-badge.bg-gold-badge {
+-            background-color: #000000;
+-            color: var(--gold);
++
++        html.light-mode .table-cell {
++            background-color: #f1f5f9;
++            border-color: rgba(0, 0, 0, 0.08);
+         }
+ 
+-        /* Edit action button */
+-        .btn-luxury-action.btn-luxury-edit {
+-            border-color: rgba(255, 255, 255, 0.12);
+-            background: rgba(255, 255, 255, 0.03);
+-            color: var(--white);
++        html.light-mode .table-cell.occupied {
++            background-color: rgba(223, 186, 134, 0.1);
++            border-color: var(--gold);
+         }
+-        .btn-luxury-action.btn-luxury-edit:hover {
+-            border-color: var(--white);
+-            background: rgba(255, 255, 255, 0.15);
++
++        html.light-mode .table-cell .table-name {
+             color: var(--white);
+         }
+ 
+-        /* Delete action button */
+-        .btn-luxury-action.btn-luxury-delete {
+-            border-color: rgba(239, 68, 68, 0.25);
+-            background: rgba(239, 68, 68, 0.05);
+-            color: #fca5a5;
++        html.light-mode .premium-table th {
++            color: var(--gray);
++            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+         }
+-        .btn-luxury-action.btn-luxury-delete:hover {
+-            border-color: #ef4444;
+-            background: rgba(239, 68, 68, 0.18);
+-            color: #ffffff;
+-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
++
++        html.light-mode .premium-table td {
++            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+         }
+ 
+-        /* Custom switch styling */
+-        .premium-switch .form-check-input {
+-            width: 2.6em;
+-            height: 1.3em;
+-            background-color: rgba(255, 255, 255, 0.1);
+-            border-color: rgba(255, 255, 255, 0.15);
+-            cursor: pointer;
+-            transition: var(--transition);
++        html.light-mode .form-control-dashboard,
++        html.light-mode .form-control,
++        html.light-mode .form-select {
++            background-color: #f1f5f9 !important;
++            color: var(--white) !important;
++            border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+         }
+-        .premium-switch .form-check-input:checked {
+-            background-color: var(--success-color);
+-            border-color: var(--success-color);
++
++        html.light-mode .form-control-dashboard:focus,
++        html.light-mode .form-control:focus,
++        html.light-mode .form-select:focus {
++            border-color: var(--gold) !important;
++            background-color: #ffffff !important;
+         }
+ 
+-        /* Responsive Alignment: Prevent wrap in Actions column */
+-        .premium-table td:last-child {
+-            white-space: nowrap;
+-            width: 1%; /* Shrink column to fit contents without wrapping */
++        html.light-mode .modal-content {
++            background-color: var(--bg-secondary) !important;
++            color: var(--white) !important;
++            border: 1px solid rgba(0, 0, 0, 0.1) !important;
++            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15) !important;
+         }
+ 
+-        /* LIGHT MODE OVERRIDES FOR ACTIONS */
+-        html.light-mode .btn-luxury-action.btn-luxury-edit {
+-            border-color: rgba(0, 0, 0, 0.15);
+-            background: rgba(0, 0, 0, 0.03);
++        html.light-mode .btn-close {
++            filter: invert(1) grayscale(100%) brightness(0%);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-edit:hover {
+-            border-color: var(--white);
+-            background: rgba(0, 0, 0, 0.08);
++
++        html.light-mode .btn-outline-light {
++            border-color: #cbd5e1;
++            color: #475569;
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-custom {
+-            border-color: rgba(184, 134, 11, 0.3);
+-            background: rgba(184, 134, 11, 0.04);
++
++        html.light-mode .btn-outline-light:hover {
++            background-color: #f1f5f9;
++            color: #1e293b;
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-custom:hover {
+-            border-color: #b8860b;
+-            background: rgba(184, 134, 11, 0.12);
++
++        html.light-mode .status-pending {
++            background-color: rgba(223, 186, 134, 0.15);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-custom.active {
+-            background-color: #b8860b;
+-            color: #ffffff;
+-            border-color: #b8860b;
++
++        html.light-mode .status-preparing {
++            background-color: rgba(59, 130, 246, 0.15);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-custom.active:hover {
+-            background-color: #9b7008;
+-            border-color: #9b7008;
++
++        html.light-mode .status-ready {
++            background-color: rgba(46, 196, 182, 0.15);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-custom.active .luxury-badge.bg-gold-badge {
+-            background-color: #ffffff;
+-            color: #b8860b;
++
++        html.light-mode .status-completed {
++            background-color: rgba(40, 167, 69, 0.15);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-delete {
+-            border-color: rgba(220, 38, 38, 0.25);
+-            background: rgba(220, 38, 38, 0.04);
+-            color: #dc2626;
++
++        html.light-mode .status-cancelled {
++            background-color: rgba(220, 53, 69, 0.15);
+         }
+-        html.light-mode .btn-luxury-action.btn-luxury-delete:hover {
+-            border-color: #b91c1c;
+-            background: rgba(220, 38, 38, 0.12);
+-            color: #ffffff;
++
++        /* Smooth Transition */
++        body, 
++        .sidebar, 
++        .sidebar-link, 
++        .main-content, 
++        .content-card, 
++        .metric-card, 
++        .kitchen-col, 
++        .kitchen-card, 
++        .table-cell, 
++        .form-control, 
++        .form-select, 
++        .form-control-dashboard,
++        .premium-table td,
++        .page-title,
++        .card-header-premium {
++            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+         }
+-</style>
+-</head>
+-<body>
+-<button id="sidebarToggle" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar" title="Toggle sidebar"><i class="fas fa-bars"></i></button>
+-
+-
+-    <!-- GLOBAL HEADER ACTIONS (THEME & NOTIFICATIONS) -->
+-    <div style="position: fixed; top: 2rem; right: 2.5rem; z-index: 1050; display: flex; align-items: center; gap: 12px;">
+-        <!-- Notification Bell Dropdown -->
+-        <div class="notification-dropdown-wrapper">
+-            <button id="notificationBellBtn" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: var(--transition); position: relative;" onclick="toggleNotificationDropdown(event)" title="Notifications">
+-                <i class="fas fa-bell" style="color: var(--gold); font-size: 1.2rem;"></i>
+-                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+-            </button>
+-            <div id="notificationDropdownMenu" class="notification-dropdown-menu">
+-                <div class="dropdown-header-premium">
+-                    <span>Notifications</span>
+-                    <button class="mark-all-read-btn" onclick="markAllNotificationsRead(event)">Mark all read</button>
+-                </div>
+-                <div id="dropdownNotificationList" class="dropdown-notification-list">
+-                    <!-- Loaded dynamically via polling -->
+-                </div>
+-                <div class="dropdown-footer-premium">
+-                    <a href="javascript:void(0)" onclick="goToNotificationsTab(event)">View All Notifications</a>
+-                </div>
+-            </div>
+-        </div>
++    
+ 
+-        <!-- Theme Toggle -->
+-        <button id="themeToggleBtn" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: var(--transition);" onclick="toggleTheme()" title="Toggle Theme">
+-            <i class="fas fa-moon" id="themeIcon" style="color: var(--gold); font-size: 1.2rem;"></i>
+-        </button>
+-    </div>
++/* ===== CHATGPT FINAL UI FIX ===== */
++.sidebar{
++    transition:all .3s ease;
++    width:260px;
++    height: 100vh;
++    overflow-y: auto;
++}
++.sidebar::-webkit-scrollbar {
++    width: 6px;
++}
++.sidebar::-webkit-scrollbar-track {
++    background: transparent;
++}
++.sidebar::-webkit-scrollbar-thumb {
++    background: rgba(223, 186, 134, 0.4);
++    border-radius: 4px;
++}
++.sidebar::-webkit-scrollbar-thumb:hover {
++    background: rgba(223, 186, 134, 0.8);
++}
++.sidebar.collapsed{
++    width:80px;
++    padding-left:.8rem;
++    padding-right:.8rem;
++}
++.sidebar.collapsed .sidebar-brand span,
++.sidebar.collapsed .sidebar-link span{
++    display:none;
++}
++.sidebar.collapsed .sidebar-link,
++.sidebar.collapsed .sidebar-brand {
++    justify-content:center;
++}
++.main-content{
++    transition:all .3s ease;
++}
++.main-content.expanded{
++    margin-left:80px!important;
++}
+ 
+-    <!-- LEFT SIDEBAR -->
+-    <div class="sidebar">
+-        <div class="sidebar-brand" style="display: flex; align-items: center; gap: 8px;">
+-            <img src="../assets/images/versace_logo.png" alt="Medusa Logo" style="height: 32px; border-radius: 50%; border: 1px solid var(--gold); padding: 1px;">
+-            <span>Admin</span>
+-        </div>
+-        <ul class="sidebar-menu">
+-            <li>
+-                <a class="sidebar-link active" onclick="switchTab('dashboard-tab', this)">
+-                    <i class="fas fa-chart-line"></i>
+-                    <span>Dashboard</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('orders-tab', this)">
+-                    <i class="fas fa-receipt"></i>
+-                    <span>Orders</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('tables-tab', this)">
+-                    <i class="fas fa-chair"></i>
+-                    <span>Tables & QR</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('kitchen-tab', this)">
+-                    <i class="fas fa-fire-burner"></i>
+-                    <span>Kitchen Panel</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('menu-tab', this)">
+-                    <i class="fas fa-book-open"></i>
+-                    <span>Menu Card</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('customers-tab', this)">
+-                    <i class="fas fa-users"></i>
+-                    <span>Customers</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('mass-emails-tab', this)">
+-                    <i class="fas fa-envelope"></i>
+-                    <span>Mass Emails</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('liquor-tab', this); loadActiveQuotas();">
+-                    <i class="fas fa-wine-bottle"></i>
+-                    <span>Liquor Quota</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('payments-tab', this)">
+-                    <i class="fas fa-wallet"></i>
+-                    <span>Payments</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('careers-tab', this)">
+-                    <i class="fas fa-briefcase"></i>
+-                    <span>Careers</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('reports-tab', this)">
+-                    <i class="fas fa-file-invoice-dollar"></i>
+-                    <span>Reports</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('notifications-tab', this); fetchNotificationsPage(0);">
+-                    <i class="fas fa-bell"></i>
+-                    <span>Notifications</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('driver-tab', this)">
+-                    <i class="fas fa-motorcycle"></i>
+-                    <span>Driver View</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a class="sidebar-link" onclick="switchTab('settings-tab', this)">
+-                    <i class="fas fa-sliders"></i>
+-                    <span>Settings</span>
+-                </a>
+-            </li>
+-            <li>
+-                <a href="../api/logout.php" class="sidebar-link text-danger">
+-                    <i class="fas fa-sign-out-alt"></i>
+-                    <span>Logout</span>
+-                </a>
+-            </li>
+-        </ul>
+-    </div>
++/* Sidebar toggle: top-left */
++  #sidebarToggle{
++      position:fixed;
++      left: 215px;
++      top: 1.25rem;
++      z-index:2000;
++      width:40px;
++      height:40px;
++      display: flex;
++      align-items:center;
++      justify-content:center;
++      background: transparent;
++      border: 1px solid transparent;
++      color: #94a3b8;
++      border-radius: 8px;
++      transition:all .25s ease;
++  }
++  #sidebarToggle:hover{
++      background: rgba(255,255,255,0.05);
++      color: #fff;
++      border-color: rgba(255,255,255,0.1);
++  }
++  html.light-mode #sidebarToggle{
++      color: #475569;
++  }
++  html.light-mode #sidebarToggle:hover{
++      background: rgba(15,23,42,0.05);
++      border-color: rgba(15,23,42,0.1);
++  }
++  #sidebarToggle.closed { opacity: 0; pointer-events: none; visibility: hidden; }
+ 
+-    <!-- MAIN CONTAINER -->
+-    <div class="main-content">
+-        
+-        <!-- ==================== DRIVER TAB ==================== -->
+-        <div id="driver-tab" class="tab-panel" style="height: calc(100vh - 40px); overflow: hidden; padding: 0;">
+-            <iframe src="driver.php" style="width: 100%; height: 100%; border: none; border-radius: 12px;"></iframe>
+-        </div>
++/* Gold action buttons: consistent and no wrapping */
++.btn-gold-action{
++    width:auto!important;
++    min-width:108px!important;
++    height:42px!important;
++    min-height:42px!important;
++    padding:0 14px!important;
++    display:inline-flex!important;
++    align-items:center!important;
++    justify-content:center!important;
++    gap:8px!important;
++    white-space:nowrap!important;
++    line-height:1!important;
++    flex-wrap:nowrap!important;
++    vertical-align:middle;
++}
++.btn-gold-action i{
++    flex:0 0 auto;
++}
++.btn-action-form{
++    min-width:112px!important;
++}
++.btn-action-wide{
++    min-width:148px!important;
++}
++.btn-action-full{
++    width:100%!important;
++    min-width:0!important;
++}
++.btn-icon-only{
++    min-width:42px!important;
++    width:42px!important;
++    padding:0!important;
++}
++.content-card .btn-gold-action{
++    max-height:42px!important;
++}
+ 
+-        <!-- ==================== DASHBOARD TAB ==================== -->
+-        <div id="dashboard-tab" class="tab-panel active">
+-            <div class="page-header">
+-                <h1 class="page-title"><?php echo htmlspecialchars($settings['restaurant_name']); ?></h1>
+-                <p class="page-subtitle">Premium Command Center for Client Demo</p>
+-            </div>
++/* Dark mode visibility fixes */
++html:not(.light-mode) .form-label,
++html:not(.light-mode) label,
++html:not(.light-mode) th,
++html:not(.light-mode) .text-muted,
++html:not(.light-mode) .small,
++html:not(.light-mode) .card-header-premium,
++html:not(.light-mode) .page-subtitle{
++    color:#cbd5e1!important;
++}
++html:not(.light-mode) input,
++html:not(.light-mode) select,
++html:not(.light-mode) textarea,
++.form-control-dashboard{
++    color:var(--white)!important;
++}
++html:not(.light-mode) input::placeholder,
++html:not(.light-mode) textarea::placeholder{
++    color:#9ca3af!important;
++    opacity:1;
++}
++html:not(.light-mode) .premium-table td{
++    color:#f5f5f5!important;
++}
++html:not(.light-mode) .premium-table th{
++    color:#94a3b8!important;
++}
++html:not(.light-mode) .form-control-dashboard:focus,
++html:not(.light-mode) .form-control:focus,
++html:not(.light-mode) .form-select:focus{
++    color:var(--white)!important;
++}
+ 
+-            <!-- METRIC CARDS GRID -->
+-            <div class="metric-grid">
+-                <div class="metric-card">
+-                    <div class="metric-info">
+-                        <h5>Total Orders</h5>
+-                        <div class="value"><?php echo $total_orders; ?></div>
+-                    </div>
+-                    <div class="metric-icon"><i class="fas fa-shopping-basket"></i></div>
++/* Align buttons in filter rows a bit closer to fields */
++.content-card form .row.g-3 > [class*="col-"]{
++    align-self:flex-start;
++}
++.content-card form .row.g-3 > [class*="col-"]:has(.btn-gold-action){
++    align-self:end;
++}
++
++/* Mobile drawer */
++@media(max-width:768px){
++      .sidebar{
++          transform:translateX(-100%);
++          width:260px;
++          z-index:2500;
++      }
++      .sidebar.mobile-open{
++          transform:translateX(0);
++          width:260px;
++      }
++      .main-content{
++          margin-left:0!important;
++          padding-left:1rem;
++          padding-right:1rem;
++      }
++      .main-content.expanded{
++          margin-left:0!important;
++      }
++      #sidebarToggle{
++          left:1rem!important;
++          top:1.25rem!important;
++          bottom:auto!important;
++      }
+                 </div>
+                 <div class="metric-card">
+                     <div class="metric-info">
+                         <h5>Total Revenue</h5>
+-                        <div class="value">Γé╣<?php echo number_format($total_revenue, 2); ?></div>
++                        <div class="value" id="dash_total_revenue">Γé╣<?php echo number_format($total_revenue, 2); ?></div>
+                     </div>
+                     <div class="metric-icon"><i class="fas fa-dollar-sign"></i></div>
+                 </div>
+                 <div class="metric-card">
+                     <div class="metric-info">
+                         <h5>Online Orders</h5>
+-                        <div class="value"><?php echo $online_orders_count; ?></div>
++                        <div class="value" id="dash_online_orders"><?php echo $online_orders_count; ?></div>
+                     </div>
+                     <div class="metric-icon"><i class="fas fa-globe"></i></div>
+                 </div>
+                 <div class="metric-card">
+                     <div class="metric-info">
+                         <h5>Active Tables</h5>
+-                        <div class="value"><?php echo $active_tables_count; ?></div>
++                        <div class="value" id="dash_active_tables"><?php echo $active_tables_count; ?></div>
+                     </div>
+                     <div class="metric-icon"><i class="fas fa-chair"></i></div>
+                 </div>
+                 <div class="metric-card">
+                     <div class="metric-info">
+                         <h5>Today's Sales</h5>
+-                        <div class="value">Γé╣<?php echo number_format($today_sales, 2); ?></div>
++                        <div class="value" id="dash_today_sales">Γé╣<?php echo number_format($today_sales, 2); ?></div>
+                     </div>
+                     <div class="metric-icon"><i class="fas fa-cash-register"></i></div>
+                 </div>
+                 <div class="metric-card">
+                     <div class="metric-info">
+                         <h5>Top Dish</h5>
+-                        <div class="value" style="font-size: 1.1rem; line-height: 1.6;"><?php echo htmlspecialchars($top_dish_name); ?></div>
++                        <div class="value" id="dash_top_dish" style="font-size: 1.1rem; line-height: 1.6;"><?php echo htmlspecialchars($top_dish_name ?? 'N/A'); ?></div>
+                     </div>
+                     <div class="metric-icon"><i class="fas fa-star"></i></div>
+                 </div>
+@@ -3930,7 +3179,7 @@ html:not(.light-mode) .form-select:focus{
+                             <select id="payment_method_select" class="form-select bg-dark text-white border-secondary form-control-dashboard">
+                                 <option value="all">All Methods</option>
+                                 <option value="cash">Cash</option>
+-                                <option value="upi">UPI</option>
++                                <option value="upi">UPI (GPay/Paytm)</option>
+                                 <option value="card">Card</option>
+                                 <option value="netbanking">Net Banking</option>
+                                 <option value="wallet">Wallet</option>
+@@ -5223,7 +4472,6 @@ html:not(.light-mode) .form-select:focus{
+                 btnAct.onclick = () => {
+                     bootstrap.Modal.getInstance(document.getElementById('tableQRModal')).hide();
+                     switchTab('orders-tab', document.querySelector('.sidebar-link[onclick*="orders-tab"]'));
+-                    // Load table active order
+                     // Look up order matching tableCode
+                     fetch('dashboardtest.php?action=get_kitchen_orders')
+                     .then(res => res.json())
+@@ -6297,7 +5545,7 @@ html:not(.light-mode) .form-select:focus{
+             if (ordG) { ordG.className = parseFloat(summary.orders_growth) >= 0 ? 'text-success' : 'text-danger'; ordG.innerHTML = growthBadge(summary.orders_growth); }
+ 
+             const aov = document.getElementById('rep_aov');
+-            const aovG = document.getElementById('rep_aov_growth');
++            const aovG = document.getElementById('aov_growth');
+             if (aov) aov.textContent = fmtINR(summary.aov);
+             if (aovG) { aovG.className = parseFloat(summary.aov_growth) >= 0 ? 'text-success' : 'text-danger'; aovG.innerHTML = growthBadge(summary.aov_growth); }
+ 
+@@ -7710,12 +6958,12 @@ function printTableQR() {
+ }
+     document.getElementById('massEmailForm').addEventListener('submit', async function(e) {
+         e.preventDefault();
+-        const btn = document.getElementById('sendBtn');
++        const submitBtn = document.getElementById('sendBtn');
+         const alert = document.getElementById('emailAlert');
+-        const originalText = btn.innerHTML;
++        const originalText = submitBtn.innerHTML;
+         
+-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...';
+-        btn.disabled = true;
++        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Sending...';
++        submitBtn.disabled = true;
+         alert.className = 'alert d-none';
+         
+         try {
+@@ -7728,25 +6976,87 @@ function printTableQR() {
+             
+             alert.classList.remove('d-none');
+             if (result.success) {
+-                alert.classList.add('alert-success');
+-                alert.innerText = result.message;
+-                this.reset();
++                alert.className = 'alert alert-success';
++                alert.textContent = 'Newsletter sent successfully to all opted-in customers!';
++                document.getElementById('massEmailForm').reset();
++                if (window.editor) {
++                    window.editor.setData('');
++                }
+             } else {
+-                alert.classList.add('alert-danger');
+-                alert.innerText = result.message;
++                alert.className = 'alert alert-danger';
++                alert.textContent = 'Error: ' + (result.message || 'Failed to send newsletter.');
+             }
+-        } catch (err) {
++        } catch (error) {
++            console.error('Error sending newsletter:', error);
+             alert.classList.remove('d-none');
+-            alert.classList.add('alert-danger');
+-            alert.innerText = 'Failed to send mass email due to a network error.';
++            alert.className = 'alert alert-danger';
++            alert.textContent = 'An error occurred while sending the newsletter.';
+         } finally {
+-            btn.innerHTML = originalText;
+-            btn.disabled = false;
++            submitBtn.disabled = false;
++            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Mass Email';
++        }
++    });
++
++    // Hide global header actions on scroll down, show on scroll up
++    let lastScrollY = window.scrollY;
++    window.addEventListener('scroll', () => {
++        const headerActions = document.getElementById('globalHeaderActions');
++        if (!headerActions) return;
++        if (window.scrollY > lastScrollY && window.scrollY > 50) {
++            // Scrolling down
++            headerActions.style.top = '-100px';
++        } else {
++            // Scrolling up
++            headerActions.style.top = '1.25rem';
+         }
++        lastScrollY = window.scrollY;
+     });
++
++    // Dashboard Auto Polling
++    function pollDashboardMetrics() {
++        // Only poll if dashboard tab is active
++        if (localStorage.getItem('medusa_active_admin_tab') !== 'dashboard-tab') return;
++        
++        fetch('dashboardtest.php?action=get_dashboard_metrics')
++            .then(res => res.json())
++            .then(data => {
++                if (data.success) {
++                    const elTotalOrders = document.getElementById('dash_total_orders');
++                    const elTotalRevenue = document.getElementById('dash_total_revenue');
++                    const elOnlineOrders = document.getElementById('dash_online_orders');
++                    const elTodaySales = document.getElementById('dash_today_sales');
++                    const elTopDish = document.getElementById('dash_top_dish');
++                    const elActiveTables = document.getElementById('dash_active_tables');
++
++                    if (elTotalOrders) elTotalOrders.innerText = data.total_orders;
++                    if (elTotalRevenue) elTotalRevenue.innerText = 'Γé╣' + data.total_revenue;
++                    if (elOnlineOrders) elOnlineOrders.innerText = data.online_orders_count;
++                    if (elTodaySales) elTodaySales.innerText = 'Γé╣' + data.today_sales;
++                    if (elTopDish) elTopDish.innerText = data.top_dish;
++                    if (elActiveTables) elActiveTables.innerText = data.active_tables_count;
++
++                    if (window.salesChartInstance && data.chart_labels && data.chart_data) {
++                        window.salesChartInstance.data.labels = data.chart_labels;
++                        window.salesChartInstance.data.datasets[0].data = data.chart_data;
++                        window.salesChartInstance.update();
++                    }
++                }
++            })
++            .catch(console.error);
++    }
++    
++    // Start polling every 10 seconds
++    setInterval(pollDashboardMetrics, 10000);
+ </script>
+ </body>
+ </html>
+ 
+ 
+ 
++
++
++
++
++
++
++

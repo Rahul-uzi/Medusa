@@ -1,0 +1,217 @@
+/* LIGHT MODE OVERRIDES FOR CUSTOMER AND SYSTEM PAGES */
+html.light-mode {
+    /* For register/login pages */
+    --bg-glass: rgba(250, 247, 240, 0.95);
+    --border-glass: rgba(223, 186, 134, 0.35);
+    --white: #132F20;
+    --gray-light: rgba(19, 47, 32, 0.7);
+
+    /* For PHP pages (my-orders, order-details, order-success) */
+    --bg-dark: #FAF7F0;
+    --bg-secondary: #F5F1E5;
+    --bg-card: rgba(255, 255, 255, 0.96);
+    --gray: #4A524D;
+
+    /* For kitchen react panel */
+    --bg: #FAF7F0;
+    --bg-card: #ffffff;
+    --bg-card2: #F5F1E5;
+    --bg-hover: #EBE5D3;
+    --text: #132F20;
+    --text-dim: #3F4E45;
+    --text-muted: #6D7E73;
+    --border: rgba(19, 47, 32, 0.1);
+    --border-light: rgba(19, 47, 32, 0.15);
+    --gold-dim: rgba(223, 186, 134, 0.08);
+}
+
+html.light-mode body {
+    --dark: #FAF7F0;
+    --card-bg: rgba(255, 255, 255, 0.96);
+    --border-light: rgba(19, 47, 32, 0.1);
+    --border-hover: rgba(19, 47, 32, 0.25);
+    background-color: #FAF7F0 !important;
+    background: #FAF7F0 !important;
+    color: #132F20 !important;
+}
+
+html.light-mode .navbar {
+    background: rgba(250, 247, 240, 0.85) !important;
+    border-bottom: 1px solid rgba(19, 47, 32, 0.08) !important;
+}
+
+html.light-mode .navbar-brand span {
+    color: #132F20 !important;
+}
+
+html.light-mode .nav-link {
+    color: #1C3B2B !important;
+}
+
+html.light-mode .nav-link:hover {
+    color: var(--gold) !important;
+}
+
+html.light-mode .section-title,
+html.light-mode .card-content h3,
+html.light-mode .reviewer-name,
+html.light-mode .faq-header h3,
+html.light-mode .feature-item h3,
+html.light-mode .hero-title,
+html.light-mode footer h5,
+html.light-mode .book-title,
+html.light-mode .cart-title,
+html.light-mode h1,
+html.light-mode h2,
+html.light-mode h3,
+html.light-mode h4,
+html.light-mode h5 {
+    color: #132F20 !important;
+}
+
+html.light-mode p,
+html.light-mode li,
+html.light-mode td,
+html.light-mode .faq-content p,
+html.light-mode .feature-item p,
+html.light-mode .review-text,
+html.light-mode .text-secondary {
+    color: #4A524D !important;
+}
+
+html.light-mode .premium-card {
+    background: #ffffff !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(19, 47, 32, 0.04) !important;
+}
+
+html.light-mode .feature-item {
+    background: #ffffff !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+}
+
+html.light-mode .review-card {
+    background: #ffffff !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+}
+
+html.light-mode footer {
+    background: #ffffff !important;
+    border-top: 1px solid rgba(19, 47, 32, 0.08) !important;
+    color: #4A524D !important;
+}
+
+html.light-mode footer input.form-control {
+    background: #F5F1E5 !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+    color: #132F20 !important;
+}
+
+html.light-mode footer input.form-control:focus {
+    background: #ffffff !important;
+    border-color: var(--gold) !important;
+    color: #132F20 !important;
+}
+
+html.light-mode .form-control,
+html.light-mode .form-select {
+    background-color: #ffffff !important;
+    color: #132F20 !important;
+    border: 1px solid rgba(19, 47, 32, 0.15) !important;
+}
+
+html.light-mode .form-control:focus,
+html.light-mode .form-select:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 0.2rem rgba(223, 186, 134, 0.25) !important;
+}
+
+html.light-mode .card,
+html.light-mode .checkout-card,
+html.light-mode .cart-card,
+html.light-mode .order-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(19, 47, 32, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(19, 47, 32, 0.04) !important;
+    color: #132F20 !important;
+}
+
+html.light-mode .table {
+    color: #132F20 !important;
+}
+
+html.light-mode th {
+    color: #4A524D !important;
+    border-bottom: 2px solid rgba(19, 47, 32, 0.08) !important;
+}
+
+html.light-mode td {
+    color: #132F20 !important;
+    border-bottom: 1px solid rgba(19, 47, 32, 0.05) !important;
+}
+
+html.light-mode .hero-overlay {
+    background: radial-gradient(circle, rgba(250, 247, 240, 0.2) 0%, rgba(250, 247, 240, 0.85) 100%) !important;
+}
+
+html.light-mode .scroll-indicator .mouse-icon {
+    border-color: #132F20 !important;
+}
+
+html.light-mode .scroll-indicator .scroll-wheel {
+    background-color: #132F20 !important;
+}
+
+html.light-mode .stat-label {
+    color: #4A524D !important;
+}
+
+/* Specific component overrides for Login, Register, My Orders, Order Success, Order Details, Kitchen */
+html.light-mode .address-text,
+html.light-mode .items-table td,
+html.light-mode .item-row,
+html.light-mode .meta-col strong,
+html.light-mode .invoice-header h4,
+html.light-mode .invoice-meta strong,
+html.light-mode .member-text,
+html.light-mode .input-icon {
+    color: #132F20 !important;
+}
+
+html.light-mode .input-field {
+    color: #132F20 !important;
+}
+
+html.light-mode .input-field::placeholder {
+    color: rgba(19, 47, 32, 0.5) !important;
+}
+
+html.light-mode .input-field:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #132F20 !important;
+}
+
+html.light-mode .login-container {
+    box-shadow: 0 25px 60px rgba(19, 47, 32, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Receipt card on success/details pages */
+html.light-mode .receipt-card,
+html.light-mode .invoice-box {
+    background: rgba(19, 47, 32, 0.02) !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+}
+
+/* Status cards on dashboard/orders */
+html.light-mode .status-card {
+    background-color: #ffffff !important;
+    border-color: rgba(19, 47, 32, 0.08) !important;
+}
+html.light-mode .status-icon {
+    color: #132F20 !important;
+}
+
+/* Transitions for smooth theme shifts */
+body, .navbar, .nav-link, .premium-card, .feature-item, .review-card, footer, .form-control, .form-select, .card, p, h1, h2, h3, h4, h5, td, th {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
