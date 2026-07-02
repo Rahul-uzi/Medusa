@@ -241,22 +241,24 @@ if (isset($_GET['tab'])) {
                 $type      = (strpos(strtolower($order['delivery_address']), 'table') !== false) ? 'Dine-in' : 'Delivery';
                 // Compute real ETA countdown from estimated_delivery
                 $estTime = '---';
-                if (!empty($order['estimated_delivery'])) {
-                    $eta_ts  = strtotime($order['estimated_delivery']);
-                    $now_ts  = time();
-                    $diff_s  = $eta_ts - $now_ts;
-                    if ($diff_s > 0) {
-                        $eta_mins = ceil($diff_s / 60);
-                        $estTime  = $eta_mins === 1 ? '1 min' : $eta_mins . ' mins';
-                    } elseif ($diff_s > -300) { // within 5 min past ETA
-                        $estTime = 'Arriving';
-                    } else {
-                        $estTime = '---';
+                if ($curStep > 0 && $curStep < 5) {
+                    if (!empty($order['estimated_delivery'])) {
+                        $eta_ts  = strtotime($order['estimated_delivery']);
+                        $now_ts  = time();
+                        $diff_s  = $eta_ts - $now_ts;
+                        if ($diff_s > 0) {
+                            $eta_mins = ceil($diff_s / 60);
+                            $estTime  = $eta_mins === 1 ? '1 min' : $eta_mins . ' mins';
+                        } else {
+                            $estTime = 'Arriving Soon';
+                        }
+                    } elseif ($curStep === 1) {
+                        $estTime = '20-25 mins';
+                    } elseif ($curStep >= 2 && $curStep <= 3) {
+                        $estTime = '10-15 mins';
+                    } elseif ($curStep === 4) {
+                        $estTime = '5 mins';
                     }
-                } elseif ($curStep === 1) {
-                    $estTime = '20-25 mins';
-                } elseif ($curStep >= 2 && $curStep <= 3) {
-                    $estTime = '10-15 mins';
                 }
             ?>
 
