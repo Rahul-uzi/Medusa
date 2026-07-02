@@ -89,7 +89,7 @@ $current_step = $step_order[$tracking_status] ?? 1;
             if (typeof __initTrackMap === 'function') __initTrackMap();
         }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiHCxp2jLKJOxy_pteRZbiMaWxkg2Mepk&libraries=places&loading=async&callback=initGoogleMapsTrack" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8bChBlpr9n8_DkOwlSBUXPLp1atLx-aM&libraries=places&loading=async&callback=initGoogleMapsTrack" defer></script>
 
     <style>
         :root {
@@ -737,7 +737,7 @@ const TOKEN   = <?php echo json_encode($token); ?>;
 const POLL_MS = 10000;
 const DELIVERY_ADDRESS = <?php echo json_encode($order['delivery_address']); ?>;
 const DELIVERY_CITY = <?php echo json_encode($order['delivery_city'] ?? ''); ?>;
-const GMAPS_KEY = 'AIzaSyBiHCxp2jLKJOxy_pteRZbiMaWxkg2Mepk';
+const GMAPS_KEY = 'AIzaSyD8bChBlpr9n8_DkOwlSBUXPLp1atLx-aM';
 
 let currentStep = <?php echo $current_step; ?>;
 setFill(currentStep);
