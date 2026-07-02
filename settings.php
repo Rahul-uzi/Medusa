@@ -3987,9 +3987,33 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                     body: JSON.stringify({ provider })
                 });
                 const result = await response.json();
-                showToast(result.message, result.success ? 'success' : 'error');
-                if (result.success) {
-                    setTimeout(() => location.reload(), 1500);
+                
+                if (result.success && result.status === 'auth_required') {
+                    // Open popup for OAuth
+                    const width = 500;
+                    const height = 600;
+                    const left = (window.screen.width / 2) - (width / 2);
+                    const top = (window.screen.height / 2) - (height / 2);
+                    window.open(result.url, '_blank', `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`);
+                    
+                    // Listen for popup message
+                    const listener = (event) => {
+                        if (event.data && event.data.status) {
+                            if (event.data.status === 'success') {
+                                showToast('Account connected successfully!', 'success');
+                                setTimeout(() => location.reload(), 1500);
+                            } else {
+                                showToast('Social login failed: ' + (event.data.message || 'Unknown error'), 'error');
+                            }
+                            window.removeEventListener('message', listener);
+                        }
+                    };
+                    window.addEventListener('message', listener);
+                } else {
+                    showToast(result.message, result.success ? 'success' : 'error');
+                    if (result.success) {
+                        setTimeout(() => location.reload(), 1500);
+                    }
                 }
             } catch (err) {
                 showToast('Network error while toggling account.', 'error');

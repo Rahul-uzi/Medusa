@@ -465,10 +465,13 @@ try {
             $pdo->prepare("UPDATE users SET $col = NULL WHERE id = ?")->execute([$user_id]);
             echo json_encode(['success' => true, 'status' => 'disconnected', 'message' => ucfirst($provider) . ' account disconnected.']);
         } else {
-            // Connect (Mock ID)
-            $mock_id = $provider . '_' . bin2hex(random_bytes(8));
-            $pdo->prepare("UPDATE users SET $col = ? WHERE id = ?")->execute([$mock_id, $user_id]);
-            echo json_encode(['success' => true, 'status' => 'connected', 'message' => ucfirst($provider) . ' account successfully connected!']);
+            // Connect (Real OAuth Flow)
+            echo json_encode([
+                'success' => true,
+                'status' => 'auth_required',
+                'url' => 'api/oauth-init.php?provider=' . $provider . '&action=connect',
+                'message' => 'Redirecting to ' . ucfirst($provider) . ' for authorization...'
+            ]);
         }
         exit;
     }

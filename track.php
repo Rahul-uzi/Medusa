@@ -8,7 +8,7 @@ require_once __DIR__ . '/api/config.php';
 $token = trim($_GET['token'] ?? $_SESSION['active_order_token'] ?? '');
 
 // Validate token format
-if (strlen($token) !== 64 || !ctype_xdigit($token)) {
+if (strlen($token) < 32 || !ctype_xdigit($token)) {
     header('Location: menutest.html');
     exit;
 }
@@ -578,16 +578,23 @@ $current_step = $step_order[$tracking_status] ?? 1;
                 </div>
             </div>
             <?php
-            $eta_mins_php = null;
+            $eta_text_php = '';
             if (!empty($order['estimated_delivery']) && !$terminal) {
                 $diff_sec = strtotime($order['estimated_delivery']) - time();
-                $eta_mins_php = $diff_sec > 0 ? ceil($diff_sec / 60) : null;
+                if ($diff_sec > 0) {
+                    $eta_mins_php = ceil($diff_sec / 60);
+                    $eta_text_php = $eta_mins_php === 1 ? '1 min away' : $eta_mins_php . ' mins away';
+                } else {
+                    $eta_text_php = 'Arriving soon';
+                }
+            } elseif (!$terminal) {
+                $eta_text_php = 'Processing...';
             }
             ?>
-            <?php if ($eta_mins_php !== null): ?>
+            <?php if (!empty($eta_text_php)): ?>
             <div class="eta-badge" id="etaBadge">
                 <i class="fas fa-clock"></i>
-                <?php echo $eta_mins_php === 1 ? '1 min away' : $eta_mins_php . ' mins away'; ?>
+                <?php echo htmlspecialchars($eta_text_php); ?>
             </div>
             <?php else: ?>
             <div class="eta-badge" id="etaBadge" style="display:none;"></div>
