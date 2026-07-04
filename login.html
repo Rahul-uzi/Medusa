@@ -1058,6 +1058,7 @@
         }
 
         // Login form submit
+        // Login form submit
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('loginBtn');
@@ -1077,6 +1078,20 @@
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
+
+                if (result.success && result.requires_2fa) {
+                    // 2FA required — show OTP modal
+                    const dest = result.destination || '';
+                    document.getElementById('tfa-dest-hint').textContent =
+                        `A 6-digit code was sent to your ${result.delivery}: ${dest}`;
+                    document.getElementById('tfa-otp-msg').textContent = result.message || '';
+                    document.getElementById('tfa-otp-input').value = '';
+                    document.getElementById('tfaModal').classList.add('active');
+                    btn.textContent = 'Log In';
+                    btn.disabled = false;
+                    return;
+                }
+
                 if (result.success) {
                     try {
                         localStorage.removeItem('foodie_cart');
@@ -1100,6 +1115,62 @@
             btn.textContent = 'Log In';
             btn.disabled = false;
         });
+
+        // 2FA OTP verification
+        async function verifyLoginOTP() {
+            const otp = document.getElementById('tfa-otp-input').value.trim();
+            const btn = document.getElementById('tfa-verify-btn');
+            const msgEl = document.getElementById('tfa-error-msg');
+
+            if (!otp || otp.length < 6) {
+                msgEl.textContent = 'Please enter the 6-digit code.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying…';
+            msgEl.textContent = '';
+
+            try {
+                const res = await fetch('api/verify_2fa.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    msgEl.style.color = '#2ecc71';
+                    msgEl.textContent = result.message;
+                    try {
+                        localStorage.removeItem('foodie_cart');
+                        localStorage.removeItem('foodie_cart_timestamp');
+                    } catch(e) {}
+                    setTimeout(() => {
+                        if (result.user && (result.user.role === 'admin' || result.user.role === 'driver')) {
+                            window.location.href = 'admintest/dashboardtest.php';
+                        } else {
+                            window.location.href = 'menutest.html';
+                        }
+                    }, 1200);
+                } else {
+                    msgEl.style.color = '#e74c3c';
+                    msgEl.textContent = result.message || 'Invalid code. Please try again.';
+                    btn.disabled = false;
+                    btn.textContent = 'Verify';
+                }
+            } catch(err) {
+                msgEl.style.color = '#e74c3c';
+                msgEl.textContent = 'Network error. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Verify';
+            }
+        }
+
+        function closeTfaModal() {
+            document.getElementById('tfaModal').classList.remove('active');
+            document.getElementById('tfa-otp-input').value = '';
+            document.getElementById('tfa-error-msg').textContent = '';
+        }
 
         // Forgot Password Modal
         const modal = document.getElementById('forgotModal');
@@ -1189,6 +1260,35 @@
             btn.textContent = 'Reset Password'; btn.disabled = false;
         }
     </script>
+
+
+    <!-- 2FA OTP Modal -->
+    <div id="tfaModal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; padding:2.5rem 2rem; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.3); position:relative; text-align:center;">
+            <button onclick="closeTfaModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#999;">&times;</button>
+            <div style="width:60px;height:60px;background:linear-gradient(135deg,#4A151D,#8B3A45);border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-shield-halved" style="color:#C09B5B;font-size:1.5rem;"></i>
+            </div>
+            <h3 style="font-family:'Playfair Display',serif;color:#332222;margin-bottom:0.5rem;">Two-Factor Verification</h3>
+            <p id="tfa-dest-hint" style="color:#887a7a;font-size:0.85rem;margin-bottom:0.25rem;"></p>
+            <p id="tfa-otp-msg" style="color:#C09B5B;font-size:0.8rem;margin-bottom:1.5rem;"></p>
+            <input type="text" id="tfa-otp-input" maxlength="6" inputmode="numeric" pattern="[0-9]*"
+                placeholder="000000"
+                style="width:200px;font-size:2rem;letter-spacing:10px;text-align:center;border:2px solid rgba(192,155,91,0.3);border-radius:10px;padding:0.6rem;outline:none;font-weight:700;color:#332222;margin-bottom:1rem;"
+                onkeydown="if(event.key==='Enter') verifyLoginOTP()">
+            <p id="tfa-error-msg" style="font-size:0.85rem;min-height:1.2rem;margin-bottom:1rem;"></p>
+            <button id="tfa-verify-btn" onclick="verifyLoginOTP()"
+                style="background:linear-gradient(135deg,#4A151D,#8B3A45);color:#fff;border:none;border-radius:8px;padding:0.75rem 2.5rem;font-size:1rem;font-weight:600;cursor:pointer;letter-spacing:0.5px;width:100%;">
+                Verify
+            </button>
+            <button onclick="closeTfaModal()" style="margin-top:0.75rem;background:none;border:none;color:#887a7a;font-size:0.85rem;cursor:pointer;text-decoration:underline;">Back to Login</button>
+        </div>
+    </div>
+
+    <style>
+        #tfaModal.active { display: flex !important; }
+        #tfa-otp-input:focus { border-color: #C09B5B; box-shadow: 0 0 0 3px rgba(192,155,91,0.15); }
+    </style>
 
 </body>
 

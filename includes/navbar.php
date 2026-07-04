@@ -120,16 +120,16 @@ if (!empty($_SESSION['user_id'])) {
                 <!-- Dropdown List -->
                 <div id="nav-profile-dropdown" class="hidden absolute right-0 mt-[12px] w-max min-w-[150px] bg-[#F8F3EB] border border-solid border-[#3B111B]/10 rounded-2xl shadow-[0_10px_30px_rgba(59,17,27,0.1)] overflow-hidden z-[110] p-2 flex flex-col gap-1">
                     <a href="profile.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">My Profile</a>
-                    <a href="my-orders.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">My Orders</a>
-                    <a href="profile.php#pill-reservations" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Reservations</a>
-                    <a href="profile.php#pill-loyalty" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Rewards</a>
-                    <a href="api/logout.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-red-600 hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 border-t border-solid border-[#3B111B]/10 no-underline uppercase mt-1 pt-2">Logout</a>
+                    <a href="profile.php?tab=reservations" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Reservations</a>
+                    <a href="profile.php?tab=loyalty" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Rewards</a>
+                    <a href="settings.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Settings</a>
+                    <a href="api/logout.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-red-600 hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Logout</a>
                 </div>
             </div>
         <?php endif; ?>
 
         <!-- Reservation Button (Desktop/Tablet) -->
-        <a href="book-table-test.html" class="hidden md:block text-[0.72rem] font-medium tracking-[2px] uppercase text-[#C8A25A] border border-solid border-[#C8A25A]/60 px-[18px] py-2 hover:bg-[#C8A25A]/10 transition-all no-underline">Reserve a Table</a>
+        <a href="book-table-test.html" class="hidden md:block text-[0.72rem] font-medium tracking-[2px] uppercase text-[#C8A25A] border border-solid px-[18px] py-2 hover:bg-[#C8A25A]/10 transition-all no-underline" style="border-color: #C8A25A !important;">Reserve a Table</a>
 
         <!-- Mobile Hamburger Toggle -->
         <button id="nav-mobile-toggle" class="lg:hidden text-[#F8EACE] bg-transparent border-none cursor-pointer text-xl p-1 outline-none">
@@ -157,7 +157,7 @@ if (!empty($_SESSION['user_id'])) {
         <a href="login.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Login</a>
     <?php endif; ?>
     
-    <a href="book-table-test.html" class="text-xs font-semibold tracking-[2px] uppercase text-[#C8A25A] border border-solid border-[#C8A25A]/60 px-6 py-2.5 hover:bg-[#C8A25A]/10 transition-all no-underline mt-4">Reserve a Table</a>
+    <a href="book-table-test.html" class="text-xs font-semibold tracking-[2px] uppercase text-[#C8A25A] border border-solid px-6 py-2.5 hover:bg-[#C8A25A]/10 transition-all no-underline mt-4" style="border-color: #C8A25A !important;">Reserve a Table</a>
 </div>
 
 <!-- Spacer to push down content so it doesn't get hidden under the fixed navbar -->

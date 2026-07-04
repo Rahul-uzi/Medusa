@@ -47,6 +47,17 @@ if (!$order) {
     exit;
 }
 
+// Auto-cancel active orders older than 12 hours
+$isOlderThan12Hrs = (time() - strtotime($order['order_date'])) > (12 * 3600);
+if ($isOlderThan12Hrs && !in_array(strtolower($order['tracking_status']), ['delivered', 'cancelled', 'completed'])) {
+    try {
+        $upd_stmt = $pdo->prepare("UPDATE orders SET order_status = 'cancelled', tracking_status = 'cancelled', cancellation_reason = 'System auto-cancelled: exceeded 12 hours limit' WHERE id = ?");
+        $upd_stmt->execute([$order['id']]);
+        $order['tracking_status'] = 'cancelled';
+        $order['order_status'] = 'cancelled';
+    } catch (Exception $e) {}
+}
+
 // Clean up session if order is terminal
 $terminal = in_array($order['tracking_status'], ['delivered', 'cancelled']);
 if ($terminal) {
@@ -89,7 +100,7 @@ $current_step = $step_order[$tracking_status] ?? 1;
             if (typeof __initTrackMap === 'function') __initTrackMap();
         }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8bChBlpr9n8_DkOwlSBUXPLp1atLx-aM&libraries=places&loading=async&callback=initGoogleMapsTrack" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo htmlspecialchars(get_env_var('GOOGLE_MAPS_API_KEY', '')); ?>&libraries=places&loading=async&callback=initGoogleMapsTrack" defer></script>
 
     <style>
         :root {
@@ -571,7 +582,7 @@ $current_step = $step_order[$tracking_status] ?? 1;
                         'out_for_delivery' => 'Your order is on its way to you!',
                         'ready_for_pickup' => 'Your order is ready! Please collect it at the restaurant counter.',
                         'delivered'        => $is_takeaway ? 'Your order has been picked up from our counter. Enjoy your meal!' : 'Your order has been delivered. Enjoy your meal!',
-                        'cancelled'        => 'This order has been cancelled.'
+                        'cancelled'        => $isOlderThan12Hrs ? 'This order could not be delivered. Money will be sent to you soon, if not received, please call us.' : 'This order has been cancelled.'
                     ];
                     echo $msgs[$tracking_status] ?? '';
                     ?>
@@ -737,7 +748,7 @@ const TOKEN   = <?php echo json_encode($token); ?>;
 const POLL_MS = 10000;
 const DELIVERY_ADDRESS = <?php echo json_encode($order['delivery_address']); ?>;
 const DELIVERY_CITY = <?php echo json_encode($order['delivery_city'] ?? ''); ?>;
-const GMAPS_KEY = 'AIzaSyD8bChBlpr9n8_DkOwlSBUXPLp1atLx-aM';
+const GMAPS_KEY = '<?php echo htmlspecialchars(get_env_var('GOOGLE_MAPS_API_KEY', '')); ?>';
 
 let currentStep = <?php echo $current_step; ?>;
 setFill(currentStep);
@@ -820,26 +831,39 @@ function _createGMap() {
 function _geocodeCustomer() {
     const geocoder = new google.maps.Geocoder();
     let addr = DELIVERY_ADDRESS.replace(/Table\s+[A-Za-z0-9]+/gi, '').trim();
-    geocoder.geocode({ address: addr }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-            const pos = results[0].geometry.location;
-            customerMarker = new google.maps.Marker({
-                position: pos,
-                map: gmap,
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 9,
-                    fillColor: '#c9a84c',
-                    fillOpacity: 1,
-                    strokeColor: '#fff',
-                    strokeWeight: 2,
-                },
-                title: 'Your Location',
-                zIndex: 5,
-            });
-            gmap.setCenter(pos);
-        }
+    
+    // Extract coordinates if present in bracket suffix
+    const coordMatch = addr.match(/\[([0-9.-]+),\s*([0-9.-]+)\]/);
+    if (coordMatch) {
+        const lat = parseFloat(coordMatch[1]);
+        const lng = parseFloat(coordMatch[2]);
+        const pos = { lat: lat, lng: lng };
+        _placeCustomerMarker(pos);
+    } else {
+        geocoder.geocode({ address: addr }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+                _placeCustomerMarker(results[0].geometry.location);
+            }
+        });
+    }
+}
+
+function _placeCustomerMarker(pos) {
+    customerMarker = new google.maps.Marker({
+        position: pos,
+        map: gmap,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: '#c9a84c',
+            fillOpacity: 1,
+            strokeColor: '#fff',
+            strokeWeight: 2,
+        },
+        title: 'Your Location',
+        zIndex: 5,
     });
+    gmap.setCenter(pos);
 }
 
 function _updateDriverMarker(lat, lng) {

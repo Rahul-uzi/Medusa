@@ -15,9 +15,9 @@ $account_page_title = $is_settings_page ? 'Account Settings' : 'Profile';
 require_once __DIR__ . '/api/config.php';
 requireLogin();
 
-$user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['user_name'];
-$user_email = $_SESSION['user_email'];
+$user_id = $_SESSION['user_id'] ?? null;
+$user_name = $_SESSION['user_name'] ?? '';
+$user_email = $_SESSION['user_email'] ?? '';
 
 // Fetch user profile info
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -79,12 +79,14 @@ $preferred_ambience = $user['preferred_ambience'] ?? '';
 $settings_stmt = $pdo->prepare("SELECT * FROM user_settings WHERE user_id = ?");
 $settings_stmt->execute([$user_id]);
 $settings = $settings_stmt->fetch(PDO::FETCH_ASSOC) ?: [
-    'email_notifications' => 1,
-    'sms_notifications' => 1,
-    'promotional_offers' => 1,
-    'privacy_mode' => 0,
-    'language' => 'en',
-    'theme' => 'dark'
+    'email_notifications'  => 1,
+    'sms_notifications'    => 1,
+    'promotional_offers'   => 1,
+    'privacy_mode'         => 0,
+    'language'             => 'en',
+    'theme'                => 'dark',
+    'two_factor_enabled'   => 0,
+    'login_alerts'         => 1
 ];
 
 // Fetch orders for history
@@ -141,7 +143,7 @@ $tier_stmt->execute([$user_id]);
 $tier_info = $tier_stmt->fetch(PDO::FETCH_ASSOC);
 if (!$tier_info) $tier_info = [];
 $user_tier_id = intval($tier_info['tier_id'] ?? 1);
-$user_tier_name = $tier_info['tier_name'] ?? 'Silver';
+$user_tier_name = $tier_info['tier_name'] ?? 'Bronze';
 $user_tier_discount = floatval($tier_info['discount_percent'] ?? 10.00);
 
 // Fetch points balance and statistics
@@ -186,6 +188,18 @@ $upcoming_reservation = $upcoming_stmt->fetch(PDO::FETCH_ASSOC);
 $login_logs_stmt = $pdo->prepare("SELECT * FROM login_activity_logs WHERE user_id = ? ORDER BY login_time DESC LIMIT 6");
 $login_logs_stmt->execute([$user_id]);
 $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch trusted devices (successful, unrevoked unique IP/UA sessions)
+$trusted_devices_stmt = $pdo->prepare("
+    SELECT MAX(id) as id, ip_address, user_agent, MAX(login_time) as last_used 
+    FROM login_activity_logs 
+    WHERE user_id = ? AND status = 'success' AND (revoked IS NULL OR revoked = 0)
+    GROUP BY ip_address, user_agent 
+    ORDER BY last_used DESC 
+    LIMIT 5
+");
+$trusted_devices_stmt->execute([$user_id]);
+$trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -591,9 +605,9 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .section-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
+            font-size: 2rem !important;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text-dark) !important;
             margin-bottom: 1.5rem;
             padding-bottom: 0.75rem;
             display: flex;
@@ -608,7 +622,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         /* Inputs & Forms styling */
         .form-control-medusa {
-            background: #ffffff;
+            background-color: #ffffff;
             border: 1px solid rgba(0, 0, 0, 0.1);
             color: var(--text-dark) !important;
             padding: 0.75rem 1rem;
@@ -618,7 +632,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .form-control-medusa:focus {
-            background: #ffffff;
+            background-color: #ffffff;
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(192, 155, 91, 0.15);
             outline: none;
@@ -767,9 +781,13 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
         .tag-pending { background: rgba(230,126,34,0.15); color: #e67e22; border: 1px solid rgba(230,126,34,0.2); cursor: pointer; }
 
         /* Accordion Customization */
+        .accordion-collapse.collapse.show {
+            visibility: visible !important;
+        }
+        
         .accordion-item-medusa {
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid var(--border-glass);
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
             border-radius: 8px !important;
             margin-bottom: 0.75rem;
             overflow: hidden;
@@ -777,7 +795,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .accordion-button-medusa {
             background: transparent !important;
-            color: #fff !important;
+            color: var(--text-dark) !important;
             font-weight: 600;
             padding: 1.1rem;
             border: none !important;
@@ -786,14 +804,14 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .accordion-button-medusa:not(.collapsed) {
             color: var(--gold) !important;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
 
         .accordion-body-medusa {
             padding: 1.2rem;
-            color: var(--gray);
+            color: var(--text-dark) !important;
             line-height: 1.6;
-            font-size: 0.92rem;
+            font-size: 0.95rem;
         }
 
         /* Star Rating */
@@ -806,7 +824,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .star-rating i {
-            color: rgba(255,255,255,0.2);
+            color: rgba(0,0,0,0.15);
             transition: var(--transition);
         }
 
@@ -1039,46 +1057,46 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <nav class="sidebar-menu nav flex-column nav-pills" role="tablist">
                     <?php if (!$is_settings_page): ?>
                     <!-- Profile Dashboard Group -->
-                    <button class="nav-link active dashboard-pill-profile" id="pill-profile-tab" data-bs-toggle="pill" data-bs-target="#pill-profile" type="button" role="tab">
+                    <button class="nav-link active dashboard-pill-profile" id="pill-profile-tab" data-bs-target="#pill-profile" type="button" role="tab">
                         <i class="fa-regular fa-user"></i> Profile Overview
                     </button>
-                    <button class="nav-link dashboard-pill-profile" id="pill-orders-tab" data-bs-toggle="pill" data-bs-target="#pill-orders" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-orders-tab" data-bs-target="#pill-orders" type="button" role="tab">
                         <i class="fa-solid fa-receipt"></i> Order History
                     </button>
-                    <button class="nav-link dashboard-pill-profile" id="pill-reservations-tab" data-bs-toggle="pill" data-bs-target="#pill-reservations" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-reservations-tab" data-bs-target="#pill-reservations" type="button" role="tab">
                         <i class="fa-regular fa-calendar-check"></i> Table Reservations
                     </button>
-                    <button class="nav-link dashboard-pill-profile" id="pill-loyalty-tab" data-bs-toggle="pill" data-bs-target="#pill-loyalty" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-loyalty-tab" data-bs-target="#pill-loyalty" type="button" role="tab">
                         <i class="fa-solid fa-crown"></i> My Tier & Rewards
                     </button>
-                    <button class="nav-link dashboard-pill-profile" id="pill-coupons-tab" data-bs-toggle="pill" data-bs-target="#pill-coupons" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-coupons-tab" data-bs-target="#pill-coupons" type="button" role="tab">
                         <i class="fa-solid fa-gift"></i> Coupons & Rewards
                     </button>
                     <?php if ($has_liquor_quota): ?>
-                    <button class="nav-link dashboard-pill-profile" id="pill-quota-tab" data-bs-toggle="pill" data-bs-target="#pill-quota" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-quota-tab" data-bs-target="#pill-quota" type="button" role="tab">
                         <i class="fa-solid fa-wine-bottle"></i> Liquor Quota
                     </button>
                     <?php endif; ?>
-                    <button class="nav-link dashboard-pill-profile" id="pill-membership-tab" data-bs-toggle="pill" data-bs-target="#pill-membership" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-membership-tab" data-bs-target="#pill-membership" type="button" role="tab">
                         <i class="fa-solid fa-id-badge"></i> Membership Pass
                     </button>
-                    <button class="nav-link dashboard-pill-profile" id="pill-notifications-tab" data-bs-toggle="pill" data-bs-target="#pill-notifications" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-profile" id="pill-notifications-tab" data-bs-target="#pill-notifications" type="button" role="tab">
                         <i class="fa-solid fa-bell"></i> Notifications Log
                     </button>
                     <!-- Hidden tab button for programmatic switching to Terms -->
-                    <button id="pill-terms-tab" data-bs-toggle="pill" data-bs-target="#pill-terms" type="button" role="tab" style="display: none;"></button>
+                    <button id="pill-terms-tab" data-bs-target="#pill-terms" type="button" role="tab" style="display: none;"></button>
                     <?php else: ?>
                     <!-- Settings Dashboard Group -->
-                    <button class="nav-link active dashboard-pill-settings" id="pill-settings-tab" data-bs-toggle="pill" data-bs-target="#pill-settings" type="button" role="tab">
+                    <button class="nav-link active dashboard-pill-settings" id="pill-settings-tab" data-bs-target="#pill-settings" type="button" role="tab">
                         <i class="fa-solid fa-sliders"></i> Account Settings
                     </button>
-                    <button class="nav-link dashboard-pill-settings" id="pill-security-tab" data-bs-toggle="pill" data-bs-target="#pill-security" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-settings" id="pill-security-tab" data-bs-target="#pill-security" type="button" role="tab">
                         <i class="fa-solid fa-shield-halved"></i> Security & Sessions
                     </button>
-                    <button class="nav-link dashboard-pill-settings" id="pill-feedback-tab" data-bs-toggle="pill" data-bs-target="#pill-feedback" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-settings" id="pill-feedback-tab" data-bs-target="#pill-feedback" type="button" role="tab">
                         <i class="fa-solid fa-star"></i> Customer Feedback
                     </button>
-                    <button class="nav-link dashboard-pill-settings" id="pill-support-tab" data-bs-toggle="pill" data-bs-target="#pill-support" type="button" role="tab">
+                    <button class="nav-link dashboard-pill-settings" id="pill-support-tab" data-bs-target="#pill-support" type="button" role="tab">
                         <i class="fa-solid fa-headset"></i> Support & Help
                     </button>
                     <?php endif; ?>
@@ -1106,7 +1124,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                                 <h4 class="mb-1" style="font-family: 'Playfair Display', serif;"><?php echo htmlspecialchars($user_tier_name); ?> Member</h4>
                                 <p class="mb-4" style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">You have <?php echo number_format($loyalty_points); ?> points</p>
-                                <a href="javascript:void(0)" onclick="document.getElementById('pill-loyalty-tab').click();" style="color: #0d6efd; font-size: 0.85rem; font-weight: 500; text-decoration: none;">View Rewards &rarr;</a>
+                                <a href="javascript:void(0)" onclick="goToProfileTab('loyalty');" style="color: #0d6efd; font-size: 0.85rem; font-weight: 500; text-decoration: none;">View Rewards &rarr;</a>
                             </div>
                         </div>
                     </div>
@@ -1271,7 +1289,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.2rem;">
                                 <i class="fa-regular fa-calendar-check me-2"></i> Upcoming Reservation
                             </h4>
-                            <a href="javascript:void(0)" onclick="document.getElementById('pill-reservations-tab').click();" class="text-dark text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">View All Reservations &rarr;</a>
+                            <a href="javascript:void(0)" onclick="goToProfileTab('reservations');" class="text-dark text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">View All Reservations &rarr;</a>
                         </div>
                         <?php if ($upcoming_reservation): ?>
                         <div class="bg-white p-4 rounded-4 border d-flex align-items-center gap-4 flex-wrap" style="border-color: rgba(0,0,0,0.05) !important;">
@@ -1289,7 +1307,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <div class="text-end">
                                 <span class="badge bg-success bg-opacity-10 text-success mb-3 d-inline-block text-uppercase" style="padding: 0.5rem 1rem;"><?php echo htmlspecialchars($upcoming_reservation['status']); ?></span><br>
-                                <button class="btn-gold-medusa" onclick="document.getElementById('pill-reservations-tab').click();" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;">VIEW DETAILS</button>
+                                <button class="btn-gold-medusa" onclick="goToProfileTab('reservations');" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;">VIEW DETAILS</button>
                             </div>
                         </div>
                         <?php else: ?>
@@ -2432,15 +2450,15 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="bg-white rounded-4 p-4 border h-100" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h5 class="mb-4" style="color: #5a2a35; font-family: 'Playfair Display', serif; font-weight: 700;">Manage Membership</h5>
                                 <div class="list-group list-group-flush border-0">
-                                    <a href="#" onclick="document.getElementById('pill-loyalty-tab').click(); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 mb-2 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
+                                    <a href="#" onclick="goToProfileTab('loyalty'); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 mb-2 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
                                         <span style="color: #333; font-weight: 500;"><i class="fa-solid fa-gift me-3 text-muted"></i> View Tier Benefits</span>
                                         <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
                                     </a>
-                                    <a href="#" onclick="document.getElementById('pill-orders-tab').click(); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 mb-2 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
+                                    <a href="#" onclick="goToProfileTab('orders'); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 mb-2 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
                                         <span style="color: #333; font-weight: 500;"><i class="fa-solid fa-file-invoice-dollar me-3 text-muted"></i> Transaction History</span>
                                         <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
                                     </a>
-                                    <a href="#" onclick="document.getElementById('pill-terms-tab').click(); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
+                                    <a href="#" onclick="goToProfileTab('terms'); return false;" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 rounded" style="background-color: #fcfcfc; border: 1px solid rgba(0,0,0,0.05);">
                                         <span style="color: #333; font-weight: 500;"><i class="fa-solid fa-file-contract me-3 text-muted"></i> Terms & Conditions</span>
                                         <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
                                     </a>
@@ -2522,7 +2540,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p class="text-muted" style="font-size: 0.95rem; line-height: 1.6;">By joining the membership program, you consent to the collection and use of your personal data for the purpose of managing your account and providing tailored offers. We prioritize your privacy and will never sell your information to third parties.</p>
 
                         <div class="mt-5 text-center border-top pt-4">
-                            <button class="btn" style="background-color: #5a2a35; color: white; padding: 0.6rem 1.5rem; font-weight: 500; border-radius: 6px;" onclick="document.getElementById('pill-membership-tab').click()">
+                            <button class="btn" style="background-color: #5a2a35; color: white; padding: 0.6rem 1.5rem; font-weight: 500; border-radius: 6px;" onclick="goToProfileTab('membership');">
                                 <i class="fa-solid fa-arrow-left me-2"></i> Back to Membership Pass
                             </button>
                         </div>
@@ -2532,7 +2550,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- ══ TAB 4: ACCOUNT SETTINGS ══ -->
                 <?php else: ?>
                 <div class="tab-pane fade show active" id="pill-settings" role="tabpanel">
-                    <h2 class="section-title mb-1" style="border:none; padding-bottom:0;">Account Settings</h2>
+                    <h2 class="section-title mb-1" style="border:none; padding-bottom:0; color: var(--text-dark) !important; font-size: 2rem !important;">Account Settings</h2>
                     <p class="text-muted mb-4" style="font-size: 0.9rem;">Manage your account preferences and security settings.</p>
                     
                     <div class="settings-subnav nav" role="tablist">
@@ -2567,7 +2585,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="col-md-6 p-3 border-bottom">
                                     <label class="text-muted d-block mb-1" style="font-size: 0.8rem;">Date of Birth</label>
                                     <div class="text-dark d-flex justify-content-between align-items-center" style="font-size: 0.95rem; font-weight: 500;">
-                                        15 Jan 1990 <i class="fa-regular fa-calendar text-muted"></i>
+                                        <?php echo htmlspecialchars($dob_display); ?> <i class="fa-regular fa-calendar text-muted"></i>
                                     </div>
                                 </div>
                                 <div class="col-md-6 p-3 border-bottom border-end">
@@ -2597,9 +2615,9 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                                <div class="col-md-6 p-3">
+                                <div class="col-md-6 p-3" <?php echo empty($preferred_ambience) ? 'style="display: none;"' : ''; ?>>
                                     <label class="text-muted d-block mb-1" style="font-size: 0.8rem;">Preferred Ambience</label>
-                                    <div class="text-dark" style="font-size: 0.95rem; font-weight: 500;">Lounge, Live Music, Outdoor Seating</div>
+                                    <div class="text-dark" style="font-size: 0.95rem; font-weight: 500;"><?php echo htmlspecialchars($preferred_ambience); ?></div>
                                 </div>
                             </div>
                         </div>
@@ -2614,7 +2632,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <h5 class="text-dark" style="font-size: 1rem; font-weight: 600;">Change Password</h5>
                                     <p class="text-muted flex-grow-1" style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.5rem;">Keep your account safe with a strong password.</p>
-                                    <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.5rem;" onclick="document.getElementById('pill-security-tab').click();">Change Password <i class="fa-solid fa-chevron-right ms-1"></i></button>
+                                    <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.5rem;" onclick="goToSettingsTab('security');">Change Password <i class="fa-solid fa-chevron-right ms-1"></i></button>
                                 </div>
                             </div>
                             <!-- Two-Factor Authentication -->
@@ -2625,33 +2643,17 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <h5 class="text-dark" style="font-size: 1rem; font-weight: 600;">Two-Factor<br>Authentication</h5>
                                     <p class="text-muted flex-grow-1" style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.5rem;">Add an extra layer of security to your account.</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="badge bg-success bg-opacity-10 text-success px-2 py-1" style="font-size: 0.75rem;">Enabled <i class="fa-solid fa-check ms-1"></i></span>
+                                    <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="goToSettingsTab('security');">
+                                        <?php if ($settings['two_factor_enabled']): ?>
+                                            <span id="tfa-status-badge" class="badge bg-success bg-opacity-10 text-success px-2 py-1" style="font-size: 0.75rem;">Enabled <i class="fa-solid fa-check ms-1"></i></span>
+                                        <?php else: ?>
+                                            <span id="tfa-status-badge" class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1" style="font-size: 0.75rem;">Disabled <i class="fa-solid fa-xmark ms-1"></i></span>
+                                        <?php endif; ?>
                                         <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Linked Accounts -->
-                            <div class="col-md-6 col-lg-3">
-                                <div class="settings-action-card">
-                                    <div class="settings-icon-container">
-                                        <i class="fa-solid fa-user-group"></i>
-                                    </div>
-                                    <h5 class="text-dark" style="font-size: 1rem; font-weight: 600;">Linked Accounts</h5>
-                                    <?php
-                                        $connected_count = (!empty($user['google_id']) ? 1 : 0) + (!empty($user['facebook_id']) ? 1 : 0) + (!empty($user['apple_id']) ? 1 : 0);
-                                    ?>
-                                    <p class="text-muted flex-grow-1" style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                                        Manage your connected accounts and services.
-                                        <?php if ($connected_count > 0): ?>
-                                            <br><span class="badge bg-success bg-opacity-10 text-success mt-2" style="font-size: 0.75rem;"><i class="fa-solid fa-link me-1"></i><?php echo $connected_count; ?> Connected</span>
-                                        <?php else: ?>
-                                            <br><span class="badge bg-secondary bg-opacity-10 text-muted mt-2" style="font-size: 0.75rem;"><i class="fa-solid fa-link-slash me-1"></i>None Connected</span>
-                                        <?php endif; ?>
-                                    </p>
-                                    <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.5rem;" data-bs-toggle="modal" data-bs-target="#linkedAccountsModal">Manage Accounts <i class="fa-solid fa-chevron-right ms-1"></i></button>
-                                </div>
-                            </div>
+
                             <!-- Login Activity -->
                             <div class="col-md-6 col-lg-3">
                                 <div class="settings-action-card">
@@ -2660,7 +2662,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <h5 class="text-dark" style="font-size: 1rem; font-weight: 600;">Login Activity</h5>
                                     <p class="text-muted flex-grow-1" style="font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.5rem;">Review your recent login activity.</p>
-                                    <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.5rem;" onclick="document.getElementById('pill-security-tab').click();">View Activity <i class="fa-solid fa-chevron-right ms-1"></i></button>
+                                    <button class="btn btn-outline-dark btn-sm text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.5rem;" onclick="goToSettingsTab('security');">View Activity <i class="fa-solid fa-chevron-right ms-1"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -2674,7 +2676,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <h5 class="text-danger mb-1" style="font-size: 1.05rem; font-weight: 600;">Danger Zone</h5>
                                 <p class="text-muted m-0" style="font-size: 0.8rem;">Once you delete your account, there is no going back.<br>Please be certain.</p>
                             </div>
-                            <button class="btn btn-outline-danger text-uppercase fw-bold bg-white" style="font-size: 0.8rem; letter-spacing: 0.5px; padding: 0.6rem 1.2rem; border-color: rgba(220,53,69,0.3);">Delete Account Permanently</button>
+                            <button type="button" class="btn btn-outline-danger text-uppercase fw-bold bg-white" style="font-size: 0.8rem; letter-spacing: 0.5px; padding: 0.6rem 1.2rem; border-color: rgba(220,53,69,0.3);" onclick="showDeleteAccountModal()">Delete Account Permanently</button>
                         </div>
 
                     </div> <!-- End of subnav-account -->
@@ -2763,13 +2765,21 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Change Password</h4>
                                 <form id="passwordForm" onsubmit="submitPasswordForm(event)">
+                                    <!-- Hidden username field for accessibility and password managers -->
+                                    <input type="text" id="hidden_username" name="username" autocomplete="username" value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>" style="display:none;" aria-hidden="true">
                                     <div class="mb-3">
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="cur_pass">Current Password *</label>
-                                        <input type="password" id="cur_pass" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" required>
+                                        <div class="input-group">
+                                            <input type="password" id="cur_pass" autocomplete="current-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" required>
+                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('cur_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="new_pass">New Password *</label>
-                                        <input type="password" id="new_pass" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" oninput="checkPassStrength(this.value)" required>
+                                        <div class="input-group">
+                                            <input type="password" id="new_pass" autocomplete="new-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" oninput="checkPassStrength(this.value)" required>
+                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('new_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                        </div>
                                         <div class="strength-bar mt-2">
                                             <div class="seg" id="seg1"></div>
                                             <div class="seg" id="seg2"></div>
@@ -2779,7 +2789,10 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                     <div class="mb-3">
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="conf_pass">Confirm New Password *</label>
-                                        <input type="password" id="conf_pass" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" required>
+                                        <div class="input-group">
+                                            <input type="password" id="conf_pass" autocomplete="new-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1); color: #000;" required>
+                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('conf_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-dark text-uppercase fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.6rem 1.2rem;">Update Password</button>
                                 </form>
@@ -2793,7 +2806,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <p class="text-muted m-0" style="font-size: 0.85rem;">Secure login with dynamic OTP codes.</p>
                                     </div>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="two_factor_toggle" <?php echo $settings['privacy_mode'] ? 'checked' : ''; ?> onchange="toggle2FA(this)">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="two_factor_toggle" <?php echo $settings['two_factor_enabled'] ? 'checked' : ''; ?> onchange="toggle2FA(this)">
                                     </div>
                                 </div>
                             </div>
@@ -2808,7 +2821,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <p class="text-muted m-0" style="font-size: 0.85rem;">Get notified of unrecognized logins.</p>
                                     </div>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="login_alerts_toggle" checked>
+                                        <input class="form-check-input" type="checkbox" role="switch" id="login_alerts_toggle" <?php echo (!isset($settings['login_alerts']) || $settings['login_alerts']) ? 'checked' : ''; ?> onchange="toggleLoginAlerts(this)">
                                     </div>
                                 </div>
                             </div>
@@ -2816,21 +2829,42 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <!-- New: Trusted Devices -->
                             <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Trusted Devices</h4>
-                                <ul class="list-group list-group-flush mb-3">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
-                                        <div>
-                                            <div style="font-size: 0.95rem; font-weight: 500;">iPhone 14 Pro Max</div>
-                                            <small class="text-muted">Currently active</small>
-                                        </div>
-                                        <span class="badge bg-success bg-opacity-10 text-success">Active</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-top">
-                                        <div>
-                                            <div style="font-size: 0.95rem; font-weight: 500;">MacBook Pro (Chrome)</div>
-                                            <small class="text-muted">Last used 2 days ago</small>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-danger">Revoke</button>
-                                    </li>
+                                <ul class="list-group list-group-flush mb-3" id="trusted-devices-list">
+                                    <?php
+                                    $current_ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+                                    $current_ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+                                    $has_devices = false;
+
+                                    foreach ($trusted_devices as $index => $device):
+                                        $has_devices = true;
+                                        $device_name = parseUserAgent($device['user_agent']);
+                                        $is_current = ($device['ip_address'] === $current_ip && $device['user_agent'] === $current_ua);
+                                        $border_class = $index === 0 ? 'border-0' : 'border-top';
+                                    ?>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 <?php echo $border_class; ?>" id="device-item-<?php echo $device['id']; ?>">
+                                            <div>
+                                                <div style="font-size: 0.95rem; font-weight: 500;"><?php echo htmlspecialchars($device_name); ?></div>
+                                                <small class="text-muted">
+                                                    <?php if ($is_current): ?>
+                                                        Currently active
+                                                    <?php else: ?>
+                                                        Last used: <?php echo date('M d, Y • h:i A', strtotime($device['last_used'])); ?>
+                                                    <?php endif; ?>
+                                                    <span class="ms-1" style="font-size: 0.75rem; opacity: 0.7;">(IP: <?php echo htmlspecialchars($device['ip_address'] === '::1' || $device['ip_address'] === '127.0.0.1' ? 'Localhost' : $device['ip_address']); ?>)</span>
+                                                </small>
+                                            </div>
+                                            <?php if ($is_current): ?>
+                                                <span class="badge bg-success bg-opacity-10 text-success">Active</span>
+                                            <?php else: ?>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="revokeDevice(this, <?php echo $device['id']; ?>)">Revoke</button>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                    <?php if (!$has_devices): ?>
+                                        <li class="list-group-item text-center text-muted py-3 px-0 border-0">
+                                            No trusted devices found.
+                                        </li>
+                                    <?php endif; ?>
                                 </ul>
                             </div>
 
@@ -2839,8 +2873,8 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Account Recovery</h4>
                                 <p class="text-muted mb-3" style="font-size: 0.85rem;">Add a fallback email in case you lose access.</p>
                                 <div class="input-group">
-                                    <input type="email" class="form-control" placeholder="Recovery Email" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);">
-                                    <button class="btn btn-dark" type="button">Save</button>
+                                    <input type="text" id="rec_fallback_field" class="form-control" placeholder="Recovery address" value="<?php echo htmlspecialchars($user['recovery_email'] ?? ''); ?>" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);" autocomplete="new-email" readonly onfocus="this.removeAttribute('readonly');">
+                                    <button class="btn btn-dark" type="button" onclick="saveRecoveryEmail()">Save</button>
                                 </div>
                             </div>
                         </div>
@@ -2863,35 +2897,42 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if (empty($login_logs)): ?>
+                                    <?php
+                                    $first = true;
+                                    if (empty($login_logs)): ?>
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">No logs found</td>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($login_logs as $log): ?>
-                                            <tr>
-                                                <td class="text-dark" style="font-family: monospace;">
-                                                    <?php echo htmlspecialchars($log['ip_address'] === '::1' || $log['ip_address'] === '127.0.0.1' ? 'Localhost' : $log['ip_address']); ?>
-                                                </td>
-                                                <td class="text-muted" title="<?php echo htmlspecialchars($log['user_agent']); ?>">
-                                                    <?php 
-                                                        $ua = $log['user_agent'];
-                                                        if (preg_match('/(Chrome|Safari|Firefox|Edge|MSIE|Trident|Opera)/i', $ua, $matches)) {
-                                                            echo $matches[0];
-                                                        } else {
-                                                            echo "Browser";
-                                                        }
-                                                        echo (strpos(strtolower($ua), 'mobile') !== false) ? " (Mobile)" : " (Desktop)";
-                                                    ?>
-                                                </td>
-                                                <td class="text-muted"><?php echo date('d M Y, H:i:s', strtotime($log['login_time'])); ?></td>
-                                                <td>
+                                    <?php else: foreach ($login_logs as $log): ?>
+                                        <tr id="session-row-<?php echo $log['id']; ?>">
+                                            <td class="text-dark" style="font-family: monospace;">
+                                                <?php echo htmlspecialchars($log['ip_address'] === '::1' || $log['ip_address'] === '127.0.0.1' ? 'Localhost' : $log['ip_address']); ?>
+                                            </td>
+                                            <td class="text-muted" title="<?php echo htmlspecialchars($log['user_agent']); ?>">
+                                                <?php
+                                                    $ua = $log['user_agent'];
+                                                    if (preg_match('/(Chrome|Safari|Firefox|Edge|MSIE|Trident|Opera)/i', $ua, $matches)) {
+                                                        echo $matches[0];
+                                                    } else {
+                                                        echo "Browser";
+                                                    }
+                                                    echo (strpos(strtolower($ua), 'mobile') !== false) ? " (Mobile)" : " (Desktop)";
+                                                ?>
+                                            </td>
+                                            <td class="text-muted"><?php echo date('d M Y, H:i:s', strtotime($log['login_time'])); ?></td>
+                                            <td id="session-status-<?php echo $log['id']; ?>">
+                                                <?php if (!empty($log['revoked'])): ?>
+                                                    <span class="badge bg-danger bg-opacity-10 text-danger mb-1">Revoked</span>
+                                                <?php elseif ($first): ?>
                                                     <span class="badge bg-success bg-opacity-10 text-success mb-1">Success</span>
-                                                    <br><a href="api/logout.php" class="text-danger text-decoration-underline" style="font-size: 0.75rem;">Not you? Logout</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
+                                                    <br><span class="text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-dot me-1 text-success" style="font-size: 0.6rem;"></i>Current Session</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-success bg-opacity-10 text-success mb-1">Success</span>
+                                                    <br><button type="button" onclick="openRevokeModal(<?php echo $log['id']; ?>, this)" class="btn btn-link p-0 text-danger text-decoration-underline" style="font-size: 0.75rem; border: none; background: none;">Not you? Logout</button>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php $first = false; endforeach; endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -2942,21 +2983,21 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <h4 class="text-gold mb-3" style="font-size: 1.1rem; text-transform: uppercase;">Your Previous Feedback</h4>
                             <div id="feedback-history" style="max-height: 400px; overflow-y: auto;">
                                 <?php if (empty($feedbacks)): ?>
-                                    <div class="text-center py-4 bg-black rounded border border-secondary">
-                                        <p class="text-white-50 m-0" style="font-size: 0.9rem;">You haven't submitted any feedback yet.</p>
+                                    <div class="text-center py-4 bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                                        <p class="text-muted m-0" style="font-size: 0.9rem;">You haven't submitted any feedback yet.</p>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($feedbacks as $fb): ?>
-                                        <div class="bg-black p-3 rounded border border-secondary mb-3">
+                                        <div class="bg-white p-3 rounded-4 border mb-3" style="border-color: rgba(0,0,0,0.05) !important;">
                                             <div class="d-flex justify-content-between mb-2">
                                                 <div>
                                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                        <i class="fa-solid fa-star" style="font-size: 0.8rem; color: <?php echo $i <= $fb['rating'] ? 'var(--gold)' : 'rgba(255,255,255,0.15)'; ?>;"></i>
+                                                        <i class="fa-solid fa-star" style="font-size: 0.8rem; color: <?php echo $i <= $fb['rating'] ? 'var(--gold)' : 'rgba(0,0,0,0.1)'; ?>;"></i>
                                                     <?php endfor; ?>
                                                 </div>
-                                                <span class="badge bg-dark border border-secondary text-capitalize" style="font-size: 0.7rem;"><?php echo htmlspecialchars($fb['type']); ?></span>
+                                                <span class="badge bg-light text-dark border text-capitalize" style="font-size: 0.7rem; border-color: rgba(0,0,0,0.1) !important;"><?php echo htmlspecialchars($fb['type']); ?></span>
                                             </div>
-                                            <p class="m-0 text-white-50" style="font-size: 0.88rem;"><?php echo nl2br(htmlspecialchars($fb['review'])); ?></p>
+                                            <p class="m-0 text-dark" style="font-size: 0.88rem;"><?php echo nl2br(htmlspecialchars($fb['review'])); ?></p>
                                             <div class="text-end text-muted mt-2" style="font-size: 0.72rem;"><?php echo date('d M Y, h:i A', strtotime($fb['created_at'])); ?></div>
                                         </div>
                                     <?php endforeach; ?>
@@ -2973,7 +3014,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <h4 class="text-gold mb-3" style="font-size: 1.1rem; text-transform: uppercase;">Contact Help Desk</h4>
-                            <p class="text-white-50 mb-4" style="font-size: 0.92rem;">Need instant help? Feel free to call us or drop a message directly on WhatsApp.</p>
+                            <p class="text-muted mb-4" style="font-size: 0.92rem;">Need instant help? Feel free to call us or drop a message directly on WhatsApp.</p>
                             
                             <div class="d-flex gap-3 mb-5">
                                 <a href="https://wa.me/919427272798" target="_blank" class="btn-gold-medusa" style="background-color: #25d366; color: #fff; width: 50%;">
@@ -2998,30 +3039,30 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </form>
 
                             <!-- Ticket History -->
-                            <div class="mt-4 pt-3 border-top border-secondary">
-                                <h5 class="text-white-50 mb-3" style="font-size: 0.9rem; text-transform: uppercase;">Active Tickets</h5>
+                            <div class="mt-4 pt-4 border-top" style="border-color: rgba(0,0,0,0.05) !important;">
+                                <h5 class="text-gold mb-3" style="font-size: 1.1rem; text-transform: uppercase;">Active Tickets</h5>
                                 <?php if (empty($support_tickets)): ?>
                                     <p class="text-muted" style="font-size: 0.85rem;">No registered support tickets.</p>
                                 <?php else: ?>
-                                    <div class="table-responsive bg-black p-2 rounded border border-secondary">
-                                        <table class="table table-dark table-striped table-hover m-0" style="font-size: 0.8rem;">
-                                            <thead>
+                                    <div class="table-responsive bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                                        <table class="table table-hover m-0" style="font-size: 0.85rem;">
+                                            <thead class="table-light">
                                                 <tr>
-                                                    <th>Subject</th>
-                                                    <th>Status</th>
-                                                    <th>Date</th>
+                                                    <th class="border-0">Subject</th>
+                                                    <th class="border-0">Status</th>
+                                                    <th class="border-0">Date</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <?php foreach ($support_tickets as $ticket): ?>
                                                     <tr>
-                                                        <td class="text-white"><?php echo htmlspecialchars($ticket['subject']); ?></td>
-                                                        <td>
-                                                            <span class="badge <?php echo $ticket['status'] === 'open' ? 'bg-warning text-dark' : 'bg-secondary'; ?> text-uppercase" style="font-size: 0.65rem;">
+                                                        <td class="text-dark fw-medium border-0 border-bottom" style="border-color: rgba(0,0,0,0.03) !important;"><?php echo htmlspecialchars($ticket['subject']); ?></td>
+                                                        <td class="border-0 border-bottom" style="border-color: rgba(0,0,0,0.03) !important;">
+                                                            <span class="badge <?php echo $ticket['status'] === 'open' ? 'bg-warning text-dark' : 'bg-light text-dark border'; ?> text-uppercase" style="font-size: 0.65rem;">
                                                                 <?php echo htmlspecialchars($ticket['status']); ?>
                                                             </span>
                                                         </td>
-                                                        <td class="text-white-50"><?php echo date('d M Y', strtotime($ticket['created_at'])); ?></td>
+                                                        <td class="text-muted border-0 border-bottom" style="border-color: rgba(0,0,0,0.03) !important;"><?php echo date('d M Y', strtotime($ticket['created_at'])); ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -3206,21 +3247,57 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Delete Account Confirmation Modal -->
     <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-secondary text-white border-danger" style="border: 1px solid #ff4d4d;">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Delete Account</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content bg-white text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation"></i> Delete Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-4">
-                    <p class="text-white-50 mb-3">To confirm deletion, please enter your password. This action will delete your profile, reservations, reviews, and reward points permanently.</p>
+                    <p class="text-dark fw-medium mb-3" style="font-size: 1.1rem;">Do you want to delete your account permanently?</p>
+                    <p class="text-muted mb-4" style="font-size: 0.9rem;">This action will delete your profile, reservations, reviews, and reward points permanently.</p>
+                    
                     <div class="mb-3">
-                        <label class="form-label-medusa" for="delete_confirm_pass">Account Password</label>
-                        <input type="password" id="delete_confirm_pass" class="form-control form-control-medusa" placeholder="Confirm your password..." required>
+                        <label class="form-label text-dark fw-bold" style="font-size: 0.9rem;">How would you like to receive your confirmation OTP?</label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="radio" name="delete_otp_method" id="delete_otp_email" value="email">
+                            <label class="form-check-label text-muted" for="delete_otp_email">
+                                Get OTP by Email (<?php echo htmlspecialchars($user['email']); ?>)
+                            </label>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="radio" name="delete_otp_method" id="delete_otp_phone" value="phone">
+                            <label class="form-check-label text-muted" for="delete_otp_phone">
+                                Get OTP by Phone number (<?php echo htmlspecialchars($user['phone'] ?? 'Not set'); ?>)
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-outline-medusa" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">Delete Permanently</button>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">No, Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteAccount()">Yes, Send OTP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account OTP Modal -->
+    <div class="modal fade" id="deleteOtpModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-white text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title text-danger fw-bold"><i class="fa-solid fa-key"></i> Verify Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <p class="text-muted mb-4" id="deleteOtpModalDesc">Please enter the 6-digit OTP sent to your selected method to confirm account deletion.</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <input type="text" maxlength="6" id="delete-otp-input-field" class="form-control text-center font-weight-bold" style="font-size: 1.8rem; letter-spacing: 5px; width: 200px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);" placeholder="000000">
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 justify-content-center">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="verifyDeleteAccountOTP()">Verify & Delete</button>
                 </div>
             </div>
         </div>
@@ -3242,6 +3319,24 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             profile: 'profile.php',
             settings: 'settings.php'
         };
+
+        function goToProfileTab(tabName) {
+            const tab = document.getElementById(`pill-${tabName}-tab`);
+            if (tab) {
+                tab.click();
+            } else {
+                window.location.href = `profile.php?tab=${tabName}`;
+            }
+        }
+
+        function goToSettingsTab(tabName) {
+            const tab = document.getElementById(`pill-${tabName}-tab`);
+            if (tab) {
+                tab.click();
+            } else {
+                window.location.href = `settings.php?tab=${tabName}`;
+            }
+        }
 
         // Alert Toast Helper
         function showToast(message, type = 'info') {
@@ -3633,28 +3728,25 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Toggle 2FA switch from Security Tab
         function toggle2FA(switcher) {
-            // Automatically submit setting form values
-            const emailNotif = document.getElementById('notif_email').checked ? 1 : 0;
-            const smsNotif = document.getElementById('notif_sms').checked ? 1 : 0;
-            const promo = document.getElementById('notif_promo').checked ? 1 : 0;
-            const lang = document.getElementById('pref_lang').value;
-            const theme = document.getElementById('pref_theme').value;
-            const privacy = switcher.checked ? 1 : 0;
-
-            fetch('api/account-api.php?action=update_settings', {
+            const enabled = switcher.checked ? 1 : 0;
+            fetch('api/account-api.php?action=toggle_2fa', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email_notifications: emailNotif,
-                    sms_notifications: smsNotif,
-                    promotional_offers: promo,
-                    language: lang,
-                    theme: theme,
-                    privacy_mode: privacy
-                })
+                body: JSON.stringify({ enabled: enabled })
             }).then(res => res.json()).then(result => {
                 if (result.success) {
-                    showToast(privacy ? 'Two-Factor Authentication Enabled' : 'Two-Factor Authentication Disabled', 'success');
+                    showToast(result.message, 'success');
+                    // Update the card badge live without page refresh
+                    const badge = document.getElementById('tfa-status-badge');
+                    if (badge) {
+                        if (enabled) {
+                            badge.className = 'badge bg-success bg-opacity-10 text-success px-2 py-1';
+                            badge.innerHTML = 'Enabled <i class="fa-solid fa-check ms-1"></i>';
+                        } else {
+                            badge.className = 'badge bg-secondary bg-opacity-10 text-secondary px-2 py-1';
+                            badge.innerHTML = 'Disabled <i class="fa-solid fa-xmark ms-1"></i>';
+                        }
+                    }
                 } else {
                     showToast(result.message, 'error');
                     switcher.checked = !switcher.checked; // revert
@@ -3665,7 +3757,41 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         }
 
+        // Toggle Login Alerts switch
+        function toggleLoginAlerts(switcher) {
+            const enabled = switcher.checked ? 1 : 0;
+            fetch('api/account-api.php?action=toggle_login_alerts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled: enabled })
+            }).then(res => res.json()).then(result => {
+                if (result.success) {
+                    showToast(result.message, 'success');
+                } else {
+                    showToast(result.message, 'error');
+                    switcher.checked = !switcher.checked; // revert
+                }
+            }).catch(() => {
+                showToast('Failed to update login alerts state.', 'error');
+                switcher.checked = !switcher.checked;
+            });
+        }
+
         // Submit password change
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         async function submitPasswordForm(e) {
             e.preventDefault();
             const currentPw = document.getElementById('cur_pass').value;
@@ -3793,6 +3919,8 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                 const result = await response.json();
                 if (result.success) {
                     showToast(result.message, 'success');
+                    // Reload page after successful invalidation so trusted list reflects it
+                    setTimeout(() => { window.location.reload(); }, 1500);
                 } else {
                     showToast(result.message, 'error');
                 }
@@ -3801,17 +3929,95 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
+        // Revoke a specific device session
+        async function revokeDevice(button, logId) {
+            if (!confirm('Are you sure you want to revoke this session? The device will be logged out immediately.')) return;
+            try {
+                const response = await fetch('api/account-api.php?action=revoke_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ log_id: logId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    const listItem = document.getElementById(`device-item-${logId}`);
+                    if (listItem) {
+                        listItem.style.transition = 'all 0.5s ease';
+                        listItem.style.opacity = '0';
+                        listItem.style.transform = 'translateX(20px)';
+                        setTimeout(() => {
+                            listItem.remove();
+                            // If no devices left besides active one, or empty, show empty state
+                            const list = document.getElementById('trusted-devices-list');
+                            if (list && list.children.length === 0) {
+                                list.innerHTML = `<li class="list-group-item text-center text-muted py-3 px-0 border-0">No trusted devices found.</li>`;
+                            }
+                        }, 500);
+                    }
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch(e) {
+                showToast('Failed to revoke session.', 'error');
+            }
+        }
+
         // Permanent Delete modal triggers
         function showDeleteAccountModal() {
-            document.getElementById('delete_confirm_pass').value = '';
+            // Uncheck radios
+            const emailRadio = document.getElementById('delete_otp_email');
+            const phoneRadio = document.getElementById('delete_otp_phone');
+            if(emailRadio) emailRadio.checked = false;
+            if(phoneRadio) phoneRadio.checked = false;
+            
             const modal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
             modal.show();
         }
 
         async function confirmDeleteAccount() {
-            const pw = document.getElementById('delete_confirm_pass').value;
-            if (!pw) {
-                showToast('Password is required to proceed.', 'error');
+            const emailRadio = document.getElementById('delete_otp_email');
+            const phoneRadio = document.getElementById('delete_otp_phone');
+            
+            let method = null;
+            if (emailRadio && emailRadio.checked) method = 'email';
+            if (phoneRadio && phoneRadio.checked) method = 'phone';
+            
+            if (!method) {
+                showToast('Please select a method to receive your OTP (Email or Phone number).', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('api/account-api.php?action=send_delete_otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ method: method })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    // Hide confirm modal
+                    const confirmModalEl = document.getElementById('deleteAccountModal');
+                    const confirmModal = bootstrap.Modal.getInstance(confirmModalEl);
+                    if(confirmModal) confirmModal.hide();
+                    
+                    // Show OTP modal
+                    document.getElementById('delete-otp-input-field').value = '';
+                    const otpModal = new bootstrap.Modal(document.getElementById('deleteOtpModal'));
+                    otpModal.show();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch(e) {
+                showToast('Failed to send OTP.', 'error');
+            }
+        }
+
+        async function verifyDeleteAccountOTP() {
+            const otp = document.getElementById('delete-otp-input-field').value.trim();
+            if (!otp || otp.length < 6) {
+                showToast('Please enter a valid 6-digit OTP.', 'error');
                 return;
             }
 
@@ -3819,20 +4025,20 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                 const response = await fetch('api/account-api.php?action=delete_account', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pw })
+                    body: JSON.stringify({ otp: otp })
                 });
                 const result = await response.json();
                 if (result.success) {
                     showToast(result.message, 'success');
-                    const myModalEl = document.getElementById('deleteAccountModal');
-                    const modal = bootstrap.Modal.getInstance(myModalEl);
-                    modal.hide();
+                    const otpModalEl = document.getElementById('deleteOtpModal');
+                    const otpModal = bootstrap.Modal.getInstance(otpModalEl);
+                    if(otpModal) otpModal.hide();
                     setTimeout(() => { window.location.href = 'index.html'; }, 2000);
                 } else {
                     showToast(result.message, 'error');
                 }
             } catch(e) {
-                showToast('Failed to process account deletion.', 'error');
+                showToast('Failed to verify OTP.', 'error');
             }
         }
 
@@ -3891,14 +4097,6 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             document.querySelectorAll('.dashboard-pill-settings').forEach(p => {
                 p.style.display = mode === 'settings' ? 'block' : 'none';
             });
-
-            const activePill = document.querySelector('.sidebar-menu .nav-link.active');
-            if (!activePill || !activePill.classList.contains(`dashboard-pill-${mode}`)) {
-                const defaultTab = document.getElementById(mode === 'settings' ? 'pill-settings-tab' : 'pill-profile-tab');
-                if (defaultTab) {
-                    bootstrap.Tab.getOrCreateInstance(defaultTab).show();
-                }
-            }
         }
 
         async function consumePeg() {
@@ -3924,11 +4122,46 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
-        function activatePill(selector) {
-            const tabTriggerElement = selector ? document.querySelector(selector) : null;
-            if (!tabTriggerElement) return false;
-            bootstrap.Tab.getOrCreateInstance(tabTriggerElement).show();
+        // ── Custom Tab Switcher (bypasses Bootstrap tab engine for reliability) ──
+        function switchTab(btnSelector) {
+            if (!btnSelector) return false;
+            const btn = document.querySelector(btnSelector);
+            if (!btn) return false;
+
+            const targetPaneId = btn.getAttribute('data-bs-target') || btn.getAttribute('data-target');
+            if (!targetPaneId) return false;
+
+            const targetPane = document.querySelector(targetPaneId);
+            if (!targetPane) return false;
+
+            // Deactivate all sidebar buttons
+            document.querySelectorAll('.sidebar-menu .nav-link').forEach(b => b.classList.remove('active'));
+
+            // Deactivate all main tab panes
+            document.querySelectorAll('.main-content.tab-content > .tab-pane').forEach(p => {
+                p.classList.remove('show', 'active');
+            });
+
+            // Activate the clicked button
+            btn.classList.add('active');
+
+            // Activate the target pane
+            targetPane.classList.add('show', 'active');
+
+            // Save to localStorage
+            const btnId = btn.getAttribute('id');
+            if (btnId) {
+                localStorage.setItem('medusa_active_pill', '#' + btnId);
+                // Keep old keys for backwards compatibility in case other scripts rely on them
+                localStorage.setItem(`medusaActiveTab:${ACCOUNT_SECTION}`, '#' + btnId);
+                localStorage.setItem('medusaActiveTab', '#' + btnId);
+            }
+
             return true;
+        }
+
+        function activatePill(selector) {
+            return switchTab(selector);
         }
 
         function selectorFromHash(hash) {
@@ -3950,16 +4183,17 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             if (params.get('edit') === '1') {
                 requestedPill = '#pill-profile-tab';
             }
-            const storedPill = localStorage.getItem(`medusaActiveTab:${ACCOUNT_SECTION}`) || localStorage.getItem('medusaActiveTab');
+            const storedPill = localStorage.getItem('medusa_active_pill') || localStorage.getItem(`medusaActiveTab:${ACCOUNT_SECTION}`) || localStorage.getItem('medusaActiveTab');
             const defaultPill = ACCOUNT_SECTION === 'settings' ? '#pill-settings-tab' : '#pill-profile-tab';
 
-            if (!activatePill(requestedPill) && !activatePill(storedPill)) {
-                activatePill(defaultPill);
+            if (!switchTab(requestedPill) && !switchTab(storedPill)) {
+                switchTab(defaultPill);
             }
 
             const subTab = params.get('sub');
             if (subTab) {
-                activatePill(`#subnav-${subTab}-tab`);
+                const subEl = document.querySelector(`#subnav-${subTab}-tab`);
+                if (subEl) bootstrap.Tab.getOrCreateInstance(subEl).show();
             }
 
             if (params.get('edit') === '1') {
@@ -3967,15 +4201,11 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
                 if (editButton) editButton.click();
             }
 
-            // Save active tab to localStorage whenever a tab is switched
-            const tabElements = document.querySelectorAll('button[data-bs-toggle="pill"]');
-            tabElements.forEach(el => {
-                el.addEventListener('shown.bs.tab', event => {
-                    const targetId = event.target.getAttribute('id');
-                    if (targetId) {
-                        localStorage.setItem(`medusaActiveTab:${ACCOUNT_SECTION}`, '#' + targetId);
-                        localStorage.setItem('medusaActiveTab', '#' + targetId);
-                    }
+            // Attach click listeners to all sidebar tab buttons
+            document.querySelectorAll('.sidebar-menu .nav-link').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('#' + btn.getAttribute('id'));
                 });
             });
         });
@@ -4020,7 +4250,7 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
         async function saveRecoveryEmail() {
-            const email = document.getElementById('recovery_email_input').value.trim();
+            const email = document.getElementById('rec_fallback_field').value.trim();
             if (!email) {
                 showToast('Please enter an email address', 'error');
                 return;
@@ -4073,7 +4303,80 @@ $login_logs = $login_logs_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php require_once __DIR__ . '/includes/active_order_bar.php'; ?>
 <?php require_once __DIR__ . '/includes/order_toast.php'; ?>
+    <!-- Session Revoke Confirmation Modal -->
+    <div id="revokeSessionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; padding:2rem; width:100%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,0.25); position:relative; text-align:center; margin: 1rem;">
+            <button onclick="closeRevokeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            <div style="width:56px;height:56px;background:linear-gradient(135deg,#dc3545,#a71d2a);border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;">
+                <i class="fa-solid fa-triangle-exclamation" style="color:#fff;font-size:1.3rem;"></i>
+            </div>
+            <h5 style="font-weight:700;color:#1a1a1a;margin-bottom:0.5rem;">Revoke this session?</h5>
+            <p style="color:#6c757d;font-size:0.88rem;margin-bottom:1.5rem;line-height:1.6;">This will permanently log out any device using this session. <strong>All other logged-in devices will also be disconnected</strong> as a security measure. You will remain logged in.</p>
+            <div style="display:flex;gap:0.75rem;">
+                <button onclick="closeRevokeModal()" style="flex:1;padding:0.65rem;border:1.5px solid #dee2e6;background:#fff;border-radius:8px;font-weight:600;color:#6c757d;cursor:pointer;">Cancel</button>
+                <button id="revokeConfirmBtn" onclick="confirmRevokeSession()" style="flex:1;padding:0.65rem;background:linear-gradient(135deg,#dc3545,#a71d2a);border:none;border-radius:8px;font-weight:600;color:#fff;cursor:pointer;">Yes, Revoke</button>
+            </div>
+            <p id="revokeModalMsg" style="margin-top:0.75rem;font-size:0.83rem;min-height:1.2rem;"></p>
+        </div>
+    </div>
+    <style>#revokeSessionModal.active { display: flex !important; }</style>
+
+    <script>
+    let _revokeLogId = null;
+    let _revokeRowBtn = null;
+
+    function openRevokeModal(logId, btn) {
+        _revokeLogId = logId;
+        _revokeRowBtn = btn;
+        document.getElementById('revokeModalMsg').textContent = '';
+        document.getElementById('revokeConfirmBtn').disabled = false;
+        document.getElementById('revokeConfirmBtn').textContent = 'Yes, Revoke';
+        document.getElementById('revokeSessionModal').classList.add('active');
+    }
+
+    function closeRevokeModal() {
+        document.getElementById('revokeSessionModal').classList.remove('active');
+        _revokeLogId = null;
+        _revokeRowBtn = null;
+    }
+
+    async function confirmRevokeSession() {
+        if (!_revokeLogId) return;
+        const btn = document.getElementById('revokeConfirmBtn');
+        const msg = document.getElementById('revokeModalMsg');
+        btn.disabled = true;
+        btn.textContent = 'Revoking…';
+        msg.textContent = '';
+
+        try {
+            const res = await fetch('api/account-api.php?action=revoke_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ log_id: _revokeLogId })
+            });
+            const result = await res.json();
+            if (result.success) {
+                // Update the status cell live
+                const statusCell = document.getElementById('session-status-' + _revokeLogId);
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge bg-danger bg-opacity-10 text-danger">Revoked</span>';
+                }
+                showToast('Session revoked successfully. Other devices have been logged out.', 'success');
+                closeRevokeModal();
+            } else {
+                msg.style.color = '#dc3545';
+                msg.textContent = result.message || 'Failed to revoke. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Yes, Revoke';
+            }
+        } catch(e) {
+            msg.style.color = '#dc3545';
+            msg.textContent = 'Network error. Please try again.';
+            btn.disabled = false;
+            btn.textContent = 'Yes, Revoke';
+        }
+    }
+    </script>
+
 </body>
 </html>
-
-

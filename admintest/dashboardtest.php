@@ -5031,63 +5031,6 @@ html:not(.light-mode) .form-select:focus{
         </div>
 
 
-        <!-- ==================== PROMOTIONS & FLASH SALES TAB (injected) ==================== -->
-        <div id="promotions-panel" style="margin-top:32px;">
-            <div class="page-header" style="margin-bottom:20px;">
-                <h1 class="page-title" style="font-size:1.5rem;">Flash Sales & Events</h1>
-                <p class="page-subtitle">Create promotions that appear as a corner popup to customers</p>
-            </div>
-            <!-- Create Promotion Form -->
-            <div class="card-dashboard" style="padding:24px; margin-bottom:24px;">
-                <h5 style="color:var(--gold); margin-bottom:18px; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">➕ Create / Update Promotion</h5>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Title *</label>
-                        <input type="text" id="promo_title" class="form-control form-control-dashboard" placeholder="Weekend Special 🎉">
-                    </div>
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Emoji</label>
-                        <input type="text" id="promo_emoji" class="form-control form-control-dashboard" placeholder="🎉" maxlength="4" value="🎉">
-                    </div>
-                    <div style="grid-column:1/-1;">
-                        <label class="form-label text-muted text-uppercase small">Description</label>
-                        <textarea id="promo_desc" class="form-control form-control-dashboard" rows="2" placeholder="Get 15% off all orders this weekend!"></textarea>
-                    </div>
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Promo Coupon Code (optional)</label>
-                        <input type="text" id="promo_code" class="form-control form-control-dashboard" placeholder="WEEKEND15">
-                    </div>
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Discount Value (%)</label>
-                        <input type="number" id="promo_discount" class="form-control form-control-dashboard" placeholder="15" min="0" max="100">
-                    </div>
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Valid From</label>
-                        <input type="datetime-local" id="promo_from" class="form-control form-control-dashboard">
-                    </div>
-                    <div>
-                        <label class="form-label text-muted text-uppercase small">Valid Until</label>
-                        <input type="datetime-local" id="promo_until" class="form-control form-control-dashboard">
-                    </div>
-                </div>
-                <div style="margin-top:18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-                    <label style="display:flex; align-items:center; gap:8px; color:rgba(255,255,255,0.7); font-size:13px; cursor:pointer;">
-                        <div class="form-check form-switch" style="margin:0; padding:0;">
-                            <input class="form-check-input" type="checkbox" id="promo_active" checked style="width:40px; height:20px; cursor:pointer;">
-                        </div>
-                        Active (show popup)
-                    </label>
-                    <button type="button" class="btn btn-gold-action" onclick="savePromotion()">Save Promotion</button>
-                    <span id="promoSaveMsg" style="font-size:12px;"></span>
-                </div>
-            </div>
-            <!-- Existing Promotions List -->
-            <div class="card-dashboard" style="padding:24px;">
-                <h5 style="color:var(--gold); margin-bottom:18px; font-size:1rem; text-transform:uppercase; letter-spacing:1px;">📋 Active & Upcoming Promotions</h5>
-                <div id="promoListAdmin" style="color:rgba(255,255,255,0.5); font-size:13px;">Loading...</div>
-            </div>
-        </div>
-        <!-- End Promotions Panel -->
         <!-- ==================== LIQUOR QUOTA TAB ==================== -->
         <div id="liquor-tab" class="tab-panel">
             <div class="page-header">
@@ -5965,17 +5908,21 @@ html:not(.light-mode) .form-select:focus{
                 
                 const itemsList = order.items.map(it => `<li>${it.item_name} <strong>x${it.quantity}</strong></li>`).join('');
                 
+                const isDineIn = order.delivery_address && order.delivery_address.toLowerCase().startsWith('table');
+                const isTakeaway = order.order_type && order.order_type.toLowerCase() === 'takeaway';
+
                 let btn = '';
                 if (columnType === 'pending') {
                     btn = `<button class="btn btn-sm btn-gold-action btn-action-full" onclick="updateOrderStatus(${order.id}, 'preparing')">Start Cooking</button>`;
                 } else if (columnType === 'preparing') {
                     btn = `<button class="btn btn-sm btn-success w-100 text-dark" onclick="updateOrderStatus(${order.id}, 'ready')">Mark Ready</button>`;
                 } else if (columnType === 'ready') {
-                    btn = `<button class="btn btn-sm btn-primary w-100 text-white" onclick="updateOrderStatus(${order.id}, 'completed')">Complete / Serve</button>`;
+                    if (isDineIn || isTakeaway) {
+                        btn = `<button class="btn btn-sm btn-primary w-100 text-white" onclick="updateOrderStatus(${order.id}, 'completed')">Complete / Serve</button>`;
+                    } else {
+                        btn = `<button class="btn btn-sm btn-secondary w-100 text-muted" disabled style="cursor: not-allowed; opacity: 0.65;"><i class="fas fa-truck"></i> Awaiting Driver Pickup</button>`;
+                    }
                 }
-                
-                const isDineIn = order.delivery_address && order.delivery_address.toLowerCase().startsWith('table');
-                const isTakeaway = order.order_type && order.order_type.toLowerCase() === 'takeaway';
                 
                 let typeBadge = '';
                 if (isDineIn) {

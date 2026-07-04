@@ -20,7 +20,7 @@ try {
                 throw new Exception("Order number is required");
             }
 
-            $stmt = $pdo->prepare("SELECT order_number, customer_name, customer_phone, delivery_address, total_amount, payment_method, status, order_type FROM orders WHERE order_number = ?");
+            $stmt = $pdo->prepare("SELECT order_number, customer_name, customer_phone, delivery_address, total_amount, payment_method, order_status, order_type FROM orders WHERE order_number = ?");
             $stmt->execute([$order_number]);
             $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -34,12 +34,21 @@ try {
                 throw new Exception("This is a Dine-in/Table order. It does not require delivery.");
             }
 
-            // Standardize status if order_status is used instead of status
-            if (!isset($order['status'])) {
-                 $stmt2 = $pdo->prepare("SELECT order_status FROM orders WHERE order_number = ?");
+            // Standardize status: prioritize order_status since it is the active column updated by the kitchen
+            $current_status = strtolower($order['order_status'] ?? '');
+            if (empty($current_status)) {
+                 $stmt2 = $pdo->prepare("SELECT status FROM orders WHERE order_number = ?");
                  $stmt2->execute([$order_number]);
                  $order2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-                 $order['status'] = $order2['order_status'] ?? 'Pending';
+                 $current_status = strtolower($order2['status'] ?? 'pending');
+            }
+            $order['status'] = $current_status;
+
+            if (in_array($current_status, ['delivered', 'completed', 'settled'])) {
+                throw new Exception("This order has already been completed and delivered.");
+            }
+            if ($current_status === 'cancelled') {
+                throw new Exception("This order has been cancelled.");
             }
 
             echo json_encode(['success' => true, 'order' => $order]);
@@ -67,12 +76,21 @@ try {
                 throw new Exception("Invalid status");
             }
 
+            $tracking_status = 'placed';
+            if (strtolower($status) === 'out for delivery') {
+                $tracking_status = 'out_for_delivery';
+            } elseif (strtolower($status) === 'delivered') {
+                $tracking_status = 'delivered';
+            } elseif (strtolower($status) === 'cancelled') {
+                $tracking_status = 'cancelled';
+            }
+
             if ($status === 'cancelled') {
-                $stmt = $pdo->prepare("UPDATE orders SET status = ?, order_status = ?, cancellation_reason = ? WHERE order_number = ?");
-                $stmt->execute([$status, $status, $reason, $order_number]);
+                $stmt = $pdo->prepare("UPDATE orders SET status = ?, order_status = ?, tracking_status = ?, cancellation_reason = ? WHERE order_number = ?");
+                $stmt->execute([$status, $status, $tracking_status, $reason, $order_number]);
             } else {
-                $stmt = $pdo->prepare("UPDATE orders SET status = ?, order_status = ? WHERE order_number = ?");
-                $stmt->execute([$status, $status, $order_number]);
+                $stmt = $pdo->prepare("UPDATE orders SET status = ?, order_status = ?, tracking_status = ? WHERE order_number = ?");
+                $stmt->execute([$status, $status, $tracking_status, $order_number]);
             }
 
             // Sync status with orders.json

@@ -28,7 +28,7 @@ if (!empty($_SESSION['user_id'])) {
             $user_details['last_name'] = $name_parts[1] ?? '';
             $user_details['email'] = $user['email'];
             $user_details['phone'] = $user['phone'] ?? '';
-            $user_tier_name = $user['tier_name'] ?? 'Silver';
+            $user_tier_name = $user['tier_name'] ?? 'Bronze';
             $user_tier_discount_percent = floatval($user['discount_percent'] ?? 10.00);
         }
         

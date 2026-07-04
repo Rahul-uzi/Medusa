@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 try {
+    // Auto-cancel active orders older than 12 hours
+    $twelveHoursAgo = date('Y-m-d H:i:s', time() - 12 * 3600);
+    $auto_cancel = $pdo->prepare("UPDATE orders SET order_status = 'cancelled', tracking_status = 'cancelled', cancellation_reason = 'System auto-cancelled: exceeded 12 hours limit' WHERE user_id = ? AND order_date < ? AND order_status NOT IN ('completed', 'delivered', 'cancelled')");
+    $auto_cancel->execute([$user_id, $twelveHoursAgo]);
+
     $stmt = $pdo->prepare("SELECT *, tracking_token, tracking_status FROM orders WHERE user_id = ? ORDER BY order_date DESC");
     $stmt->execute([$user_id]);
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -212,7 +217,7 @@ if (isset($_GET['tab'])) {
 
             <?php foreach ($orders as $order):
                 $status  = strtolower($order['order_status']);
-                $stepMap = ['pending'=>1,'confirmed'=>2,'preparing'=>3,'ready'=>4,'completed'=>5,'cancelled'=>0];
+                $stepMap = ['pending'=>1,'confirmed'=>2,'preparing'=>3,'ready'=>4,'out for delivery'=>4,'completed'=>5,'delivered'=>5,'cancelled'=>0];
                 $curStep = $stepMap[$status] ?? 1;
 
                 switch ($status) {
@@ -363,11 +368,21 @@ if (isset($_GET['tab'])) {
                         </div>
                     </div><!-- /header -->
 
-                    <?php if ($curStep == 0 && !empty($order['cancellation_reason'])): ?>
-                    <div style="margin-bottom:16px; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; display:flex; align-items:center; gap:8px; color:#b91c1c; font-size:12px; line-height:1.4;">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size:14px;"></i>
-                        <span><strong>Cancellation Reason:</strong> <?php echo htmlspecialchars($order['cancellation_reason']); ?></span>
-                    </div>
+                    <?php
+                    $isOlderThan12Hrs = (time() - strtotime($order['order_date'])) > (12 * 3600);
+                    if ($curStep == 0):
+                        if ($isOlderThan12Hrs):
+                    ?>
+                        <div style="margin-bottom:16px; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; display:flex; align-items:center; gap:8px; color:#b91c1c; font-size:12px; line-height:1.4;">
+                            <i class="fa-solid fa-circle-exclamation" style="font-size:14px;"></i>
+                            <span>This order could not be delivered. Money will be sent to you soon, if not received, please call us.</span>
+                        </div>
+                        <?php elseif (!empty($order['cancellation_reason'])): ?>
+                        <div style="margin-bottom:16px; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; display:flex; align-items:center; gap:8px; color:#b91c1c; font-size:12px; line-height:1.4;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size:14px;"></i>
+                            <span><strong>Cancellation Reason:</strong> <?php echo htmlspecialchars($order['cancellation_reason']); ?></span>
+                        </div>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <!-- Items -->

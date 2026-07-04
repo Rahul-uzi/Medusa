@@ -1212,3 +1212,71 @@ Download URL: http://192.168.1.6/restaurant_medusa/download_bill.php?id=105&toke
 ----------------------------------------
 
 [2026-06-30 19:33:40] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 7814585430 with attachment: bills/order_105_20260630_193331.pdf
+[2026-07-03 07:39:19] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP 127.0.0.1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36
+[2026-07-03 07:39:56] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP 127.0.0.1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36
+[2026-07-03 07:41:15] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 08:14:20] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 08:30:50] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 08:51:25] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 09:11:51] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 09:11:57] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 09:16:29] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 09:16:54] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 09:47:15] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 12:58:59] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-03 18:35:49] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 06:28:51] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 06:31:33] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 06:50:59] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 06:55:11] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 06:55:42] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 07:20:37] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 08:04:40] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 14:51:16] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36
+[2026-07-04 14:51:33] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36
+[2026-07-04 14:55:59] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 14:57:23] [SMS_GATEWAY_ERROR] SMS failed for 7814585430: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 2022 ms: Couldn't connect to server
+[2026-07-04 14:57:26] [ORDER_BILL_ATTACHMENT] Email queued/sent to customer@example.com:
+----------------------------------------
+Name: Test
+Email: customer@example.com
+Phone: 7814585430
+Order ID: ORD-254D3
+PDF Path: bills/order_106_20260704_145723.pdf
+Download URL: http://192.168.1.3/restaurant_medusa/download_bill.php?id=106&token=8072939ce70ddff4d8890a22d87351d8af27d03c079c489c941476ccf53fed66
+----------------------------------------
+
+[2026-07-04 14:57:32] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 7814585430 with attachment: bills/order_106_20260704_145723.pdf
+[2026-07-04 15:00:40] [LOGIN_ALERT] OTP for driver@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 15:01:35] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 15:39:40] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 15:52:02] [SMS_GATEWAY_ERROR] SMS failed for 7814585430: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 2012 ms: Couldn't connect to server
+[2026-07-04 15:52:05] [ORDER_BILL_ATTACHMENT] Email queued/sent to customer@example.com:
+----------------------------------------
+Name: Test
+Email: customer@example.com
+Phone: 7814585430
+Order ID: ORD-2A384
+PDF Path: bills/order_107_20260704_155202.pdf
+Download URL: http://192.168.1.3/restaurant_medusa/download_bill.php?id=107&token=973099486abd7fd10f15e74b5b644fc01ebcaf61044927324ba77fb4be51e2a6
+----------------------------------------
+
+[2026-07-04 15:52:11] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 7814585430 with attachment: bills/order_107_20260704_155202.pdf
+[2026-07-04 15:57:54] [LOGIN_ALERT] OTP for driver@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0
+[2026-07-04 16:04:10] [LOGIN_ALERT] OTP for driver@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0
+[2026-07-04 16:17:30] [LOGIN_ALERT] OTP for driver@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0
+[2026-07-04 19:18:20] [SMS_GATEWAY_ERROR] SMS failed for 1234567809: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 2030 ms: Couldn't connect to server
+[2026-07-04 19:18:22] [ORDER_BILL_ATTACHMENT] Email queued/sent to mehakdhiman293@gmail.com:
+----------------------------------------
+Name: Rahul Dhiman
+Email: mehakdhiman293@gmail.com
+Phone: 1234567809
+Order ID: ORD-C75FF
+PDF Path: bills/order_108_20260704_191820.pdf
+Download URL: http://192.168.1.3/restaurant_medusa/download_bill.php?id=108&token=73fb9845f3eb740ba91f819dfb10a0960e589dc22910679d4c39cd201eb84746
+----------------------------------------
+
+[2026-07-04 19:18:28] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 1234567809 with attachment: bills/order_108_20260704_191820.pdf
+[2026-07-04 19:18:56] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 19:19:05] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-04 19:19:52] [LOGIN_ALERT] OTP for driver@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
