@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medusa - Terms &amp; Conditions</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --dark-green: #0b1a13;
+            --dark-maroon: #280b10;
+            --cream: #f4efe6;
+            --gold: #d9b882;
+            --text-light: #ffffff;
+            --text-dark: #222222;
+            --text-muted: #888888;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Jost', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-dark);
+            background-color: var(--cream);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* UTILITIES */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .gold-subtitle {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .gold-subtitle::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 1px;
+            background-color: var(--gold);
+        }
+
+        .torn-paper-top,
+        .torn-paper-bottom {
+            width: 100%;
+            height: auto;
+            display: block;
+            fill: var(--cream);
+            margin-top: -1px;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background-color: var(--dark-green);
+            color: var(--text-light);
+            position: relative;
+            padding: 80px 0 0 0;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400px;
+            height: 100%;
+            background-image: url('https://static.wixstatic.com/media/196df9_441e5f3cac7349c49e7f7815dabea8aa~mv2.png/v1/fill/w_412,h_1000,fp_0.08_0.34,q_90,enc_avif,quality_auto/196df9_441e5f3cac7349c49e7f7815dabea8aa~mv2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: left center;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .hero-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            padding-bottom: 60px;
+        }
+
+        .hero-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin: 0 auto 30px;
+            max-width: 600px;
+        }
+
+        .torn-mask {
+            width: 100%;
+            display: block;
+            position: relative;
+            z-index: 3;
+            transform: translateY(2px);
+        }
+
+        .torn-mask svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            fill: var(--cream);
+        }
+
+        /* LEGAL DOCUMENT SECTION */
+        .legal-section {
+            background-color: var(--cream);
+            padding: 80px 0 120px;
+        }
+
+        .legal-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 60px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .legal-toc {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+            background: #ffffff;
+            border: 1px solid rgba(217, 184, 130, 0.3);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .legal-toc h3 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            color: var(--dark-maroon);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(217, 184, 130, 0.2);
+            padding-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .legal-toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .legal-toc li {
+            margin-bottom: 12px;
+        }
+
+        .legal-toc a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: block;
+        }
+
+        .legal-toc a:hover,
+        .legal-toc a.active {
+            color: var(--gold);
+        }
+
+        .legal-content {
+            background: #ffffff;
+            border: 1px solid rgba(217, 184, 130, 0.3);
+            border-radius: 8px;
+            padding: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .legal-content section {
+            margin-bottom: 50px;
+            scroll-margin-top: 100px;
+        }
+
+        .legal-content section:last-child {
+            margin-bottom: 0;
+        }
+
+        .legal-content h2 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            color: var(--dark-maroon);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(217, 184, 130, 0.2);
+            padding-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .legal-content p {
+            font-size: 0.95rem;
+            color: #555555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .legal-content ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        .legal-content li {
+            font-size: 0.95rem;
+            color: #555555;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        /* MAIN FOOTER */
+        .main-footer {
+            background-color: var(--dark-green);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 80px 0 30px;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr 1fr 1.2fr;
+            gap: 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .footer-col h3 {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            color: var(--gold);
+            font-weight: 500;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo img {
+            width: auto;
+            height: 90px;
+        }
+
+        .footer-col p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+        }
+
+        .footer-btn-map {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .footer-btn-map i {
+            color: var(--gold);
+        }
+
+        .footer-btn-map:hover {
+            border-color: var(--gold);
+            background: rgba(217, 184, 130, 0.1);
+        }
+
+        .newsletter-form {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .newsletter-form input {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: none;
+            padding: 12px 15px;
+            color: var(--text-light);
+            width: 100%;
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+
+        .newsletter-form input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .newsletter-form button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gold);
+            padding: 0 20px;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.3s;
+        }
+
+        .newsletter-form button:hover {
+            background: rgba(217, 184, 130, 0.1);
+            border-color: var(--gold);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 991px) {
+            .legal-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .legal-toc {
+                position: static;
+                width: 100%;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content {
+                padding-bottom: 40px;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAV -->
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js" defer></script>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="gold-subtitle" style="justify-content: center;">Legal &amp; Compliance</div>
+                <h1 class="section-title">Terms &amp; Conditions</h1>
+                <!-- <p style="color: var(--gold); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px;">Last Updated: July 6, 2026</p> -->
+                <p class="hero-text">Please review these terms and conditions carefully before using our services,
+                    reserving a table, or ordering from Medusa.</p>
+            </div>
+        </div>
+        <!-- Torn Paper Border -->
+        <div class="torn-mask">
+            <svg viewBox="0 0 1200 45" preserveAspectRatio="none">
+                <path
+                    d="M0,45 L1200,45 L1200,20 C1150,20 1100,5 1050,15 C1000,25 950,5 900,10 C850,15 800,0 750,15 C700,30 650,5 600,15 C550,25 500,5 450,15 C400,25 350,5 300,15 C250,25 200,0 150,10 C100,20 50,5 0,15 L0,45 Z">
+                </path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- LEGAL DOCUMENT SECTION -->
+    <section class="legal-section">
+        <div class="legal-container">
+            <!-- Sidebar Table of Contents -->
+            <aside class="legal-toc">
+                <h3>Contents</h3>
+                <ul>
+                    <li><a href="#acceptance" class="toc-link active">1. Acceptance of Terms</a></li>
+                    <li><a href="#reservations" class="toc-link">2. Reservations</a></li>
+                    <li><a href="#orders" class="toc-link">3. Food &amp; Drink Orders</a></li>
+                    <li><a href="#payments" class="toc-link">4. Payments &amp; Pricing</a></li>
+                    <li><a href="#cancellation" class="toc-link">5. Cancellation Policy</a></li>
+                    <li><a href="#refund" class="toc-link">6. Refund Policy</a></li>
+                    <li><a href="#loyalty" class="toc-link">7. Loyalty Program</a></li>
+                    <li><a href="#responsibilities" class="toc-link">8. User Responsibilities</a></li>
+                    <li><a href="#liability" class="toc-link">9. Limitation of Liability</a></li>
+                    <li><a href="#contact" class="toc-link">10. Contact Information</a></li>
+                </ul>
+            </aside>
+
+            <!-- Document Content -->
+            <main class="legal-content">
+                <section id="acceptance">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By accessing our website, purchasing products, or booking tables at Medusa, you agree to be
+                        legally bound by these Terms &amp; Conditions. If you do not agree with any part of these terms,
+                        please cease use of our digital platforms immediately.</p>
+                    <p>You must be at least 18 years old or under the supervision of a parent or legal guardian to make
+                        bookings, place digital orders, or set up accounts with us.</p>
+                </section>
+
+                <section id="reservations">
+                    <h2>2. Reservations</h2>
+                    <p>Table bookings are subject to availability and confirmation. To preserve the high quality of our
+                        dining experiences, we enforce the following booking guidelines:</p>
+                    <ul>
+                        <li><strong>Grace Period:</strong> We will hold reserved tables for a maximum of 15 minutes past
+                            the scheduled booking time. Past this period, the table may be released to waiting guests.
+                        </li>
+                        <li><strong>Group Bookings:</strong> Reservations for parties larger than 8 guests must be made
+                            directly through our reservation line or events desk, and may require a securing deposit.
+                        </li>
+                        <li><strong>Verification:</strong> We reserve the right to verify identities or request
+                            confirmation codes upon your arrival.</li>
+                    </ul>
+                </section>
+
+                <section id="orders">
+                    <h2>3. Food &amp; Drink Orders</h2>
+                    <p>Our online menus and digital ordering system are provided for the convenience of our customers.
+                        Please note:</p>
+                    <ul>
+                        <li>Menu items are subject to dynamic availability depending on seasonal ingredients and kitchen
+                            stock.</li>
+                        <li>It is the customer's sole responsibility to highlight any severe food allergies,
+                            intolerances, or specific dietary restrictions during order submission.</li>
+                        <li>Once an online delivery or pickup order has entered the preparation stage in our kitchen, it
+                            cannot be edited or retracted.</li>
+                    </ul>
+                </section>
+
+                <section id="payments">
+                    <h2>4. Payments &amp; Pricing</h2>
+                    <p>All prices displayed on our menus and checkout pages are in Indian Rupees (INR) and are inclusive
+                        of standard local government taxes and statutory levies unless stated otherwise.</p>
+                    <p>Payments must be finalized in full at the time of placing online orders or upon completion of
+                        your dine-in experience. We accept major credit cards, debit cards, UPI, and approved digital
+                        payment platforms. We reserve the right to alter pricing, menus, or promotional campaigns
+                        without prior notice.</p>
+                </section>
+
+                <section id="cancellation">
+                    <h2>5. Cancellation Policy</h2>
+                    <p>We kindly request that cancellations for standard dining reservations be made at least 2 hours
+                        prior to the reserved time. Special dining events, private rooms, and holiday reservations may
+                        enforce stricter cancellation windows (e.g. 24 or 48 hours) as highlighted during the booking
+                        sequence.</p>
+                    <p>Deposits paid for large group bookings or special menu selections may be withheld if
+                        cancellations are made outside the authorized timeframe.</p>
+                </section>
+
+                <section id="refund">
+                    <h2>6. Refund Policy</h2>
+                    <p>For online food delivery or takeaway orders, refunds will only be considered under the following
+                        circumstances:</p>
+                    <ul>
+                        <li>The order was cancelled by Medusa due to ingredient shortages or unforeseen operational
+                            issues.</li>
+                        <li>The food delivered was incorrect, incomplete, or damaged, and was reported to customer care
+                            within 30 minutes of receipt.</li>
+                    </ul>
+                    <p>Refunds are processed back to the original payment source and may take 5 to 7 business days to
+                        clear, depending on banking institutions.</p>
+                </section>
+
+                <section id="loyalty">
+                    <h2>7. Loyalty Program</h2>
+                    <p>Medusa members may participate in our loyalty reward system. Point accumulation, tier
+                        advancements, and redemption offers are governed by program guidelines:</p>
+                    <ul>
+                        <li>Points are earned on authorized dining and online order values (excluding government taxes
+                            and service charges).</li>
+                        <li>Points are non-transferable and possess no cash value.</li>
+                        <li>Points expire after 12 months of account inactivity unless renewed under tier-specific
+                            rules.</li>
+                    </ul>
+                </section>
+
+                <section id="responsibilities">
+                    <h2>8. User Responsibilities</h2>
+                    <p>When creating an account on our website, you agree to maintain absolute confidentiality of your
+                        login credentials. You are responsible for all bookings, orders, and interactions executed under
+                        your user profile.</p>
+                    <p>You agree not to engage in malicious activities, upload malicious code, or attempt unauthorized
+                        entry into our database networks. Failure to comply will lead to immediate account termination
+                        and potential legal escalation.</p>
+                </section>
+
+                <section id="liability">
+                    <h2>9. Limitation of Liability</h2>
+                    <p>Medusa, its directors, and operational staff shall not be liable for any direct, indirect,
+                        incidental, or consequential damages resulting from the use of, or inability to access, our
+                        website and digital services.</p>
+                    <p>We make no representations or warranties regarding the absolute continuity or error-free status
+                        of our online ordering systems or website servers.</p>
+                </section>
+
+                <section id="contact">
+                    <h2>10. Contact Information</h2>
+                    <p>If you require clarifications regarding these Terms &amp; Conditions or wish to file a formal
+                        inquiry, please contact our support department:</p>
+                    <p>
+                        <strong>Medusa Restaurant, Bar &amp; Lounge</strong><br>
+                        SCO 44,45, District One Market, Sector 68, SAS Nagar, Punjab 140308<br>
+                        Email: <a href="mailto:support@medusa.com"
+                            style="color: var(--gold); text-decoration: none;">support@medusa.com</a><br>
+                        Phone: +91 94272 72798
+                    </p>
+                </section>
+            </main>
+        </div>
+    </section>
+
+    <!-- MAIN FOOTER -->
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="footer-logo">
+                    <img src="assets/images/logo.png" alt="Medusa Logo">
+                </div>
+                <p>Luxury dining experience crafted for unforgettable moments.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="menutest.html">Our Menu</a></li>
+                    <li><a href="book-table-test.html">Reservations</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="register.php">Create Account</a></li>
+                    <li><a href="career.html">Career</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                    <li><a href="terms-and-conditions.html">Terms &amp; Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <p>SCO 44,45, District One Market<br>Sector 68, Sahibzada Ajit Singh Nagar<br>Punjab 140308</p>
+                <p>+91 94272 72798</p>
+                <p>contact@medusa.com</p>
+                <button class="footer-btn-map" onclick="openMapModal()" style="background:transparent; cursor:pointer;">
+                    <i class="fa-solid fa-location-dot"></i> VIEW ON MAP
+                </button>
+            </div>
+            <div class="footer-col">
+                <h3>Join Our Circle</h3>
+                <p>Get exclusive offers and premium updates.</p>
+                <form id="newsletterForm" class="newsletter-form">
+                    <div id="newsletterMessage" class="hidden absolute -top-8 left-0 text-xs px-2 py-1 rounded"></div>
+                    <input type="email" id="newsletter_email" name="newsletter_email" placeholder="Email Address"
+                        required>
+                    <button type="submit"><i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Medusa. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- GOOGLE MAPS LOCATION MODAL -->
+    <div id="mapModal"
+        style="position:fixed;inset:0;background:rgba(10,10,10,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:10000;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s ease;">
+        <button onclick="closeMapModal()"
+            style="position:absolute;top:30px;right:40px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;z-index:10010;">&times;</button>
+        <div style="max-width:700px;width:95%;text-align:center;transform:scale(0.95);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);"
+            id="mapContent">
+            <div
+                style="border-radius:16px;overflow:hidden;border:1px solid rgba(223,186,134,0.2);box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+                <iframe id="mapIframe" src="" width="100%" height="400" style="border:0;display:block;" allowfullscreen
+                    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <h4 style="font-family:var(--font-serif);color:#fff;margin-top:16px;font-size:1.3rem;">La Medusaa</h4>
+            <p style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">
+                SCO 44,45, District One Market, Sector 68, SAS Nagar</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=SCO+44+45+District+One+Market+Sector+68+Sahibzada+Ajit+Singh+Nagar+Punjab+140308"
+                target="_blank" rel="noopener"
+                style="display:inline-block;margin-top:12px;color:var(--gold);font-size:0.85rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-decoration:none;">Open
+                in Google Maps <i class="fa-solid fa-arrow-up-right-from-square ms-1"
+                    style="font-size:0.75rem;"></i></a>
+        </div>
+    </div>
+
+    <!-- Active Session, Map & Scrollspy JS -->
+    <script>
+        const MAP_EMBED_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2885.413030890794!2d76.71954153075983!3d30.680322781741616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fef0030d303dd%3A0xc81adde575ebd2ce!2sMedusa-bar%20and%20lounge!5e0!3m2!1sen!2sin!4v1780853698088!5m2!1sen!2sin';
+
+        function openMapModal() {
+            const modal = document.getElementById('mapModal');
+            document.getElementById('mapIframe').src = MAP_EMBED_URL;
+            modal.style.opacity = '1'; modal.style.visibility = 'visible';
+            document.getElementById('mapContent').style.transform = 'scale(1)';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMapModal() {
+            const modal = document.getElementById('mapModal');
+            modal.style.opacity = '0'; modal.style.visibility = 'hidden';
+            document.getElementById('mapContent').style.transform = 'scale(0.95)';
+            document.body.style.overflow = '';
+            setTimeout(() => { document.getElementById('mapIframe').src = ''; }, 350);
+        }
+        document.getElementById('mapModal').addEventListener('click', (e) => { if (e.target.id === 'mapModal') closeMapModal(); });
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('mapModal').style.visibility === 'visible') closeMapModal(); });
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const res = await fetch('api/check-session.php');
+                const data = await res.json();
+                if (data.success && data.logged_in) {
+                    const authLink = document.getElementById('authLink');
+                    if (authLink) {
+                        authLink.textContent = 'Logout';
+                        authLink.href = 'api/logout.php';
+                    }
+                }
+            } catch (e) {
+                console.error("Session check failed:", e);
+            }
+        });
+
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            const messageDiv = document.getElementById('newsletterMessage');
+            if (messageDiv) {
+                messageDiv.style.position = 'absolute';
+                messageDiv.style.top = '-35px';
+                messageDiv.style.left = '0';
+                messageDiv.style.fontSize = '12px';
+                messageDiv.style.padding = '6px 12px';
+                messageDiv.style.borderRadius = '4px';
+                messageDiv.style.display = 'none';
+                messageDiv.style.whiteSpace = 'nowrap';
+                messageDiv.style.zIndex = '10';
+            }
+
+            newsletterForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const emailInput = document.getElementById('newsletter_email');
+                const btn = this.querySelector('button');
+                const originalHtml = btn.innerHTML;
+
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('api/subscribe.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'newsletter_email=' + encodeURIComponent(emailInput.value)
+                    });
+
+                    const result = await response.json();
+
+                    messageDiv.style.display = 'block';
+                    if (result.success) {
+                        messageDiv.style.backgroundColor = 'rgba(25, 54, 39, 0.95)';
+                        messageDiv.style.color = '#dfba86';
+                        messageDiv.style.border = '1px solid #dfba86';
+                        messageDiv.innerText = result.message || 'Subscribed successfully!';
+                        emailInput.value = '';
+                    } else {
+                        messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
+                        messageDiv.style.color = '#fff';
+                        messageDiv.style.border = '1px solid #ff4d4d';
+                        messageDiv.innerText = result.message || 'Subscription failed.';
+                    }
+                } catch (err) {
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
+                    messageDiv.style.color = '#fff';
+                    messageDiv.style.border = '1px solid #ff4d4d';
+                    messageDiv.innerText = 'Network error. Please try again later.';
+                } finally {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 5000);
+                }
+            });
+        }
+
+        // Scrollspy for sidebar table of contents
+        const sections = document.querySelectorAll('.legal-content section');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= (sectionTop - 120)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
