@@ -28,7 +28,7 @@ if (!empty($_SESSION['user_id'])) {
             $user_details['last_name'] = $name_parts[1] ?? '';
             $user_details['email'] = $user['email'];
             $user_details['phone'] = $user['phone'] ?? '';
-            $user_tier_name = $user['tier_name'] ?? 'Silver';
+            $user_tier_name = $user['tier_name'] ?? 'Bronze';
             $user_tier_discount_percent = floatval($user['discount_percent'] ?? 10.00);
         }
         
@@ -1446,6 +1446,7 @@ $csrf_token = csrf_token();
     <form id="orderForm">
         <input type="hidden" id="name" value="">
         <input type="hidden" id="address" value="">
+        <input type="hidden" id="delivery_coords" value="">
         <input type="hidden" id="csrf_token" value="<?php echo $csrf_token; ?>">
 
         <div class="checkout-page-title">
@@ -1858,7 +1859,15 @@ if (savedAddressSelect) {
         document.getElementById('billing_country').value = country;
         updateStates(); // load states for this country
         
-        document.getElementById('billing_street').value = selectedOption.dataset.street || "";
+        let streetVal = selectedOption.dataset.street || "";
+        const coordMatch = streetVal.match(/\[([0-9.-]+,\s*[0-9.-]+)\]/);
+        if (coordMatch) {
+            document.getElementById('delivery_coords').value = coordMatch[1];
+            streetVal = streetVal.replace(/\[[0-9.-]+,\s*[0-9.-]+\]/, '').trim();
+        } else {
+            document.getElementById('delivery_coords').value = "";
+        }
+        document.getElementById('billing_street').value = streetVal;
         document.getElementById('billing_apartment').value = selectedOption.dataset.apartment || "";
         document.getElementById('billing_city').value = selectedOption.dataset.city || "";
         
@@ -2217,6 +2226,12 @@ document.getElementById('orderForm').onsubmit = async (e) => {
     if (apartment) compiledAddress += ', ' + apartment;
     compiledAddress += ', ' + city + ', ' + state + ' - ' + zip + ', ' + country;
     
+    // Append coordinates from map selection if present
+    const coords = document.getElementById('delivery_coords').value.trim();
+    if (coords) {
+        compiledAddress += ` [${coords}]`;
+    }
+    
     const tableNum = localStorage.getItem('table_number');
     if (tableNum) {
         compiledAddress = `Table ${tableNum}, ` + compiledAddress;
@@ -2457,50 +2472,16 @@ scrollToTopBtn.addEventListener('click', () => {
     });
 });
 
-// Geolocation - Choose from Map
-const btnChooseMap = document.getElementById('btnChooseFromMap');
-if(btnChooseMap) {
-    btnChooseMap.addEventListener('click', () => {
-        if (navigator.geolocation) {
-            btnChooseMap.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                    const data = await res.json();
-                    
-                    if (data && data.address) {
-                        const addr = data.address;
-                        const street = (addr.road || addr.suburb || '') + (addr.house_number ? ' ' + addr.house_number : '');
-                        document.getElementById('billing_street').value = street.trim() + ` [${lat}, ${lng}]`;
-                        
-                        if(addr.city || addr.town || addr.village) {
-                            document.getElementById('billing_city').value = addr.city || addr.town || addr.village;
-                        }
-                        if(addr.postcode) {
-                            document.getElementById('billing_zip').value = addr.postcode;
-                        }
-                    } else {
-                        document.getElementById('billing_street').value = `Coordinates: [${lat}, ${lng}]`;
-                    }
-                } catch (err) {
-                    console.error("Geocoding failed:", err);
-                    alert("Failed to get address from map, but coordinates captured.");
-                    document.getElementById('billing_street').value = `[${lat}, ${lng}]`;
-                }
-                btnChooseMap.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => { btnChooseMap.innerHTML = '<i class="fas fa-map-marker-alt"></i>'; }, 3000);
-            }, (error) => {
-                alert('Location access denied or unavailable.');
-                btnChooseMap.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
-            });
-        } else {
-            alert('Geolocation is not supported by your browser.');
-        }
-    });
-}
+// Clear map coordinates if user manually changes address text
+document.addEventListener('DOMContentLoaded', () => {
+    const billingStreet = document.getElementById('billing_street');
+    if (billingStreet) {
+        billingStreet.addEventListener('input', () => {
+            const coordsInput = document.getElementById('delivery_coords');
+            if (coordsInput) coordsInput.value = '';
+        });
+    }
+});
 </script>
 
 <!-- Premium Payment Loading Overlay -->
@@ -2681,11 +2662,11 @@ if(confirmLocationBtn) {
                     if (comp.types.includes('postal_code')) zip = comp.long_name;
                 });
                 
-                if (street === 'Selected Location') {
-                    street = results[0].formatted_address.split(',')[0];
-                }
+                // Save coordinates to hidden field
+                document.getElementById('delivery_coords').value = selectedLat + ',' + selectedLon;
                 
-                document.getElementById('billing_street').value = street + (city ? ', ' + city : '');
+                // Fill billing street with full formatted address
+                document.getElementById('billing_street').value = results[0].formatted_address;
                 
                 const cityInput = document.getElementById('billing_city');
                 if(cityInput) cityInput.value = city;

@@ -313,4 +313,28 @@ if (!defined('WHATSAPP_API_KEY')) {
 if (!defined('WHATSAPP_FROM_NUMBER')) {
     define('WHATSAPP_FROM_NUMBER', get_env_var('WHATSAPP_FROM_NUMBER', ''));
 }
+
+if (!function_exists('parseUserAgent')) {
+    function parseUserAgent($ua) {
+        $os = 'Unknown OS';
+        $browser = 'Unknown Browser';
+
+        // Detect OS
+        if (preg_match('/iphone/i', $ua)) { $os = 'iPhone'; }
+        elseif (preg_match('/ipad/i', $ua)) { $os = 'iPad'; }
+        elseif (preg_match('/android/i', $ua)) { $os = 'Android Device'; }
+        elseif (preg_match('/macintosh|mac os x/i', $ua)) { $os = 'Mac'; }
+        elseif (preg_match('/windows|win32/i', $ua)) { $os = 'Windows'; }
+        elseif (preg_match('/linux/i', $ua)) { $os = 'Linux'; }
+
+        // Detect Browser
+        if (preg_match('/chrome/i', $ua) && !preg_match('/edge|edg/i', $ua)) { $browser = 'Chrome'; }
+        elseif (preg_match('/safari/i', $ua) && !preg_match('/chrome/i', $ua)) { $browser = 'Safari'; }
+        elseif (preg_match('/firefox/i', $ua)) { $browser = 'Firefox'; }
+        elseif (preg_match('/edge|edg/i', $ua)) { $browser = 'Edge'; }
+        elseif (preg_match('/opera|opr/i', $ua)) { $browser = 'Opera'; }
+
+        return "$os ($browser)";
+    }
+}
 ?>

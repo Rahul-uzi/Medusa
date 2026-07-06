@@ -37,6 +37,17 @@ try {
         exit;
     }
 
+    // Auto-cancel if older than 12 hours and not delivered/cancelled
+    $isOlderThan12Hrs = (time() - strtotime($order['order_date'])) > (12 * 3600);
+    if ($isOlderThan12Hrs && !in_array(strtolower($order['tracking_status']), ['delivered', 'cancelled', 'completed'])) {
+        try {
+            $upd_stmt = $pdo->prepare("UPDATE orders SET order_status = 'cancelled', tracking_status = 'cancelled', cancellation_reason = 'System auto-cancelled: exceeded 12 hours limit' WHERE id = ?");
+            $upd_stmt->execute([$order['id']]);
+            $order['tracking_status'] = 'cancelled';
+            $order['order_status'] = 'cancelled';
+        } catch (Exception $e) {}
+    }
+
     // Fetch order items
     $items_stmt = $pdo->prepare("
         SELECT item_name, quantity, price FROM order_items WHERE order_id = ?
@@ -78,7 +89,7 @@ try {
         'out_for_delivery' => 'Your order is on its way to you!',
         'ready_for_pickup' => 'Your order is ready! Please come to the kitchen counter to pick it up.',
         'delivered'        => $is_takeaway ? 'You have picked up your order. Enjoy your meal!' : 'Your order has been delivered. Enjoy your meal!',
-        'cancelled'        => 'This order has been cancelled.',
+        'cancelled'        => $isOlderThan12Hrs ? 'This order could not be delivered. Money will be sent to you soon, if not received, please call us.' : 'This order has been cancelled.',
     ];
 
     // Compute ETA minutes remaining from estimated_delivery

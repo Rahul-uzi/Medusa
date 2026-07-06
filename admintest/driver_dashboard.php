@@ -598,6 +598,33 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
         </div>
     </div>
 
+    <!-- Custom Alert Modal -->
+    <div id="customAlertModal" class="modal-overlay" style="display: none; z-index: 10000;">
+        <div class="modal-content" style="border: 1px solid var(--accent); background-color: var(--card-bg); max-width: 340px; text-align: center; padding: 25px; align-items: center;">
+            <div style="font-size: 2.2rem; color: var(--accent); margin-bottom: 8px;">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 id="customAlertTitle" style="font-weight: 700; color: #fff; margin-bottom: 5px; font-size: 1.15rem;">Notification</h3>
+            <p id="customAlertMessage" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.45; margin-bottom: 15px; text-align: center;">---</p>
+            <button class="btn-modal btn-modal-confirm" id="customAlertBtn" onclick="closeCustomAlert()" style="background-color: var(--accent); color: #000; font-weight: 700; flex: none; width: 100%; max-width: 120px; border-radius: 6px; font-size: 0.9rem; padding: 8px 16px;">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="customConfirmModal" class="modal-overlay" style="display: none; z-index: 10000;">
+        <div class="modal-content" style="border: 1px solid var(--accent); background-color: var(--card-bg); max-width: 340px; text-align: center; padding: 25px; align-items: center;">
+            <div style="font-size: 2.2rem; color: var(--danger); margin-bottom: 8px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="customConfirmTitle" style="font-weight: 700; color: #fff; margin-bottom: 5px; font-size: 1.15rem;">Confirmation</h3>
+            <p id="customConfirmMessage" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.45; margin-bottom: 15px; text-align: center;">---</p>
+            <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                <button class="btn-modal btn-modal-close" onclick="closeCustomConfirm(false)" style="padding: 8px 16px; font-size: 0.9rem; border-radius: 6px; border: 1px solid var(--border); color: #fff;">Cancel</button>
+                <button class="btn-modal btn-modal-confirm" onclick="closeCustomConfirm(true)" style="background-color: var(--accent); color: #000; font-weight: 700; border-radius: 6px; font-size: 0.9rem; padding: 8px 16px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Constants
         const DEFAULT_RESTAURANT_LAT = 30.680322;
@@ -606,6 +633,7 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
         let RESTAURANT_LNG = 76.719541;
         // State
         let currentOrder = null;
+        let statusPollTimer = null;
         let map = null;
         let directionsService = null;
         let directionsRenderer = null;
@@ -677,25 +705,66 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
             });
         }
 
+        // ─── Custom Modal Popup Alerts and Confirms ───
+        let alertCallback = null;
+        function showCustomAlert(message, title = 'Notification', callback = null) {
+            document.getElementById('customAlertTitle').textContent = title;
+            document.getElementById('customAlertMessage').textContent = message;
+            document.getElementById('customAlertModal').style.display = 'flex';
+            alertCallback = callback;
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlertModal').style.display = 'none';
+            if (typeof alertCallback === 'function') {
+                alertCallback();
+                alertCallback = null;
+            }
+        }
+
+        let confirmCallback = null;
+        function showCustomConfirm(message, title = 'Confirmation', callback = null) {
+            document.getElementById('customConfirmTitle').textContent = title;
+            document.getElementById('customConfirmMessage').textContent = message;
+            document.getElementById('customConfirmModal').style.display = 'flex';
+            confirmCallback = callback;
+        }
+
+        function closeCustomConfirm(result) {
+            document.getElementById('customConfirmModal').style.display = 'none';
+            if (typeof confirmCallback === 'function') {
+                confirmCallback(result);
+                confirmCallback = null;
+            }
+        }
+
         // Fetch Order API
         async function fetchOrder() {
             const orderId = document.getElementById('orderInput').value.trim();
-            if (!orderId) { alert("Please enter an Order ID"); return; }
+            if (!orderId) { showCustomAlert("Please enter an Order ID", "Missing Info"); return; }
 
             try {
                 const response = await fetch(`../api/driver_api.php?action=fetch_order&order_number=${orderId}`);
                 const result = await response.json();
 
                 if (result.success) {
-                    currentOrder = result.order;
-                    localStorage.setItem('active_delivery_order_number', currentOrder.order_number);
-                    startDeliveryUI();
+                    const status = (result.order.status || '').toLowerCase().trim();
+                    if (status === 'ready' || status === 'picked up' || status === 'out for delivery') {
+                        currentOrder = result.order;
+                        localStorage.setItem('active_delivery_order_number', currentOrder.order_number);
+                        startDeliveryUI();
+                    } else {
+                        showCustomAlert(`Order #${result.order.order_number} is still being prepared by the kitchen. Please wait until it is marked as Ready!`, "Order Not Ready");
+                        localStorage.removeItem('active_delivery_order_number');
+                        document.getElementById('orderInput').value = '';
+                    }
                 } else {
-                    alert(result.message);
+                    showCustomAlert(result.message, "Error");
                     localStorage.removeItem('active_delivery_order_number');
+                    document.getElementById('orderInput').value = '';
                 }
             } catch (err) {
-                alert("Network error fetching order.");
+                showCustomAlert("Network error fetching order.", "Connection Error");
             }
         }
 
@@ -715,6 +784,7 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
             document.getElementById('uiCustomerAddress').textContent = currentOrder.delivery_address;
             document.getElementById('uiCustomerPhone').href = 'tel:' + currentOrder.customer_phone;
             updateStatusBadge(currentOrder.status);
+            startStatusPolling();
 
             // Init Map and Tracking
             if (typeof google !== 'undefined' && google.maps && google.maps.Map) {
@@ -988,9 +1058,9 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
                     document.getElementById('btnPickup').style.display = 'none';
                     document.getElementById('btnDeliver').style.display = 'flex';
                 } else {
-                    alert(data.message);
+                    showCustomAlert(data.message, "Update Failed");
                 }
-            } catch (err) { alert("Error updating status"); }
+            } catch (err) { showCustomAlert("Error updating status.", "Error"); }
         }
 
         // Action: Delivered
@@ -1004,47 +1074,115 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert("Delivery completed successfully!");
-                    resetDashboard();
+                    showCustomAlert("Delivery completed successfully!", "Success", () => {
+                        resetDashboard();
+                    });
                 } else {
-                    alert(data.message);
+                    showCustomAlert(data.message, "Update Failed");
                 }
-            } catch (err) { alert("Error updating status"); }
+            } catch (err) { showCustomAlert("Error updating status.", "Error"); }
         }
 
         // Action: SOS
         async function triggerSOS() {
-            if (!confirm("CRITICAL: Send Emergency SOS Alert to Admin?")) return;
-            try {
-                const res = await fetch('../api/driver_api.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        action: 'sos_alert', 
-                        order_number: currentOrder ? currentOrder.order_number : 'N/A',
-                        lat: currentLat,
-                        lng: currentLng
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert("SOS Alert Sent! The restaurant has been notified of your location.");
-                } else {
-                    alert("Error sending SOS: " + data.message);
-                }
-            } catch (err) { alert("Error sending SOS."); }
+            showCustomConfirm("CRITICAL: Send Emergency SOS Alert to Admin?", "Emergency SOS", async (confirmed) => {
+                if (!confirmed) return;
+                try {
+                    const res = await fetch('../api/driver_api.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ 
+                            action: 'sos_alert', 
+                            order_number: currentOrder ? currentOrder.order_number : 'N/A',
+                            lat: currentLat,
+                            lng: currentLng
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showCustomAlert("SOS Alert Sent! The restaurant has been notified of your location.", "SOS Alert");
+                    } else {
+                        showCustomAlert("Error sending SOS: " + data.message, "SOS Error");
+                    }
+                } catch (err) { showCustomAlert("Error sending SOS.", "Error"); }
+            });
         }
 
         function updateStatusBadge(status) {
             const badge = document.getElementById('uiStatus');
+            const normalizedStatus = (status || '').toLowerCase().trim();
             badge.textContent = status;
-            if (status === 'Picked Up' || status === 'Out for Delivery') {
+
+            const btnPickup = document.getElementById('btnPickup');
+            const btnDeliver = document.getElementById('btnDeliver');
+
+            if (normalizedStatus === 'picked up' || normalizedStatus === 'out for delivery') {
                 badge.style.backgroundColor = 'rgba(33,150,243,0.2)';
                 badge.style.color = '#2196F3';
-            } else {
+                
+                if (btnPickup) {
+                    btnPickup.style.display = 'none';
+                    btnPickup.disabled = false;
+                    btnPickup.style.opacity = '1';
+                    btnPickup.style.pointerEvents = 'auto';
+                    btnPickup.style.cursor = 'pointer';
+                }
+                if (btnDeliver) btnDeliver.style.display = 'flex';
+            } else if (normalizedStatus === 'ready') {
                 badge.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
                 badge.style.color = 'var(--primary)';
+                
+                if (btnPickup) {
+                    btnPickup.style.display = 'flex';
+                    btnPickup.textContent = 'Picked Up';
+                    btnPickup.disabled = false;
+                    btnPickup.style.opacity = '1';
+                    btnPickup.style.pointerEvents = 'auto';
+                    btnPickup.style.cursor = 'pointer';
+                    btnPickup.style.backgroundColor = '#2196F3'; // Accent blue
+                }
+                if (btnDeliver) btnDeliver.style.display = 'none';
+            } else {
+                // pending, confirmed, preparing/cooking
+                badge.style.backgroundColor = 'rgba(251,191,36,0.15)';
+                badge.style.color = '#fbbf24'; // Amber
+                
+                if (btnPickup) {
+                    btnPickup.style.display = 'flex';
+                    btnPickup.textContent = '🍳 Food is Cooking...';
+                    btnPickup.disabled = true;
+                    btnPickup.style.opacity = '0.5';
+                    btnPickup.style.pointerEvents = 'none';
+                    btnPickup.style.cursor = 'not-allowed';
+                    btnPickup.style.backgroundColor = '#4b5563'; // Neutral gray
+                }
+                if (btnDeliver) btnDeliver.style.display = 'none';
             }
+        }
+
+        function startStatusPolling() {
+            if (statusPollTimer) clearInterval(statusPollTimer);
+            
+            statusPollTimer = setInterval(async () => {
+                if (!currentOrder || !currentOrder.order_number) return;
+                
+                try {
+                    const response = await fetch(`../api/driver_api.php?action=fetch_order&order_number=${currentOrder.order_number}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        currentOrder.status = result.order.status;
+                        updateStatusBadge(currentOrder.status);
+                        
+                        const norm = (currentOrder.status || '').toLowerCase().trim();
+                        if (norm === 'picked up' || norm === 'out for delivery' || norm === 'delivered' || norm === 'cancelled') {
+                            clearInterval(statusPollTimer);
+                            statusPollTimer = null;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Error polling status:", e);
+                }
+            }, 4000);
         }
 
         function resetDashboard() {
@@ -1063,6 +1201,12 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
             document.getElementById('orderInput').value = '';
             document.getElementById('btnPickup').style.display = 'flex';
             document.getElementById('btnDeliver').style.display = 'none';
+            
+            if (statusPollTimer) {
+                clearInterval(statusPollTimer);
+                statusPollTimer = null;
+            }
+            
             currentOrder = null;
         }
 
@@ -1089,12 +1233,12 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
                     const reasonVal = reasonSelect.value;
                     const reasonText = reasonSelect.options[reasonSelect.selectedIndex]?.text || '';
                     if (!reasonVal) {
-                        alert("Please select a reason first.");
+                        showCustomAlert("Please select a reason first.", "Required");
                         return;
                     }
                     
                     if (!currentOrder || !currentOrder.order_number) {
-                        alert("No active order to cancel.");
+                        showCustomAlert("No active order to cancel.", "Error");
                         return;
                     }
                     
@@ -1112,26 +1256,29 @@ $driverName = htmlspecialchars($_SESSION['user_name']);
                         const data = await res.json();
                         
                         if (data.success) {
-                            alert("Order cancelled successfully!");
-                            closeCancelModal();
-                            resetDashboard();
+                            showCustomAlert("Order cancelled successfully!", "Success", () => {
+                                closeCancelModal();
+                                resetDashboard();
+                            });
                         } else {
-                            alert("Failed to cancel order: " + data.message);
+                            showCustomAlert("Failed to cancel order: " + data.message, "Cancellation Failed");
                         }
                     } catch (err) {
-                        alert("Network error updating status.");
+                        showCustomAlert("Network error updating status.", "Connection Error");
                     }
                 });
             }
         });
 
         async function logout() {
-            if (!confirm("Log out of Driver Portal?")) return;
-            localStorage.removeItem('active_delivery_order_number');
-            try {
-                await fetch('../api/logout.php');
-                window.location.href = '../login.html';
-            } catch(e) { window.location.href = '../login.html'; }
+            showCustomConfirm("Log out of Driver Portal?", "Logout", async (confirmed) => {
+                if (!confirmed) return;
+                localStorage.removeItem('active_delivery_order_number');
+                try {
+                    await fetch('../api/logout.php');
+                    window.location.href = '../login.html';
+                } catch(e) { window.location.href = '../login.html'; }
+            });
         }
     </script>
 </body>

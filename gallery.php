@@ -874,9 +874,13 @@ function switchTab(tab) {
     if (!isPhotos) renderVideos();
 }
 
-// ═══════════════════ INIT ═══════════════════
-renderPhotos();
+// =================== INIT ===================
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('tab') === 'videos') {
+    switchTab('videos');
+} else {
+    renderPhotos();
+}
 </script>
 </body>
 </html>
-

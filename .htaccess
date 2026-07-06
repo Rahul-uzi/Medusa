@@ -1,0 +1,27 @@
+# ==============================================================================
+# MEDUSA RESTAURANT — SECURE CONFIGURATION & PATH BLOCKING
+# ==============================================================================
+
+# Disable directory indexing (prevent viewing file directory structure)
+Options -Indexes
+
+# 1. Block access to the .env file (critical database credentials and API secrets)
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# 2. Block access to JSON order records (prevent customers' order history leakage)
+<Files orders.json>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# 3. Block access to database backups (.sql) and configuration blueprints
+<FilesMatch "\.(sql|bak|gitignore|gitattributes)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 4. Block access to hidden directory/dotfiles (e.g. .git, .env, .htaccess itself)
+RedirectMatch 403 /\..*$

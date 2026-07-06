@@ -201,7 +201,7 @@ if (!function_exists('sendWelcomeEmail')) {
             $mail->isHTML(true);
             $mail->Subject = "Welcome to Medusa Restaurant!";
             $mail->Body = "
-            <html>
+            <html> 
             <body style=\"font-family: 'Plus Jakarta Sans', Arial, sans-serif; background-color: #0a0a0a; color: #f3f3f3; margin: 0; padding: 2rem 0;\">
                 <div style=\"max-width: 600px; margin: 0 auto; padding: 2rem; background-color: #121111; border: 1px solid rgba(223, 186, 134, 0.2); border-radius: 16px;\">
                     <div style=\"text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 1rem;\">
@@ -226,6 +226,89 @@ if (!function_exists('sendWelcomeEmail')) {
             return true;
         } catch (Exception $e) {
             error_log("Welcome Mail sending failed: " . $mail->ErrorInfo);
+            return false;
+        }
+    }
+}
+
+if (!function_exists('sendLoginAlertEmail')) {
+    function sendLoginAlertEmail($toEmail, $toName, $ip, $ua, $time) {
+        // Log to local file for debug
+        logOTPDebug($toEmail, "Login alert triggered from IP {$ip} / {$ua}", 'LOGIN_ALERT');
+
+        $mail = new PHPMailer(true);
+        $mail->CharSet = 'UTF-8';
+
+        $smtp_host = get_env_var('SMTP_HOST');
+        $smtp_port = get_env_var('SMTP_PORT', 587);
+        $smtp_user = get_env_var('SMTP_USER');
+        $smtp_pass = get_env_var('SMTP_PASS');
+        $smtp_from = get_env_var('SMTP_FROM');
+        $smtp_from_name = get_env_var('SMTP_FROM_NAME', 'Medusa Restaurant');
+
+        // Check if SMTP options are default/placeholders
+        if (empty($smtp_user) || $smtp_user === 'your_gmail_username_here' || empty($smtp_pass) || $smtp_pass === 'your_gmail_app_password_here') {
+            // Treat as fallback local mode, return true
+            return true;
+        }
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = $smtp_host;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $smtp_user;
+            $mail->Password   = $smtp_pass;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = $smtp_port;
+
+            // Recipients
+            $mail->setFrom($smtp_from, $smtp_from_name);
+            $mail->addAddress($toEmail, $toName);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = "Security Alert: New Login to Medusa Restaurant";
+
+            $mail->Body = "
+            <html>
+            <body style=\"font-family: 'Plus Jakarta Sans', Arial, sans-serif; background-color: #0a0a0a; color: #f3f3f3; margin: 0; padding: 2rem 0;\">
+                <div style=\"max-width: 600px; margin: 0 auto; padding: 2rem; background-color: #121111; border: 1px solid rgba(223, 186, 134, 0.2); border-radius: 16px;\">
+                    <div style=\"text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 1rem;\">
+                        <h2 style=\"font-family: 'Playfair Display', Georgia, serif; color: #dfba86; font-size: 1.6rem; margin: 0; letter-spacing: 2px;\">MEDUSA RESTAURANT</h2>
+                    </div>
+                    <div style=\"padding: 2rem 0; line-height: 1.6; font-size: 1rem; color: #f3f3f3;\">
+                        <p style=\"color: #f3f3f3; margin: 0 0 1rem 0;\">Dear {$toName},</p>
+                        <p style=\"color: #f3f3f3; margin: 0 0 1.5rem 0;\">A new login was detected on your Medusa Restaurant account.</p>
+                        <div style=\"background-color: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1.2rem; margin: 1.5rem 0;\">
+                            <table style=\"width: 100%; border-collapse: collapse; color: #f3f3f3; font-size: 0.9rem;\">
+                                <tr>
+                                    <td style=\"padding: 0.4rem 0; font-weight: 600; color: #dfba86; width: 120px;\">IP Address:</td>
+                                    <td style=\"padding: 0.4rem 0;\">" . htmlspecialchars($ip) . "</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding: 0.4rem 0; font-weight: 600; color: #dfba86;\">Device/Browser:</td>
+                                    <td style=\"padding: 0.4rem 0;\">" . htmlspecialchars($ua) . "</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding: 0.4rem 0; font-weight: 600; color: #dfba86;\">Time:</td>
+                                    <td style=\"padding: 0.4rem 0;\">" . htmlspecialchars($time) . "</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p style=\"color: #f3f3f3; margin: 0 0 1rem 0;\">If this was you, no action is needed. If you do not recognize this activity, please log in to your account, navigate to <strong>Security & Sessions</strong>, and revoke this session immediately.</p>
+                    </div>
+                    <div style=\"text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1rem; font-size: 0.8rem; color: #a09f9f;\">
+                        <p style=\"color: #a09f9f; margin: 0;\">&copy; 2026 Medusa Restaurant. SCO 44,45, Sector 68, SAS Nagar, Punjab 140308. All Rights Reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>";
+
+            $mail->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("Login Alert Mail sending failed: " . $mail->ErrorInfo);
             return false;
         }
     }

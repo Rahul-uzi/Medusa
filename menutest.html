@@ -319,7 +319,14 @@
         // Load cart from localStorage
         try {
             const savedCart = localStorage.getItem('foodie_cart');
-            if (savedCart) localCart = JSON.parse(savedCart);
+            if (savedCart) {
+                const parsed = JSON.parse(savedCart);
+                if (Array.isArray(parsed)) {
+                    parsed.forEach(i => { localCart[i.id || i.food_item_id] = i.quantity; });
+                } else {
+                    localCart = parsed;
+                }
+            }
         } catch (e) { localCart = {}; }
 
         const ICONS = {
@@ -701,8 +708,12 @@
                     const params = new URLSearchParams(window.location.search);
                     if (params.get('table')) throw new Error('Guest mode, using local cart');
                     else {
-                        alert('Please login first to add items to cart.');
-                        window.location.href = 'login.html';
+                        if (!window.hasAlertedForLogin) {
+                            window.hasAlertedForLogin = true;
+                            alert('Please login first to add items to cart.', () => {
+                                window.location.href = 'login.html';
+                            });
+                        }
                         return;
                     }
                 }
@@ -737,7 +748,8 @@
         }
 
         async function changeQuantity(id, change) {
-            let qty = (localCart[id] || 1) + change;
+            let currentQty = parseInt(localCart[id]) || 1;
+            let qty = currentQty + parseInt(change);
             if (qty <= 0) {
                 try {
                     let saved = JSON.parse(localStorage.getItem('foodie_cart') || '[]');
@@ -808,6 +820,7 @@
                     }));
                     renderCartUI(formatted);
                     localStorage.setItem('foodie_cart', JSON.stringify(formatted));
+                    syncCartUI();
                     return;
                 }
                 throw new Error('Bad data');
@@ -1005,6 +1018,10 @@
             leftBtn.disabled = container.scrollLeft <= 0;
             rightBtn.disabled = Math.ceil(container.scrollLeft) >= container.scrollWidth - container.clientWidth;
         }
+
+        window.addEventListener('pageshow', (event) => {
+            window.hasAlertedForLogin = false;
+        });
     </script>
 </body>
 

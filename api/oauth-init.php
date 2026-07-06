@@ -13,6 +13,7 @@ if (!in_array($provider, $valid_providers)) {
 $state = bin2hex(random_bytes(16));
 $_SESSION['oauth_state'] = $state;
 $_SESSION['oauth_action'] = $action;
+$_SESSION['oauth_provider'] = $provider;
 
 // Get credentials
 $client_id = get_env_var(strtoupper($provider) . '_CLIENT_ID');

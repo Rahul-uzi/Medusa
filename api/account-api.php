@@ -249,21 +249,53 @@ try {
         $privacy     = intval($data['privacy_mode'] ?? 0);
         $lang        = trim($data['language'] ?? 'en');
         $theme       = trim($data['theme'] ?? 'dark');
+        $two_fa      = intval($data['two_factor_enabled'] ?? 0);
+        $login_alerts = isset($data['login_alerts']) ? intval($data['login_alerts']) : 1;
 
         $stmt = $pdo->prepare("
-            INSERT INTO user_settings (user_id, email_notifications, sms_notifications, promotional_offers, privacy_mode, language, theme)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO user_settings (user_id, email_notifications, sms_notifications, promotional_offers, privacy_mode, language, theme, two_factor_enabled, login_alerts)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 email_notifications = VALUES(email_notifications),
                 sms_notifications   = VALUES(sms_notifications),
                 promotional_offers  = VALUES(promotional_offers),
                 privacy_mode        = VALUES(privacy_mode),
                 language            = VALUES(language),
-                theme               = VALUES(theme)
+                theme               = VALUES(theme),
+                two_factor_enabled  = VALUES(two_factor_enabled),
+                login_alerts        = VALUES(login_alerts)
         ");
-        $stmt->execute([$user_id, $email_notif, $sms_notif, $promo, $privacy, $lang, $theme]);
+        $stmt->execute([$user_id, $email_notif, $sms_notif, $promo, $privacy, $lang, $theme, $two_fa, $login_alerts]);
 
         echo json_encode(['success' => true, 'message' => 'Preferences saved successfully!']);
+        exit;
+    }
+
+    // ── 7.5 TOGGLE 2FA ──
+    if ($action === 'toggle_2fa') {
+        $enabled = intval($data['enabled'] ?? 0);
+        $stmt = $pdo->prepare("
+            INSERT INTO user_settings (user_id, two_factor_enabled)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE two_factor_enabled = VALUES(two_factor_enabled)
+        ");
+        $stmt->execute([$user_id, $enabled]);
+        $msg = $enabled ? 'Two-Factor Authentication enabled.' : 'Two-Factor Authentication disabled.';
+        echo json_encode(['success' => true, 'message' => $msg, 'enabled' => $enabled]);
+        exit;
+    }
+
+    // ── 7.6 TOGGLE LOGIN ALERTS ──
+    if ($action === 'toggle_login_alerts') {
+        $enabled = intval($data['enabled'] ?? 0);
+        $stmt = $pdo->prepare("
+            INSERT INTO user_settings (user_id, login_alerts)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE login_alerts = VALUES(login_alerts)
+        ");
+        $stmt->execute([$user_id, $enabled]);
+        $msg = $enabled ? 'Login alerts enabled.' : 'Login alerts disabled.';
+        echo json_encode(['success' => true, 'message' => $msg, 'enabled' => $enabled]);
         exit;
     }
 
@@ -402,22 +434,98 @@ try {
         exit;
     }
 
+    // ── 12.3 REVOKE A SPECIFIC SESSION LOG ROW ──
+    if ($action === 'revoke_session') {
+        $log_id = intval($data['log_id'] ?? 0);
+        if (!$log_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid session ID']);
+            exit;
+        }
+
+        // Verify the log row belongs to this user (security check)
+        $check = $pdo->prepare("SELECT id FROM login_activity_logs WHERE id = ? AND user_id = ?");
+        $check->execute([$log_id, $user_id]);
+        if (!$check->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'Session not found or access denied']);
+            exit;
+        }
+
+        // Mark the log row as revoked
+        $pdo->prepare("UPDATE login_activity_logs SET revoked = 1 WHERE id = ?")->execute([$log_id]);
+
+        // Rotate session token — this kills ALL live sessions on other devices.
+        // Current user's session is kept alive by updating both the DB and $_SESSION.
+        $new_token = bin2hex(random_bytes(32));
+        $pdo->prepare("UPDATE users SET session_token = ? WHERE id = ?")->execute([$new_token, $user_id]);
+        $_SESSION['session_token'] = $new_token;
+
+        echo json_encode(['success' => true, 'message' => 'Session revoked. Any device using that session has been logged out.']);
+        exit;
+    }
+
+    // ── 12.5 SEND 2FA OTP (for login verification) ──
+    // NOTE: This is called by verify_2fa.php internally; not directly by frontend.
+
+    // ── 12.7 SEND DELETE ACCOUNT OTP ──
+    if ($action === 'send_delete_otp') {
+        $method = $data['method'] ?? '';
+        if (!in_array($method, ['email', 'phone'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid OTP method selected']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("SELECT full_name, email, phone FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $u = $stmt->fetch();
+
+        if ($method === 'email' && empty($u['email'])) {
+            echo json_encode(['success' => false, 'message' => 'No email linked to this account']);
+            exit;
+        }
+        if ($method === 'phone' && empty($u['phone'])) {
+            echo json_encode(['success' => false, 'message' => 'No phone number linked to this account']);
+            exit;
+        }
+
+        // Generate OTP
+        $otp = sprintf("%06d", mt_rand(100000, 999999));
+        $_SESSION['delete_account_otp'] = $otp;
+
+        // Send OTP email if method is email
+        if ($method === 'email') {
+            require_once dirname(__DIR__) . '/includes/otp_helper.php';
+            sendOTPEmail($u['email'], $u['full_name'] ?? 'User', $otp);
+        }
+
+        // Determine if we should show the test OTP in the response message
+        $app_env = get_env_var('APP_ENV', 'production');
+        $is_localhost = ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1');
+        $show_test_otp = ($app_env === 'development' || $is_localhost);
+
+        $msg = "OTP sent!";
+        if ($show_test_otp) {
+            $msg .= " (Test OTP: $otp)";
+        }
+
+        echo json_encode(['success' => true, 'message' => $msg]);
+        exit;
+    }
+
     // ── 13. DELETE ACCOUNT PERMANENTLY ──
     if ($action === 'delete_account') {
-        $password = $data['password'] ?? '';
-        if (empty($password)) {
-            echo json_encode(['success' => false, 'message' => 'Confirmation password is required to delete account']);
+        $otp = $data['otp'] ?? '';
+        if (empty($otp)) {
+            echo json_encode(['success' => false, 'message' => 'OTP is required to delete account']);
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $hashed_pw = $stmt->fetchColumn();
-
-        if (!$hashed_pw || !password_verify($password, $hashed_pw)) {
-            echo json_encode(['success' => false, 'message' => 'Incorrect verification password. Account deletion aborted.']);
+        if (!isset($_SESSION['delete_account_otp']) || (string)$_SESSION['delete_account_otp'] !== (string)$otp) {
+            echo json_encode(['success' => false, 'message' => 'Invalid or expired OTP. Account deletion aborted.']);
             exit;
         }
+
+        // Clear the OTP
+        unset($_SESSION['delete_account_otp']);
 
         // Cascading deletion
         $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
