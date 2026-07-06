@@ -160,6 +160,13 @@
             <a href="contact.html">Contact Us</a>
         </div>
 
+        <!-- Legal Column -->
+        <div>
+            <h4>Legal</h4>
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
+        </div>
+
         <!-- Contact Column -->
         <div>
             <h4>Contact</h4>
