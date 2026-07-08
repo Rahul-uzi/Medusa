@@ -110,6 +110,7 @@ if (is_dir($shoot_dir)) {
         /* ═══════════════ HERO ═══════════════ */
         .hero {
             position: relative;
+            margin-top: -34px; /* Pull the dark green artifact under the fixed navbar */
             background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-dark) 100%);
             padding: 90px 48px 60px;
             text-align: center;
@@ -428,8 +429,10 @@ if (is_dir($shoot_dir)) {
             originalWarn.apply(console, args);
         };
     </script>
+        <script>
         // Expose server-side gallery manifest to client JS (if present)
         window.GALLERY_MANIFEST = <?php echo json_encode($gallery_manifest, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT); ?> || [];
+        </script>
 <script src="https://cdn.tailwindcss.com"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
@@ -448,8 +451,38 @@ if (is_dir($shoot_dir)) {
             };
         }
     </script>
+
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #120307;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var overlay = document.getElementById('nav-page-transition');
+        if(overlay) {
+            setTimeout(function() {
+                overlay.classList.add('nav-pt-fadeout');
+            }, 100);
+        }
+    });
+</script>
 </head>
 <body>
+<div id="nav-page-transition"></div>
 
 <!-- ══════════ NAV ══════════ -->
 <?php include_once __DIR__ . '/includes/navbar.php'; ?>

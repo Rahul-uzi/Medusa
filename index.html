@@ -379,7 +379,7 @@
 
         .about-image {
             flex: 1;
-            background-image: url('assets/images/restaurant_interior.png');
+            background-image: url('assets/images/ambition.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -401,7 +401,8 @@
 
         .gallery-left {
             position: sticky;
-            top: 120px; /* Sits cleanly below the fixed navbar */
+            top: 120px;
+            /* Sits cleanly below the fixed navbar */
             width: 35%;
             text-align: left;
         }
@@ -482,7 +483,8 @@
         /* Asymmetric/masonry grid for luxury feel */
         .gallery-item {
             position: relative;
-            padding-top: 110%; /* Tall aspect ratio for premium look */
+            padding-top: 110%;
+            /* Tall aspect ratio for premium look */
             overflow: hidden;
             border-radius: 4px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -493,8 +495,10 @@
             .gallery-grid {
                 align-items: start;
             }
+
             .gallery-item:nth-child(even) {
-                margin-top: 50px; /* Offset every second card to create masonry effect */
+                margin-top: 50px;
+                /* Offset every second card to create masonry effect */
             }
         }
 
@@ -534,18 +538,23 @@
                 flex-direction: column;
                 gap: 50px;
             }
+
             .gallery-left {
                 position: static;
                 width: 100%;
                 text-align: center;
             }
+
             .gallery-left .gallery-description {
                 margin-left: auto;
                 margin-right: auto;
             }
+
             .gallery-subtitle::before {
-                display: none; /* Hide single-sided line */
+                display: none;
+                /* Hide single-sided line */
             }
+
             /* Restoring symmetrical visual lines for centered headers on tablet/mobile */
             .gallery-subtitle::after {
                 content: '';
@@ -557,6 +566,7 @@
                 background-color: var(--text-gold);
                 margin-left: 15px;
             }
+
             .gallery-subtitle::before {
                 content: '';
                 position: absolute;
@@ -568,6 +578,7 @@
                 margin-right: 15px;
                 display: inline-block;
             }
+
             .gallery-right {
                 width: 100%;
             }
@@ -578,9 +589,11 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+
             .gallery-item:nth-child(even) {
                 margin-top: 0;
             }
+
             .gallery {
                 padding: 60px 20px;
             }
@@ -1258,11 +1271,13 @@
     </style>
 
     <!-- Navbar Performance Optimization Links -->
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="assets/css/components.css">
     <script>
         const originalWarn = console.warn;
-        console.warn = function(...args) {
+        console.warn = function (...args) {
             if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
                 return;
             }
@@ -1287,9 +1302,40 @@
             };
         }
     </script>
+
+    <style id="nav-pt-style">
+        #nav-page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #120307;
+            z-index: 999999;
+            opacity: 1;
+            transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: all;
+        }
+
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var overlay = document.getElementById('nav-page-transition');
+            if (overlay) {
+                setTimeout(function () {
+                    overlay.classList.add('nav-pt-fadeout');
+                }, 100);
+            }
+        });
+    </script>
 </head>
 
 <body>
+    <div id="nav-page-transition"></div>
 
     <!-- TOP NAV -->
     <div id="navbar-placeholder"></div>
@@ -1405,7 +1451,8 @@
                     <div class="gallery-subtitle">Explore</div>
                 </div>
                 <p class="gallery-description">
-                    Immerse yourself in the culinary artistry and elegant ambiance of La Medusaa. Every dish is a masterpiece, crafted to delight all your senses.
+                    Immerse yourself in the culinary artistry and elegant ambiance of La Medusaa. Every dish is a
+                    masterpiece, crafted to delight all your senses.
                 </p>
                 <a href="gallery.php" class="btn-gallery-more">View Full Gallery</a>
             </div>
@@ -1719,57 +1766,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
     <script>
-    (function() {
-        function initGalleryAnimations() {
-            if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-                // Retry once after short delay if GSAP not yet loaded
-                setTimeout(initGalleryAnimations, 100);
-                return;
-            }
-
-            gsap.registerPlugin(ScrollTrigger);
-
-            var gallerySection = document.querySelector('.gallery');
-            if (!gallerySection) return;
-
-            // ── 1. Left Content Animation (title, subtitle, description, CTA) ──
-            var leftEls = gallerySection.querySelectorAll('.gallery-title, .gallery-subtitle, .gallery-description, .btn-gallery-more');
-            gsap.set(leftEls, { opacity: 0, y: 30 });
-
-            gsap.to(leftEls, {
-                opacity: 1,
-                y: 0,
-                ease: 'power1.out',
-                stagger: 0.15,
-                scrollTrigger: {
-                    trigger: gallerySection,
-                    start: 'top 85%',
-                    end: 'top 55%',
-                    scrub: 1
+        (function () {
+            function initGalleryAnimations() {
+                if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+                    // Retry once after short delay if GSAP not yet loaded
+                    setTimeout(initGalleryAnimations, 100);
+                    return;
                 }
-            });
 
-            // ── 2. Gallery cards scroll-linked reveal ──
-            var cards = gallerySection.querySelectorAll('.gallery-item');
-            cards.forEach(function(card) {
-                gsap.set(card, { opacity: 0, y: 50 });
-                gsap.to(card, {
+                gsap.registerPlugin(ScrollTrigger);
+
+                var gallerySection = document.querySelector('.gallery');
+                if (!gallerySection) return;
+
+                // ── 1. Left Content Animation (title, subtitle, description, CTA) ──
+                var leftEls = gallerySection.querySelectorAll('.gallery-title, .gallery-subtitle, .gallery-description, .btn-gallery-more');
+                gsap.set(leftEls, { opacity: 0, y: 30 });
+
+                gsap.to(leftEls, {
                     opacity: 1,
                     y: 0,
                     ease: 'power1.out',
+                    stagger: 0.15,
                     scrollTrigger: {
-                        trigger: card,
-                        start: 'top 95%',
-                        end: 'top 70%',
+                        trigger: gallerySection,
+                        start: 'top 85%',
+                        end: 'top 55%',
                         scrub: 1
                     }
                 });
-            });
-        }
 
-        // Run after all deferred scripts have loaded
-        window.addEventListener('load', initGalleryAnimations);
-    })();
+                // ── 2. Gallery cards scroll-linked reveal ──
+                var cards = gallerySection.querySelectorAll('.gallery-item');
+                cards.forEach(function (card) {
+                    gsap.set(card, { opacity: 0, y: 50 });
+                    gsap.to(card, {
+                        opacity: 1,
+                        y: 0,
+                        ease: 'power1.out',
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 95%',
+                            end: 'top 70%',
+                            scrub: 1
+                        }
+                    });
+                });
+            }
+
+            // Run after all deferred scripts have loaded
+            window.addEventListener('load', initGalleryAnimations);
+        })();
     </script>
 </body>
 

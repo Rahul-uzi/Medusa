@@ -1,16 +1,16 @@
 (function () {
-    // Run immediately to apply theme on load and prevent flashing
-    const theme = localStorage.getItem('medusa_admin_theme');
-    if (theme === 'light') {
-        document.documentElement.classList.add('light-mode');
-    }
-
+    // Force dark mode permanently
+    localStorage.setItem('medusa_admin_theme', 'dark');
+    document.documentElement.classList.remove('light-mode');
+    if (!window.location.pathname.includes('book-table')) {
+        document.documentElement.classList.add('dark');
+    } // For Tailwind compatibility
+    
     // Load CSS
     const isShared = window.location.pathname.includes('/admintest/');
     const cssPath = isShared ? '../assets/css/theme-toggle.css' : 'assets/css/theme-toggle.css';
     const faPath = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
 
-    // Inject theme CSS link if not exists
     if (!document.querySelector(`link[href$="theme-toggle.css"]`)) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -18,7 +18,6 @@
         document.head.appendChild(link);
     }
 
-    // Inject FontAwesome link if not exists
     if (!document.querySelector(`link[href*="font-awesome"]`) && !document.querySelector(`link[href*="all.min.css"]`)) {
         const fa = document.createElement('link');
         fa.rel = 'stylesheet';
@@ -28,58 +27,26 @@
 })();
 
 function updateThemeUI() {
-    const isLight = document.documentElement.classList.contains('light-mode');
-    const icon = document.getElementById('themeIcon');
-    const btn = document.getElementById('themeToggleBtn');
-
-    if (isLight) {
-        if (icon) {
-            icon.className = 'fas fa-sun';
-            icon.style.color = '#dfba86';
-        }
-        if (btn) {
-            btn.style.background = '#ffffff';
-            btn.style.borderColor = '#dfba86';
-            btn.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
-        }
-    } else {
-        if (icon) {
-            icon.className = 'fas fa-moon';
-            icon.style.color = '#dfba86';
-        }
-        if (btn) {
-            btn.style.background = 'rgba(22, 20, 18, 0.9)';
-            btn.style.borderColor = '#dfba86';
-            btn.style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
-        }
-    }
+    // UI toggle removed
 }
 
 function toggleTheme() {
-    if (document.documentElement.classList.contains('light-mode')) {
-        document.documentElement.classList.remove('light-mode');
-        localStorage.setItem('medusa_admin_theme', 'dark');
-    } else {
-        document.documentElement.classList.add('light-mode');
-        localStorage.setItem('medusa_admin_theme', 'light');
-    }
-    updateThemeUI();
+    // Disabled
 }
 
 // Bind load event
 document.addEventListener('DOMContentLoaded', function () {
-    // If button doesn't exist, create it dynamically at the bottom-right corner
-    if (!document.getElementById('themeToggleBtn')) {
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;';
-        wrapper.innerHTML = `
-            <button id="themeToggleBtn" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(22, 20, 18, 0.9); border: 1.5px solid #dfba86; box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: all 0.3s; cursor: pointer;" onclick="toggleTheme()" title="Toggle Theme">
-                <i class="fas fa-moon" id="themeIcon" style="color: #dfba86; font-size: 1.25rem;"></i>
-            </button>
-        `;
-        document.body.appendChild(wrapper);
+    document.documentElement.classList.remove('light-mode');
+    document.documentElement.classList.add('dark');
+    if (!window.location.pathname.includes('book-table')) {
+        document.body.classList.add('dark-mode'); // For legacy pages
     }
-    updateThemeUI();
+    
+    // Remove the toggle button if it exists in HTML
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn && btn.parentElement) {
+        btn.parentElement.remove();
+    }
 });
 
 // Global Premium Theme Alert Override

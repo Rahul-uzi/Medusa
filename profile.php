@@ -204,7 +204,26 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #120307;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
+
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Medusa Luxury Restaurant - Customer Account Dashboard">
     <title><?php echo htmlspecialchars($account_page_title); ?> - Medusa Luxury</title>
@@ -997,9 +1016,39 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
             };
         }
     </script>
+
+    <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
+    <style>
+        html, body { background-color: #120307; }
+        #nav-page-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #120307;
+            pointer-events: all;
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var overlay = document.getElementById('nav-page-transition');
+            if(overlay) {
+                setTimeout(function() {
+                    overlay.classList.add('nav-pt-fadeout');
+                }, 100);
+            }
+        });
+    </script>
 </head>
 <body>
-    <div id="google_translate_element"></div>
+<div id="nav-page-transition"></div>
+
+<div id="google_translate_element"></div>
 
     <!-- Luxury Top Header Bar -->
     <?php include_once __DIR__ . '/includes/navbar.php'; ?>

@@ -112,7 +112,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #120307;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
+
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Medusa – Create your account">
     <title>LA-MEDUSAA – Register</title>
@@ -187,9 +206,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Navbar Performance Optimization Links -->
     <link rel="stylesheet" href="assets/css/components.css">
+
+    <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
+    <style>
+        html, body { background-color: #120307; }
+        #nav-page-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #120307;
+            pointer-events: all;
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var overlay = document.getElementById('nav-page-transition');
+            if(overlay) {
+                setTimeout(function() {
+                    overlay.classList.add('nav-pt-fadeout');
+                }, 100);
+            }
+        });
+    </script>
 </head>
 <body class="font-sans min-h-screen flex flex-col relative overflow-x-hidden">
-    <!-- Background overlay -->
+<div id="nav-page-transition"></div>
+
+<!-- Background overlay -->
     <div class="fixed inset-0 bg-[#0f0703]/65 z-0 pointer-events-none"></div>
 
     <!-- TOP NAV -->

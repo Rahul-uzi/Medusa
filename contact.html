@@ -2,6 +2,25 @@
 <html lang="en">
 
 <head>
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #120307;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - Medusa Bar & Lounge</title>
@@ -121,6 +140,8 @@
 </head>
 
 <body class="antialiased text-text-dark">
+<div id="nav-page-transition"></div>
+
     <!-- NAVBAR -->
     <div id="navbar-placeholder"></div>
     <script src="assets/js/navbar.js" defer></script>

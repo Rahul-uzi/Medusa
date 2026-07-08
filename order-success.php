@@ -105,7 +105,26 @@ if ($error_msg) {
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #120307;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
+
+<meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Error - Medusa Luxury</title>
         <!-- Global Theme Controller -->
@@ -117,9 +136,39 @@ if ($error_msg) {
             .error-card { background: #0a0a0a; border: 1px solid rgba(223, 186, 134, 0.15); border-radius: 16px; padding: 3rem; text-align: center; max-width: 500px; width: 90%; }
             .btn-back { background: #dfba86; color: #000; font-weight: 600; text-decoration: none; padding: 0.8rem 1.5rem; border-radius: 8px; display: inline-block; margin-top: 1.5rem; }
         </style>
-    </head>
+    
+    <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
+    <style>
+        html, body { background-color: #120307; }
+        #nav-page-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #120307;
+            pointer-events: all;
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var overlay = document.getElementById('nav-page-transition');
+            if(overlay) {
+                setTimeout(function() {
+                    overlay.classList.add('nav-pt-fadeout');
+                }, 100);
+            }
+        });
+    </script>
+</head>
     <body>
-        <div class="error-card">
+<div id="nav-page-transition"></div>
+
+<div class="error-card">
             <h2 class="text-danger mb-3">Error</h2>
             <p><?php echo htmlspecialchars($error_msg); ?></p>
             <a href="menutest.html" class="btn-back">Go to Menu</a>

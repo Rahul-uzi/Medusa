@@ -265,6 +265,99 @@
                 drawer.classList.add('hidden');
             }
         });
+
+        // ── ADDITIVE ENHANCEMENTS ────────────────────────────────────────────
+
+        // A. Sticky navbar: add/remove .navbar-scrolled on scroll
+        (function initScrolledClass() {
+            const navbar = document.getElementById('main-navbar');
+            if (!navbar) return;
+            function _updateScrolled() {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('navbar-scrolled');
+                } else {
+                    navbar.classList.remove('navbar-scrolled');
+                }
+            }
+            _updateScrolled();
+            window.addEventListener('scroll', _updateScrolled, { passive: true });
+        })();
+
+        // B. Page-transition overlay: dark curtain fade out → navigate → fade in on new page
+        (function initPageTransition() {
+            let overlay = document.getElementById('nav-page-transition');
+            if (!overlay) return;
+
+            // New page just loaded (or loaded from bfcache) — fade the curtain away
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    overlay.classList.add('nav-pt-fadeout');
+                });
+            });
+
+            // On nav-link click: fade curtain in, then hard-navigate
+            document.addEventListener('click', function _navTransClick(e) {
+                var link = e.target.closest('a');
+                if (!link) return;
+                var href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('#')
+                    || href.startsWith('javascript:')
+                    || href.startsWith('mailto:')
+                    || href.startsWith('tel:')
+                    || link.target === '_blank') return;
+                try {
+                    var url = new URL(link.href, window.location.origin);
+                    if (url.origin !== window.location.origin) return;
+                    if (url.pathname.includes('/api/') || url.pathname.includes('/admin/')) return;
+                } catch (_) { return; }
+
+                e.preventDefault();
+                var dest = link.href;
+                
+                // Remove fadeout class so it returns to opacity: 1
+                overlay.classList.remove('nav-pt-fadeout');
+                
+                overlay.addEventListener('transitionend', function _go() {
+                    overlay.removeEventListener('transitionend', _go);
+                    window.location.href = dest;
+                }, { once: true });
+                
+                // Fallback in case transitionend doesn't fire
+                setTimeout(function() { window.location.href = dest; }, 200);
+            });
+            
+            // Handle back/forward bfcache
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    overlay.classList.add('nav-pt-fadeout');
+                }
+            });
+        })();
+
+        // C. Section entrance animations via IntersectionObserver
+        (function initSectionReveal() {
+            var candidates = document.querySelectorAll('section, article, .reveal');
+            if (!candidates.length || !window.IntersectionObserver) return;
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('section-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08 });
+            candidates.forEach(function(el) {
+                if (el.closest && el.closest('#main-navbar, #nav-mobile-drawer')) return;
+                var rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    el.classList.add('section-visible');
+                } else {
+                    el.classList.add('nav-reveal-section');
+                    observer.observe(el);
+                }
+            });
+        })();
+
     }
 
     // Main logic runner
