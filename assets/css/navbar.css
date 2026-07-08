@@ -34,3 +34,100 @@
     border-bottom: 2px solid #C8A25A;
     padding-bottom: 4px;
 }
+
+/* ==========================================================================
+   ADDITIVE ENHANCEMENTS — nothing above this line is changed
+   ========================================================================== */
+
+/* 1. Smooth navbar scroll: background + shadow transition.
+      JS adds/removes .navbar-scrolled on #main-navbar on window scroll. */
+#main-navbar {
+    transition: background-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+#main-navbar.navbar-scrolled {
+    background-color: rgba(27, 6, 11, 0.97) !important;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* 2. Smooth hover + micro-interaction on desktop nav links */
+#main-navbar .nav-link-item {
+    position: relative;
+    transition: color 0.25s ease, transform 0.15s ease;
+}
+
+/* Sliding underline: grows from centre → full on hover/active */
+#main-navbar .nav-link-item::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #C8A25A;
+    border-radius: 2px;
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                left   0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#main-navbar .nav-link-item:hover::after,
+#main-navbar .nav-link-item.active::after {
+    width: 100%;
+    left: 0;
+}
+
+/* Override existing active border-bottom so the pseudo-element handles it on desktop */
+#main-navbar .nav-link-item.active {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Pressed (click) micro-feedback */
+#main-navbar .nav-link-item:active {
+    transform: scale(0.92);
+}
+
+/* 3. Mobile drawer link smooth hover */
+#nav-mobile-drawer .nav-link-item {
+    transition: color 0.22s ease;
+    will-change: color;
+}
+
+#nav-mobile-drawer .nav-link-item.active {
+    color: #C8A25A !important;
+    /* Remove the desktop-style border on mobile since it looks odd at larger text */
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* 4. Page-transition overlay styling is now handled via inline <style> in each file */
+
+/* 5. Section entrance reveal — JS applies .nav-reveal-section to <section>/<article>
+      elements and IntersectionObserver adds .section-visible when in viewport. */
+.nav-reveal-section {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+}
+
+.nav-reveal-section.section-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 6. Accessibility: honour prefers-reduced-motion for all additions */
+@media (prefers-reduced-motion: reduce) {
+    #main-navbar,
+    #main-navbar .nav-link-item,
+    #main-navbar .nav-link-item::after,
+    #nav-mobile-drawer .nav-link-item,
+    #nav-page-transition,
+    .nav-reveal-section {
+        transition: none !important;
+        animation: none !important;
+    }
+}

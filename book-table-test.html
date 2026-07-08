@@ -2,8 +2,26 @@
 <html lang="en">
 
 <head>
+<style id="nav-pt-style">
+    #nav-page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #F9F6F0;
+        z-index: 999999;
+        opacity: 1;
+        transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: all;
+    }
+    #nav-page-transition.nav-pt-fadeout {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+</style>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -182,11 +200,40 @@
             };
         }
     </script>
+
+    <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
+    <style>
+        html, body { background-color: #F9F6F0; }
+        #nav-page-transition {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #120307;
+            pointer-events: all;
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var overlay = document.getElementById('nav-page-transition');
+            if(overlay) {
+                setTimeout(function() {
+                    overlay.classList.add('nav-pt-fadeout');
+                }, 100);
+            }
+        });
+    </script>
 </head>
 
 <body>
+<div id="nav-page-transition"></div>
 
-  <!-- LUXURY NAVBAR -->
+<!-- LUXURY NAVBAR -->
   <div id="navbar-placeholder"></div>
   <script src="assets/js/navbar.js" defer></script>
 
@@ -828,6 +875,80 @@
       .tl-face.bnq {
         width: 160px;
       }
+    }
+
+    /* ---- DARK MODE OVERRIDES FOR TABLE LAYOUT ---- */
+    .dark-mode .tl-zone {
+      background: #1a0f0c;
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+    .dark-mode .tl-group {
+      background: #251612;
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+    .dark-mode .tl-grp-label {
+      color: #dfba86;
+    }
+    .dark-mode .tl-grp-sub {
+      color: #a39b8a;
+    }
+    .dark-mode .tl-zone-name {
+      color: #dfba86;
+    }
+    .dark-mode .tl-zone-desc {
+      color: #888;
+    }
+    .dark-mode .tl-header-icon, .dark-mode .tl-refresh-btn {
+      background: #1a0f0c;
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #dfba86;
+    }
+    .dark-mode .tl-refresh-btn:hover {
+      background: #251612;
+    }
+    .dark-mode .tl-main-title {
+      color: #dfba86;
+    }
+    .dark-mode .tl-main-sub {
+      color: #a39b8a;
+    }
+    .dark-mode .tl-legend > span {
+      color: #e6dfd3;
+    }
+    .dark-mode .tl-face {
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15), 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .dark-mode .tl-c {
+      background: #8b7c6c;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .dark-mode #tlFilterDate {
+      color: #e6dfd3 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    /* Dark mode for the help card */
+    .dark-mode .tl-card-light {
+      background: #1a0f0c;
+      border-color: rgba(255, 255, 255, 0.05);
+      color: #e6dfd3;
+    }
+    .dark-mode .help-icon {
+      background: #251612;
+      color: #dfba86;
+    }
+    .dark-mode .help-content h4 {
+      color: #dfba86;
+    }
+    .dark-mode .help-content p {
+      color: #a39b8a;
+    }
+    .dark-mode .btn-help {
+      border-color: #dfba86;
+      color: #dfba86;
+    }
+    .dark-mode .btn-help:hover {
+      background: #dfba86;
+      color: #1a0f0c;
     }
   </style>
 
