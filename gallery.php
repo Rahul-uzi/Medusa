@@ -567,7 +567,7 @@ if (is_dir($shoot_dir)) {
 <footer>
     <div class="footer-grid">
         <div class="footer-brand">
-            <img src="assets/images/medusaa2(onlylogo).png" alt="La-Medusaa" onerror="this.src='assets/images/versace_logo.png'">
+            <img src="assets/images/medusaa2(onlylogo).png" alt="La-Medusaa" onerror="this.src='assets/images/medusaa2(onlylogo).png'">
             <div class="footer-brand-name">La-Medusaa</div>
             <p>A premium bar & lounge experience in Sector 67, Mohali. Crafted cocktails, live music, and unforgettable evenings.</p>
         </div>

@@ -73,6 +73,10 @@ if (!empty($_SESSION['user_id'])) {
     <!-- Right Side Controls (Cart, Notifications, Profile, Reservation Button, Mobile Toggle) -->
     <div class="flex items-center gap-4">
         
+        
+<!-- Reservation Button (Desktop/Tablet) -->
+        <a href="book-table-test.html" class="hidden md:block text-[0.72rem] font-medium tracking-[2px] uppercase text-[#C8A25A] border border-solid px-[18px] py-2 hover:bg-[#C8A25A]/10 transition-all no-underline" style="border-color: #C8A25A !important;">Reserve a Table</a>
+
         <?php if (!empty($_SESSION['user_id'])): ?>
             <!-- Notification Bell -->
             <div class="relative" id="nav-notif-bell">
@@ -119,7 +123,7 @@ if (!empty($_SESSION['user_id'])) {
                 </button>
                 <!-- Dropdown List -->
                 <div id="nav-profile-dropdown" class="hidden absolute right-0 mt-[12px] w-max min-w-[150px] bg-[#F8F3EB] border border-solid border-[#3B111B]/10 rounded-2xl shadow-[0_10px_30px_rgba(59,17,27,0.1)] overflow-hidden z-[110] p-2 flex flex-col gap-1">
-                    <a href="profile.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">My Profile</a>
+                    <a href="profile.php?tab=profile" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">My Profile</a>
                     <a href="profile.php?tab=reservations" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Reservations</a>
                     <a href="profile.php?tab=loyalty" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Rewards</a>
                     <a href="settings.php" class="block px-4 py-2.5 text-xs font-semibold tracking-wider text-[#3B111B] hover:bg-[#3B111B]/5 rounded-xl transition-colors duration-200 no-underline uppercase">Settings</a>
@@ -128,10 +132,7 @@ if (!empty($_SESSION['user_id'])) {
             </div>
         <?php endif; ?>
 
-        <!-- Reservation Button (Desktop/Tablet) -->
-        <a href="book-table-test.html" class="hidden md:block text-[0.72rem] font-medium tracking-[2px] uppercase text-[#C8A25A] border border-solid px-[18px] py-2 hover:bg-[#C8A25A]/10 transition-all no-underline" style="border-color: #C8A25A !important;">Reserve a Table</a>
-
-        <!-- Mobile Hamburger Toggle -->
+<!-- Mobile Hamburger Toggle -->
         <button id="nav-mobile-toggle" class="lg:hidden text-[#F8EACE] bg-transparent border-none cursor-pointer text-xl p-1 outline-none">
             <i class="fa-solid fa-bars"></i>
         </button>
@@ -150,7 +151,7 @@ if (!empty($_SESSION['user_id'])) {
     <?php if (!empty($_SESSION['user_id'])): ?>
         <a href="my-orders.php" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">My Orders</a>
         <a href="carttest.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline flex items-center gap-1.5">Cart <span id="cartCountMobileDrawer" class="px-1.5 py-0.5 text-[0.65rem] bg-[#C8A25A] text-[#3B111B] rounded-full font-bold hidden">0</span></a>
-        <a href="profile.php" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">My Profile</a>
+        <a href="profile.php?tab=profile" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">My Profile</a>
         <a href="api/logout.php" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-red-500 hover:text-red-600 transition-colors no-underline">Logout</a>
     <?php else: ?>
         <a href="contact.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Contact</a>

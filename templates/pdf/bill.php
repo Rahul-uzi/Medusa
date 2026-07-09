@@ -5,7 +5,7 @@
             <?php 
                 // Use the JPG version of the logo to avoid TCPDF PNG alpha channel errors without GD
                 $custom_logo = __DIR__ . '/../../assets/images/medusaa2_pdf.jpg';
-                if (!file_exists($custom_logo)) $custom_logo = __DIR__ . '/../../assets/images/versace_logo.jpg';
+                if (!file_exists($custom_logo)) $custom_logo = __DIR__ . '/../../assets/images/medusaa2(onlylogo).png';
                 if (file_exists($custom_logo)): 
                     $img_base64 = base64_encode(file_get_contents($custom_logo));
             ?>

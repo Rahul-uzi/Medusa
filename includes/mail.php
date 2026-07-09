@@ -90,9 +90,9 @@ if (!function_exists('sendWelcomeEmail')) {
             $mail->addAddress($user['email'], $user['full_name']);
 
             // Embed brand logo image
-            $logoPath = dirname(__DIR__) . '/assets/images/versace_logo.png';
+            $logoPath = dirname(__DIR__) . '/assets/images/medusaa2(onlylogo).png';
             if (file_exists($logoPath)) {
-                $mail->addEmbeddedImage($logoPath, $logo_cid, 'versace_logo.png');
+                $mail->addEmbeddedImage($logoPath, $logo_cid, 'medusaa2(onlylogo).png');
             }
 
             $mail->isHTML(true);
@@ -166,9 +166,9 @@ if (!function_exists('sendConfirmationEmail')) {
             $mail->addAddress($user['email'], $user['full_name']);
 
             // Embed brand logo image
-            $logoPath = dirname(__DIR__) . '/assets/images/versace_logo.png';
+            $logoPath = dirname(__DIR__) . '/assets/images/medusaa2(onlylogo).png';
             if (file_exists($logoPath)) {
-                $mail->addEmbeddedImage($logoPath, $logo_cid, 'versace_logo.png');
+                $mail->addEmbeddedImage($logoPath, $logo_cid, 'medusaa2(onlylogo).png');
             }
 
             $mail->isHTML(true);
@@ -277,9 +277,9 @@ if (!function_exists('sendBillEmail')) {
             }
 
             // Embed brand logo image
-            $logoPath = dirname(__DIR__) . '/assets/images/versace_logo.png';
+            $logoPath = dirname(__DIR__) . '/assets/images/medusaa2(onlylogo).png';
             if (file_exists($logoPath)) {
-                $mail->addEmbeddedImage($logoPath, $logo_cid, 'versace_logo.png');
+                $mail->addEmbeddedImage($logoPath, $logo_cid, 'medusaa2(onlylogo).png');
             }
 
             $mail->isHTML(true);
@@ -377,9 +377,9 @@ if (!function_exists('sendBookingEmail')) {
             $mail->addAddress($user['email'], $user['full_name']);
 
             // Embed brand logo image
-            $logoPath = dirname(__DIR__) . '/assets/images/versace_logo.png';
+            $logoPath = dirname(__DIR__) . '/assets/images/medusaa2(onlylogo).png';
             if (file_exists($logoPath)) {
-                $mail->addEmbeddedImage($logoPath, $logo_cid, 'versace_logo.png');
+                $mail->addEmbeddedImage($logoPath, $logo_cid, 'medusaa2(onlylogo).png');
             }
 
             $mail->isHTML(true);

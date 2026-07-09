@@ -64,7 +64,7 @@ export default function LoginScreen({ navigation }) {
           {/* Brand Logo Header */}
           <View style={styles.brandContainer}>
             <Image
-              source={require('./assets/images/versace_logo.png')}
+              source={require('./assets/images/medusaa2(onlylogo).png')}
               style={styles.logo}
               resizeMode="contain"
             />
