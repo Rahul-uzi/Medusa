@@ -2,26 +2,27 @@
 <html lang="en">
 
 <head>
-<style id="nav-pt-style">
+  <style id="nav-pt-style">
     #nav-page-transition {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: #120307;
-        z-index: 999999;
-        opacity: 1;
-        transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: all;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #120307;
+      z-index: 999999;
+      opacity: 1;
+      transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: all;
     }
-    #nav-page-transition.nav-pt-fadeout {
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-</style>
 
-<meta charset="UTF-8">
+    #nav-page-transition.nav-pt-fadeout {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
+
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Careers - Medusa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -1071,70 +1072,77 @@
     }
   </style>
 
-    <!-- Navbar Performance Optimization Links -->
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/components.css">
-        <script>
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-            if (args[0] && typeof args[0] === "string" && args[0].includes("cdn.tailwindcss.com should not be used in production")) {
-                return;
+  <!-- Navbar Performance Optimization Links -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <script>
+    const originalWarn = console.warn;
+    console.warn = function (...args) {
+      if (args[0] && typeof args[0] === "string" && args[0].includes("cdn.tailwindcss.com should not be used in production")) {
+        return;
+      }
+      originalWarn.apply(console, args);
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        corePlugins: {
+          preflight: false
+        },
+        theme: {
+          extend: {
+            colors: {
+              gold: '#b8973a',
+              'gold-light': '#d4af5a',
             }
-            originalWarn.apply(console, args);
-        };
-    </script>
-<script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        if (typeof tailwind !== 'undefined') {
-            tailwind.config = {
-                corePlugins: {
-                    preflight: false
-                },
-                theme: {
-                    extend: {
-                        colors: {
-                            gold: '#b8973a',
-                            'gold-light': '#d4af5a',
-                        }
-                    }
-                }
-            };
+          }
         }
-    </script>
+      };
+    }
+  </script>
 
-    <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
-    <style>
-        html, body { background-color: #120307; }
-        #nav-page-transition {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
-            background: #120307;
-            pointer-events: all;
-            opacity: 1;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #nav-page-transition.nav-pt-fadeout {
-            opacity: 0;
-            pointer-events: none;
-        }
-    </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var overlay = document.getElementById('nav-page-transition');
-            if(overlay) {
-                setTimeout(function() {
-                    overlay.classList.add('nav-pt-fadeout');
-                }, 100);
-            }
-        });
-    </script>
+  <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
+  <style>
+    html,
+    body {
+      background-color: #120307;
+    }
+
+    #nav-page-transition {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #120307;
+      pointer-events: all;
+      opacity: 1;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #nav-page-transition.nav-pt-fadeout {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var overlay = document.getElementById('nav-page-transition');
+      if (overlay) {
+        setTimeout(function () {
+          overlay.classList.add('nav-pt-fadeout');
+        }, 100);
+      }
+    });
+  </script>
 </head>
 
 <body>
-<div id="nav-page-transition"></div>
+  <div id="nav-page-transition"></div>
 
-<!-- LUXURY NAVBAR -->
+  <!-- LUXURY NAVBAR -->
   <div id="navbar-placeholder"></div>
   <script src="assets/js/navbar.js" defer></script>
 
@@ -1152,13 +1160,13 @@
       <div class="hero-right">
         <div class="image-collage">
           <div class="collage-item item-1">
-            <img src="assets/images/restaurant_interior.png" alt="Medusa Lounge">
+            <img src="assets/images/restaurant_interior.jpg" alt="Medusa Lounge">
           </div>
           <div class="collage-item item-2">
-            <img src="assets/images/medusa_outdoor_dining.png" alt="Outdoor Dining">
+            <img src="assets/images/restaurant_interior2.jpg" alt="">
           </div>
           <div class="collage-item item-3">
-            <img src="assets/images/chef_portrait.png" alt="Chef Culinary Art">
+            <img src="assets/images/restaurant_interior1.jpg" alt="">
           </div>
         </div>
       </div>
@@ -1201,7 +1209,7 @@
       <!-- Card 1 -->
       <div class="pillar-card reveal">
         <div class="pillar-img-wrapper">
-          <img src="assets/images/gallery_1.png" alt="Sustainability" class="pillar-img">
+          <img src="assets/images/Sustainability.jpg" alt="Sustainability" class="pillar-img">
         </div>
         <div class="pillar-content">
           <div class="pillar-icon"><i class="fa-solid fa-leaf"></i></div>
@@ -1216,7 +1224,7 @@
       <!-- Card 2 -->
       <div class="pillar-card reveal">
         <div class="pillar-img-wrapper">
-          <img src="assets/images/medusa_outdoor_dining.png" alt="Expansion" class="pillar-img">
+          <img src="assets/images/Expansion.jpg" alt="Expansion" class="pillar-img">
         </div>
         <div class="pillar-content">
           <div class="pillar-icon"><i class="fa-solid fa-globe"></i></div>
@@ -1231,7 +1239,7 @@
       <!-- Card 3 -->
       <div class="pillar-card reveal">
         <div class="pillar-img-wrapper">
-          <img src="assets/images/restaurant_interior.png" alt="Technology" class="pillar-img">
+          <img src="assets/images/Dining Chambers.jpg" alt="Technology" class="pillar-img">
         </div>
         <div class="pillar-content">
           <div class="pillar-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -1246,7 +1254,7 @@
       <!-- Card 4 -->
       <div class="pillar-card reveal">
         <div class="pillar-img-wrapper">
-          <img src="assets/images/chef_portrait.png" alt="Academy" class="pillar-img">
+          <img src="assets/images/Academy.jpg" alt="Academy" class="pillar-img">
         </div>
         <div class="pillar-content">
           <div class="pillar-icon"><i class="fa-solid fa-graduation-cap"></i></div>
@@ -1382,12 +1390,14 @@
         <p>SCO 44-45, District One Market<br>Sector 68, SAS Nagar<br>Punjab 140 308</p>
         <p>+91 94272 27398</p>
         <p>contact@medusa.com</p>
-        <p style="margin-top: 15px;"><a href="javascript:void(0)" onclick="openMapModal(); return false;" style="color:var(--gold); font-weight:600;"><i class="fa-solid fa-location-dot"></i> VIEW ON MAP &rarr;</a></p>
+        <p style="margin-top: 15px;"><a href="javascript:void(0)" onclick="openMapModal(); return false;"
+            style="color:var(--gold); font-weight:600;"><i class="fa-solid fa-location-dot"></i> VIEW ON MAP &rarr;</a>
+        </p>
       </div>
       <div>
         <h4>Join Our Circle</h4>
         <p>Get exclusive offers and premium updates.</p>
-                <div style="display:flex; margin-top:15px;">
+        <div style="display:flex; margin-top:15px;">
           <form id="newsletterForm" style="display:flex; position:relative; width:100%;">
             <div id="newsletterMessage"></div>
             <input type="email" id="newsletter_email" name="newsletter_email" placeholder="Enter your email" required
@@ -1570,113 +1580,107 @@
     }
     const MAP_EMBED_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2885.413030890794!2d76.71954153075983!3d30.680322781741616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390fef0030d303dd%3A0xc81adde575ebd2ce!2sMedusa-bar%20and%20lounge!5e0!3m2!1sen!2sin!4v1780853698088!5m2!1sen!2sin';
     function openMapModal() {
-        const modal = document.getElementById('mapModal');
-        document.getElementById('mapIframe').src = MAP_EMBED_URL;
-        modal.style.opacity = '1'; modal.style.visibility = 'visible';
-        document.getElementById('mapContent').style.transform = 'scale(1)';
-        document.body.style.overflow = 'hidden';
+      const modal = document.getElementById('mapModal');
+      document.getElementById('mapIframe').src = MAP_EMBED_URL;
+      modal.style.opacity = '1'; modal.style.visibility = 'visible';
+      document.getElementById('mapContent').style.transform = 'scale(1)';
+      document.body.style.overflow = 'hidden';
     }
     function closeMapModal() {
-        const modal = document.getElementById('mapModal');
-        modal.style.opacity = '0'; modal.style.visibility = 'hidden';
-        document.getElementById('mapContent').style.transform = 'scale(0.95)';
-        document.body.style.overflow = '';
-        setTimeout(() => { document.getElementById('mapIframe').src = ''; }, 350);
+      const modal = document.getElementById('mapModal');
+      modal.style.opacity = '0'; modal.style.visibility = 'hidden';
+      document.getElementById('mapContent').style.transform = 'scale(0.95)';
+      document.body.style.overflow = '';
+      setTimeout(() => { document.getElementById('mapIframe').src = ''; }, 350);
     }
     document.getElementById('mapModal')?.addEventListener('click', (e) => { if (e.target.id === 'mapModal') closeMapModal(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('mapModal')?.style.visibility === 'visible') closeMapModal(); });
-        const newsletterForm = document.getElementById('newsletterForm');
-        if (newsletterForm) {
-            const messageDiv = document.getElementById('newsletterMessage');
-            if (messageDiv) {
-                messageDiv.style.position = 'absolute';
-                messageDiv.style.top = '-35px';
-                messageDiv.style.left = '0';
-                messageDiv.style.fontSize = '12px';
-                messageDiv.style.padding = '6px 12px';
-                messageDiv.style.borderRadius = '4px';
-                messageDiv.style.display = 'none';
-                messageDiv.style.whiteSpace = 'nowrap';
-                messageDiv.style.zIndex = '10';
-            }
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm) {
+      const messageDiv = document.getElementById('newsletterMessage');
+      if (messageDiv) {
+        messageDiv.style.position = 'absolute';
+        messageDiv.style.top = '-35px';
+        messageDiv.style.left = '0';
+        messageDiv.style.fontSize = '12px';
+        messageDiv.style.padding = '6px 12px';
+        messageDiv.style.borderRadius = '4px';
+        messageDiv.style.display = 'none';
+        messageDiv.style.whiteSpace = 'nowrap';
+        messageDiv.style.zIndex = '10';
+      }
 
-            newsletterForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const emailInput = document.getElementById('newsletter_email');
-                const btn = this.querySelector('button');
-                const originalHtml = btn.innerHTML;
-                
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                btn.disabled = true;
-                
-                try {
-                    const response = await fetch('api/subscribe.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'newsletter_email=' + encodeURIComponent(emailInput.value)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    messageDiv.style.display = 'block';
-                    if(result.success) {
-                        messageDiv.style.backgroundColor = 'rgba(25, 54, 39, 0.95)';
-                        messageDiv.style.color = '#dfba86';
-                        messageDiv.style.border = '1px solid #dfba86';
-                        messageDiv.innerText = result.message || 'Subscribed successfully!';
-                        emailInput.value = '';
-                    } else {
-                        messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
-                        messageDiv.style.color = '#fff';
-                        messageDiv.style.border = '1px solid #ff4d4d';
-                        messageDiv.innerText = result.message || 'Subscription failed.';
-                    }
-                } catch (err) {
-                    messageDiv.style.display = 'block';
-                    messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
-                    messageDiv.style.color = '#fff';
-                    messageDiv.style.border = '1px solid #ff4d4d';
-                    messageDiv.innerText = 'Network error. Please try again later.';
-                } finally {
-                    btn.innerHTML = originalHtml;
-                    btn.disabled = false;
-                    setTimeout(() => {
-                        messageDiv.style.display = 'none';
-                    }, 5000);
-                }
-            });
+      newsletterForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const emailInput = document.getElementById('newsletter_email');
+        const btn = this.querySelector('button');
+        const originalHtml = btn.innerHTML;
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+
+        try {
+          const response = await fetch('api/subscribe.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'newsletter_email=' + encodeURIComponent(emailInput.value)
+          });
+
+          const result = await response.json();
+
+          messageDiv.style.display = 'block';
+          if (result.success) {
+            messageDiv.style.backgroundColor = 'rgba(25, 54, 39, 0.95)';
+            messageDiv.style.color = '#dfba86';
+            messageDiv.style.border = '1px solid #dfba86';
+            messageDiv.innerText = result.message || 'Subscribed successfully!';
+            emailInput.value = '';
+          } else {
+            messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
+            messageDiv.style.color = '#fff';
+            messageDiv.style.border = '1px solid #ff4d4d';
+            messageDiv.innerText = result.message || 'Subscription failed.';
+          }
+        } catch (err) {
+          messageDiv.style.display = 'block';
+          messageDiv.style.backgroundColor = 'rgba(82, 28, 34, 0.95)';
+          messageDiv.style.color = '#fff';
+          messageDiv.style.border = '1px solid #ff4d4d';
+          messageDiv.innerText = 'Network error. Please try again later.';
+        } finally {
+          btn.innerHTML = originalHtml;
+          btn.disabled = false;
+          setTimeout(() => {
+            messageDiv.style.display = 'none';
+          }, 5000);
         }
-    </script>
+      });
+    }
+  </script>
 
-    <!-- GOOGLE MAPS LOCATION MODAL -->
-    <div id="mapModal"
-        style="position:fixed;inset:0;background:rgba(10,10,10,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:10000;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s ease;">
-        <button onclick="closeMapModal()"
-            style="position:absolute;top:30px;right:40px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;z-index:10010;">&times;</button>
-        <div style="max-width:700px;width:95%;text-align:center;transform:scale(0.95);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);"
-            id="mapContent">
-            <div
-                style="border-radius:16px;overflow:hidden;border:1px solid rgba(223,186,134,0.2);box-shadow:0 25px 60px rgba(0,0,0,0.8);">
-                <iframe id="mapIframe" src="" width="100%" height="400" style="border:0;display:block;" allowfullscreen
-                    loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-            </div>
-            <h4 style="font-family:var(--font-serif);color:#fff;margin-top:16px;font-size:1.3rem;">La Medusaa</h4>
-            <p style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">
-                SCO 44,45, District One Market, Sector 68, SAS Nagar</p>
-            <a href="https://maps.google.com/?q=La+Medusaa+Bar+and+Lounge+Mohali" target="_blank"
-                style="display:inline-block;margin-top:20px;padding:12px 30px;background:var(--gold);color:#1c1815;font-weight:700;border-radius:30px;text-decoration:none;letter-spacing:1px;font-size:0.9rem;transition:all 0.3s ease;">GET
-                DIRECTIONS</a>
-        </div>
+  <!-- GOOGLE MAPS LOCATION MODAL -->
+  <div id="mapModal"
+    style="position:fixed;inset:0;background:rgba(10,10,10,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);z-index:10000;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease,visibility 0.35s ease;">
+    <button onclick="closeMapModal()"
+      style="position:absolute;top:30px;right:40px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;z-index:10010;">&times;</button>
+    <div
+      style="max-width:700px;width:95%;text-align:center;transform:scale(0.95);transition:transform 0.35s cubic-bezier(0.16,1,0.3,1);"
+      id="mapContent">
+      <div
+        style="border-radius:16px;overflow:hidden;border:1px solid rgba(223,186,134,0.2);box-shadow:0 25px 60px rgba(0,0,0,0.8);">
+        <iframe id="mapIframe" src="" width="100%" height="400" style="border:0;display:block;" allowfullscreen
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <h4 style="font-family:var(--font-serif);color:#fff;margin-top:16px;font-size:1.3rem;">La Medusaa</h4>
+      <p style="color:var(--gold);font-size:0.85rem;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">
+        SCO 44,45, District One Market, Sector 68, SAS Nagar</p>
+      <a href="https://maps.google.com/?q=La+Medusaa+Bar+and+Lounge+Mohali" target="_blank"
+        style="display:inline-block;margin-top:20px;padding:12px 30px;background:var(--gold);color:#1c1815;font-weight:700;border-radius:30px;text-decoration:none;letter-spacing:1px;font-size:0.9rem;transition:all 0.3s ease;">GET
+        DIRECTIONS</a>
     </div>
+  </div>
 </body>
 
 </html>
-
-
-
-
-
-
-

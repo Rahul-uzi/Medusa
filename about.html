@@ -2,26 +2,27 @@
 <html lang="en">
 
 <head>
-<style id="nav-pt-style">
-    #nav-page-transition {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: #120307;
-        z-index: 999999;
-        opacity: 1;
-        transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: all;
-    }
-    #nav-page-transition.nav-pt-fadeout {
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-</style>
+    <style id="nav-pt-style">
+        #nav-page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #120307;
+            z-index: 999999;
+            opacity: 1;
+            transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: all;
+        }
 
-<meta charset="UTF-8">
+        #nav-page-transition.nav-pt-fadeout {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    </style>
+
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medusa - About Us</title>
     <!-- Google Fonts -->
@@ -927,7 +928,11 @@
 
     <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
     <style>
-        html, body { background-color: #120307; }
+        html,
+        body {
+            background-color: #120307;
+        }
+
         #nav-page-transition {
             position: fixed;
             inset: 0;
@@ -937,16 +942,17 @@
             opacity: 1;
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         #nav-page-transition.nav-pt-fadeout {
             opacity: 0;
             pointer-events: none;
         }
     </style>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var overlay = document.getElementById('nav-page-transition');
-            if(overlay) {
-                setTimeout(function() {
+            if (overlay) {
+                setTimeout(function () {
                     overlay.classList.add('nav-pt-fadeout');
                 }, 100);
             }
@@ -955,9 +961,9 @@
 </head>
 
 <body>
-<div id="nav-page-transition"></div>
+    <div id="nav-page-transition"></div>
 
-<!-- TOP NAV -->
+    <!-- TOP NAV -->
     <div id="navbar-placeholder"></div>
     <script src="assets/js/navbar.js" defer></script>
 
@@ -972,7 +978,7 @@
                 <a href="#philosophy" class="btn-discover">Discover Our Story</a>
             </div>
             <div class="hero-image-wrapper">
-                <img src="assets/images/luxury_bg.png" alt="Restaurant Interior">
+                <img src="assets/images/luxury_bg.jpg" alt="Restaurant Interior">
             </div>
         </div>
         <!-- Torn Paper Top -->
@@ -1052,7 +1058,7 @@
 
         <div class="story-container">
             <div class="story-img-col">
-                <img src="assets/images/signature_dish.png" alt="Signature Dish">
+                <img src="assets/images/signature_dish.jpg" alt="Signature Dish">
             </div>
             <div class="story-text-col">
                 <div class="gold-subtitle">Our Story</div>
@@ -1122,19 +1128,19 @@
         <div class="chef-container">
             <div class="chef-info">
                 <div class="gold-subtitle">Meet Our Chef</div>
-                <h2>Chef Giovanni Vance</h2>
-                <p>With over 15 years of experience in fine dining, Chef Giovanni brings passion, creativity, and a deep
+                <h2>Chef Praveen Parsad</h2>
+                <p>With over 14 years of experience in fine dining, Chef Praveen brings passion, creativity, and a deep
                     respect for ingredients to every plate.<br>His philosophy is simple: let quality speak for itself.
                 </p>
-                <div class="story-signature">Giovanni Vance</div>
+                <div class="story-signature">Praveen Parsad</div>
             </div>
             <div class="chef-img-wrapper">
-                <img src="assets/images/chef_portrait.png" alt="Chef Giovanni Vance" class="chef-img">
+                <img src="assets/images/chef_portrait.jpeg" alt="Chef Praveen Parsad" class="chef-img">
             </div>
             <div class="chef-quote-wrapper">
                 <div class="chef-quote-box">
                     <p>Good food is not just about taste,<br>it's about creating memories<br>that last a lifetime.</p>
-                    <span>— Chef Giovanni Vance</span>
+                    <span>— Chef Praveen Parsad</span>
                 </div>
             </div>
         </div>
