@@ -88,7 +88,12 @@ $settings = $settings_stmt->fetch(PDO::FETCH_ASSOC) ?: [
 
 // Fetch orders for history
 try {
-    $stmt = $pdo->prepare("SELECT *, tracking_token, tracking_status FROM orders WHERE user_id = ? ORDER BY order_date DESC");
+    // Auto-cancel active orders older than 12 hours
+$twelveHoursAgo = date('Y-m-d H:i:s', time() - 12 * 3600);
+$auto_cancel = $pdo->prepare("UPDATE orders SET order_status = 'cancelled', tracking_status = 'cancelled', cancellation_reason = 'System auto-cancelled: exceeded 12 hours limit' WHERE user_id = ? AND order_date < ? AND order_status NOT IN ('completed', 'delivered', 'cancelled')");
+$auto_cancel->execute([$user_id, $twelveHoursAgo]);
+
+$stmt = $pdo->prepare("SELECT *, tracking_token, tracking_status FROM orders WHERE user_id = ? ORDER BY order_date DESC");
     $stmt->execute([$user_id]);
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -211,7 +216,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: #120307;
+        background-color: #F9F6F0;
         z-index: 999999;
         opacity: 1;
         transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -221,6 +226,9 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
         opacity: 0 !important;
         pointer-events: none !important;
     }
+    .bg-card-custom { background-color: #ffffff !important; color: #333333 !important; border-color: rgba(0,0,0,0.1) !important; }
+    .text-light { color: #F9F6F0 !important; }
+    .text-muted { color: #6c757d !important; }
 </style>
 
 <meta charset="UTF-8">
@@ -241,13 +249,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
             --bg-dark: #F9F6F0;
             --bg-secondary: #ffffff;
             --bg-sidebar: #143628;
-            --bg-header: #4A151D;
-            --bg-card: #ffffff;
+            --bg-header: #C09B5B;
+            --bg-card: #220a11;
             --gold: #C09B5B;
             --gold-light: #d6b883;
             --gold-dark: #a17c40;
-            --text-dark: #332222;
-            --text-muted: #887a7a;
+            --text-light: #F9F6F0;
+            --text-muted: #a09f9f;
             --white: #ffffff;
             --gray: #a09f9f;
             --border-glass: rgba(192, 155, 91, 0.2);
@@ -422,7 +430,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         body {
             background-color: var(--bg-dark);
-            color: var(--text-dark);
+            color: #3f1519;
             font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             display: flex;
@@ -431,7 +439,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         /* Luxury Top Header Bar */
         .luxury-navbar {
-            background-color: var(--bg-header);
+            background-color: #3f1519;
             border-bottom: 1px solid var(--border-glass);
             padding: 1.2rem 2rem;
             position: sticky;
@@ -607,7 +615,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .sidebar-menu .nav-link.active {
             color: var(--white);
-            background: var(--bg-header);
+            background: #4A151D;
             border-color: transparent;
             font-weight: 600;
         }
@@ -626,7 +634,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: #3f1519;
             margin-bottom: 1.5rem;
             padding-bottom: 0.75rem;
             display: flex;
@@ -643,7 +651,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
         .form-control-medusa {
             background-color: #ffffff;
             border: 1px solid rgba(0, 0, 0, 0.1);
-            color: var(--text-dark) !important;
+            color: #3f1519 !important;
             padding: 0.75rem 1rem;
             border-radius: 8px;
             transition: var(--transition);
@@ -1019,12 +1027,12 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
     <style>
-        html, body { background-color: #120307; }
+        html, body { background-color: #F9F6F0; }
         #nav-page-transition {
             position: fixed;
             inset: 0;
             z-index: 99999;
-            background: #120307;
+            background: #F9F6F0;
             pointer-events: all;
             opacity: 1;
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1084,7 +1092,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <h4 class="profile-name"><?php echo htmlspecialchars($user_name); ?></h4>
                     <div class="profile-email"><?php echo htmlspecialchars($user_email); ?></div>
                     
-                    <div class="mt-2" style="color: var(--gold); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.5px;">
+                    <div class="mt-2" style="color: #b8973a !important;">
                         <i class="fa-solid fa-crown me-1"></i><?php echo htmlspecialchars($user_tier_name); ?> Member
                     </div>
                 </div>
@@ -1155,7 +1163,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                 let requested = (window.location.hash && window.location.hash.startsWith('#pill-')) ? window.location.hash + '-tab' : null;
                 if (!requested) {
                     const t = params.get('tab');
-                    if (t && t !== accountSection && t !== 'settings' && t !== 'profile') requested = '#pill-' + t + '-tab';
+                    if (t) requested = '#pill-' + t + '-tab';
                 }
                 if (params.get('edit') === '1') requested = '#pill-profile-tab';
                 
@@ -1209,13 +1217,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <p class="text-muted" style="font-size: 0.85rem; max-width: 250px;">Manage your account details and enjoy exclusive experiences.</p>
                         </div>
                         <div class="col-md-6">
-                            <div class="p-4 rounded-4" style="background-color: var(--bg-sidebar); color: var(--white); box-shadow: 0 10px 25px rgba(20, 54, 40, 0.2);">
+                            <div class="p-4 rounded-4 text-dark" style="background-color: var(--bg-sidebar); color: #fff !important; box-shadow: 0 10px 25px rgba(20, 54, 40, 0.2);">
                                 <div class="d-flex align-items-center mb-3">
                                     <i class="fa-solid fa-crown text-gold me-2"></i>
                                     <span class="text-uppercase tracking-widest text-gold" style="font-size: 0.75rem; letter-spacing: 1px;">Medusa Rewards</span>
                                 </div>
-                                <h4 class="mb-1" style="font-family: 'Playfair Display', serif;"><?php echo htmlspecialchars($user_tier_name); ?> Member</h4>
-                                <p class="mb-4" style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">You have <?php echo number_format($loyalty_points); ?> points</p>
+                                <h4 class="mb-1 text-white" style="font-family: 'Playfair Display', serif;"><?php echo htmlspecialchars($user_tier_name); ?> Member</h4>
+                                <p class="mb-4 text-white" style="color: rgba(255, 255, 255, 0.8) !important; font-size: 0.85rem;">You have <?php echo number_format($loyalty_points); ?> points</p>
                                 <a href="javascript:void(0)" onclick="goToProfileTab('loyalty');" style="color: #0d6efd; font-size: 0.85rem; font-weight: 500; text-decoration: none;">View Rewards &rarr;</a>
                             </div>
                         </div>
@@ -1223,7 +1231,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <!-- Personal Information -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="m-0" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.4rem;">
+                        <h3 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.4rem;">
                             <i class="fa-regular fa-user me-2"></i> Personal Information
                         </h3>
                         <button type="button" id="btn-edit-profile" class="btn btn-link text-dark text-decoration-none p-0" onclick="document.getElementById('profile-view').style.display='none'; document.getElementById('profile-edit').style.display='block';" style="font-size: 0.85rem; font-weight: 500;">
@@ -1232,7 +1240,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Static View -->
-                    <div id="profile-view" class="bg-white p-4 rounded-4 border mb-5" style="border-color: rgba(0,0,0,0.05) !important;">
+                    <div id="profile-view" class="bg-card-custom p-4 rounded-4 border mb-5" style="border-color: rgba(0,0,0,0.05) !important;">
                         <div class="row justify-content-center">
                             <div class="col-md-4 p-3 border-bottom border-end">
                                 <label class="text-muted text-uppercase d-block mb-1" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;">Full Name</label>
@@ -1278,7 +1286,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Edit Form (Hidden initially) -->
-                    <div id="profile-edit" class="bg-white p-4 rounded-4 border mb-5" style="border-color: rgba(0,0,0,0.05) !important; display: none;">
+                    <div id="profile-edit" class="bg-card-custom p-4 rounded-4 border mb-5" style="border-color: rgba(0,0,0,0.05) !important; display: none;">
                         <form id="profileForm" onsubmit="submitProfileForm(event)">
                             <div class="mb-4">
                                 <label class="form-label-medusa" for="profile_name">Full Name *</label>
@@ -1342,23 +1350,23 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Statistics Summary Bar -->
-                    <div class="rounded-4 p-4 mb-5" style="background-color: var(--bg-header); color: var(--white);">
+                    <div class="rounded-4 p-4 mb-5" style="background-color: #4A151D; color: var(--white);">
                         <div class="row text-center text-md-start">
-                            <div class="col-6 col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end border-light border-opacity-25">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end border-dark border-opacity-25">
                                 <i class="fa-regular fa-star text-gold" style="font-size: 1.5rem;"></i>
                                 <div>
                                     <h4 class="mb-0 text-white" style="font-weight: 700; font-size: 1.2rem;"><?php echo number_format($loyalty_points); ?></h4>
                                     <span style="font-size: 0.75rem; opacity: 0.8;">Total Points</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end-md border-light border-opacity-25 ps-md-4">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end-md border-dark border-opacity-25 ps-md-4">
                                 <i class="fa-regular fa-calendar text-gold" style="font-size: 1.5rem;"></i>
                                 <div>
                                     <h4 class="mb-0 text-white" style="font-weight: 700; font-size: 1.2rem;"><?php echo count($user_reservations); ?></h4>
                                     <span style="font-size: 0.75rem; opacity: 0.8;">Reservations</span>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-3 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end border-light border-opacity-25 ps-md-4">
+                            <div class="col-6 col-md-3 d-flex align-items-center justify-content-center justify-content-md-start gap-3 border-end border-dark border-opacity-25 ps-md-4">
                                 <i class="fa-solid fa-bag-shopping text-gold" style="font-size: 1.5rem;"></i>
                                 <div>
                                     <h4 class="mb-0 text-white" style="font-weight: 700; font-size: 1.2rem;"><?php echo count($orders); ?></h4>
@@ -1378,14 +1386,14 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Upcoming Reservation -->
                     <div class="mb-5">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.2rem;">
+                            <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.2rem;">
                                 <i class="fa-regular fa-calendar-check me-2"></i> Upcoming Reservation
                             </h4>
                             <a href="javascript:void(0)" onclick="goToProfileTab('reservations');" class="text-dark text-decoration-none" style="font-size: 0.85rem; font-weight: 500;">View All Reservations &rarr;</a>
                         </div>
                         <?php if ($upcoming_reservation): ?>
-                        <div class="bg-white p-4 rounded-4 border d-flex align-items-center gap-4 flex-wrap" style="border-color: rgba(0,0,0,0.05) !important;">
-                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 100px; background-color: var(--bg-sidebar); color: var(--gold);">
+                        <div class="bg-card-custom p-4 rounded-4 border d-flex align-items-center gap-4 flex-wrap" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 150px; height: 100px; background-color: var(--bg-sidebar); color: #b8973a !important;">
                                 <i class="fa-solid fa-wine-glass" style="font-size: 2.5rem;"></i>
                             </div>
                             <div class="flex-grow-1">
@@ -1403,7 +1411,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <?php else: ?>
-                        <div class="bg-white p-4 rounded-4 border text-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                        <div class="bg-card-custom p-4 rounded-4 border text-center" style="border-color: rgba(0,0,0,0.05) !important;">
                             <div class="mb-3">
                                 <i class="fa-regular fa-calendar-xmark text-muted" style="font-size: 2.5rem; opacity: 0.5;"></i>
                             </div>
@@ -1417,8 +1425,8 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Quick Actions & Account Security -->
                     <div class="row g-4">
                         <div class="col-lg-6">
-                            <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.2rem;">Quick Actions</h4>
-                            <div class="bg-white p-4 rounded-4 border d-flex justify-content-around text-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.2rem;">Quick Actions</h4>
+                            <div class="bg-card-custom p-4 rounded-4 border d-flex justify-content-around text-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <a href="book-table-test.html" class="text-dark text-decoration-none action-icon">
                                     <div class="rounded-circle border d-flex align-items-center justify-content-center mx-auto mb-2 hover-gold-border" style="width: 50px; height: 50px;">
                                         <i class="fa-regular fa-calendar"></i>
@@ -1446,10 +1454,10 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="col-lg-6">
-                            <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.2rem;">
+                            <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.2rem;">
                                 <i class="fa-solid fa-shield-halved me-2"></i> Account Security
                             </h4>
-                            <div class="bg-white p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <p class="text-muted mb-4" style="font-size: 0.85rem;">Keep your account safe and secure.</p>
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="text-muted" style="font-size: 0.85rem; width: 100px;">Password</span>
@@ -1473,7 +1481,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Header -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.8rem;">
+                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem;">
                                 <i class="fa-solid fa-clock-rotate-left me-2" style="color: #d4af37;"></i> Order History
                             </h2>
                             <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">View and manage your past orders.</p>
@@ -1484,11 +1492,11 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     
                     <!-- Search & Filter Controls -->
-                    <div class="row g-3 mb-4 bg-white p-4 rounded-4 border align-items-end" style="border-color: rgba(0,0,0,0.05) !important;">
+                    <div class="row g-3 mb-4 bg-card-custom p-4 rounded-4 border align-items-end" style="border-color: rgba(0,0,0,0.05) !important;">
                         <div class="col-md-5">
                             <label class="form-label-medusa text-dark" style="font-weight: 500; font-size: 0.8rem;">Search Order</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0" style="border-color: rgba(0,0,0,0.1);"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                <span class="input-group-text bg-card-custom border-end-0" style="border-color: rgba(0,0,0,0.1);"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
                                 <input type="text" id="order-search" autocomplete="off" class="form-control form-control-medusa border-start-0 ps-0" placeholder="Enter Order Number..." oninput="filterOrders()" style="background-color: transparent; border-color: rgba(0,0,0,0.1); box-shadow: none;">
                             </div>
                         </div>
@@ -1513,7 +1521,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Order Cards list -->
                     <div id="orders-list-container">
                         <?php if (empty($orders)): ?>
-                            <div class="text-center py-5 bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="text-center py-5 bg-card-custom rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <i class="fa-solid fa-utensils text-muted mb-3" style="font-size: 3rem; opacity: 0.4;"></i>
                                 <h4 class="mb-2 text-dark" style="font-family: 'Playfair Display', serif;">No Orders Yet</h4>
                                 <p class="text-muted mb-4" style="max-width: 380px; margin: 0 auto;">You haven't placed any fine dining orders yet.</p>
@@ -1546,10 +1554,22 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                             $status_label = 'READY';
                                             $status_icon = 'fa-solid fa-bell';
                                             break;
+                                        case 'out for delivery':
+                                            $status_class = 'bg-info bg-opacity-10 text-info';
+                                            $status_label = 'OUT FOR DELIVERY';
+                                            $status_icon = 'fa-solid fa-motorcycle';
+                                            break;
                                         case 'completed':
                                             $status_class = 'bg-success bg-opacity-10 text-success';
                                             $status_label = 'COMPLETED';
                                             $status_icon = 'fa-solid fa-check-circle';
+                                            break;
+                                        case 'delivered':
+                                            $status_class = 'bg-success bg-opacity-10 text-success';
+                                            $status_label = 'DELIVERED';
+                                            $status_icon = 'fa-solid fa-check-double';
+                                            $status_style = 'background-color: #e6f8f1; color: #0a5f38; border: none; padding: 0.6rem 1.2rem;';
+                                            $icon_style = 'color: #108653; font-size: 0.9rem;';
                                             break;
                                         case 'cancelled':
                                             $status_class = 'bg-danger bg-opacity-10 text-danger';
@@ -1570,7 +1590,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <h4 class="mb-1" style="font-family: 'Playfair Display', serif; color: #5a2a35; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                                                     Order #<?php echo htmlspecialchars($order['order_number']); ?>
                                                     <?php if (isset($order['order_type']) && strcasecmp($order['order_type'], 'takeaway') === 0): ?>
-                                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem; font-family: 'Plus Jakarta Sans', sans-serif;"><i class="fa-solid fa-shopping-bag"></i> Takeaway</span>
+                                                        <span class="badge bg-warning text-white" style="font-size: 0.7rem; font-family: 'Plus Jakarta Sans', sans-serif;"><i class="fa-solid fa-shopping-bag"></i> Takeaway</span>
                                                     <?php else: ?>
                                                         <span class="badge bg-primary text-white" style="font-size: 0.7rem; font-family: 'Plus Jakarta Sans', sans-serif;"><i class="fa-solid fa-truck"></i> Delivery</span>
                                                     <?php endif; ?>
@@ -1631,7 +1651,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <div class="d-flex justify-content-end gap-2 flex-wrap mt-auto">
                                                     <?php
                                                     $trk_token  = $order['tracking_token']  ?? null;
-                                                    $trk_active = !in_array(strtolower($order['order_status']), ['completed','cancelled']) && $trk_token;
+                                                    $trk_active = !in_array(strtolower($order['order_status']), ['completed','cancelled','delivered']) && $trk_token;
                                                     ?>
                                                     <?php if ($trk_active): ?>
                                                     <a href="track.php?token=<?php echo htmlspecialchars($trk_token); ?>" class="btn btn-sm text-gold" style="border: 1px solid var(--gold); background: transparent; font-weight: 500; border-radius: 6px; padding: 0.4rem 0.8rem;">
@@ -1639,7 +1659,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </a>
                                                     <?php endif; ?>
                                                     <button type="button" class="btn btn-sm" style="background-color: #5a2a35; color: white; font-weight: 500; border-radius: 6px; padding: 0.4rem 0.8rem;" onclick="reorderItems(<?php echo $order['id']; ?>)">
-                                                        <i class="fa-solid fa-arrows-rotate me-1 text-white-50"></i> Reorder
+                                                        <i class="fa-solid fa-arrows-rotate me-1 text-dark-50"></i> Reorder
                                                     </button>
                                                     <a href="order-details.php?order_id=<?php echo urlencode($order['order_number']); ?>" class="btn btn-sm text-gold" style="border: 1px solid var(--gold); background: transparent; font-weight: 500; border-radius: 6px; padding: 0.4rem 0.8rem;">
                                                         <i class="fa-solid fa-file-invoice me-1"></i> Invoice
@@ -1658,17 +1678,17 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="tab-pane fade" id="pill-reservations" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <div>
-                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.8rem; font-weight: 600;">
+                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem; font-weight: 600;">
                                 <i class="fa-regular fa-calendar-check me-2" style="color: #d4af37;"></i> Table Reservations
                             </h2>
                             <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">Manage your upcoming and past dining experiences.</p>
                         </div>
-                        <a href="book-table-test.html" class="btn-gold-medusa text-decoration-none">Book New Table</a>
+                        <a href="book-table-test.html" class="btn text-white text-decoration-none" style="background-color: #3f1519; border-radius: 4px; padding: 0.5rem 1.5rem; font-weight: 500;">Book New Table</a>
                     </div>
                     
                     <div class="reservations-list">
                         <?php if (empty($user_reservations)): ?>
-                            <div class="text-center py-5 bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="text-center py-5 bg-card-custom rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <i class="fa-regular fa-calendar-xmark text-muted mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
                                 <h4 style="font-family: 'Playfair Display', serif;">No Reservations Found</h4>
                                 <p class="text-muted mb-4">You haven't made any table reservations yet.</p>
@@ -1678,8 +1698,8 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="row g-4">
                                 <?php foreach ($user_reservations as $res): ?>
                                     <div class="col-12">
-                                        <div class="bg-white p-4 rounded-4 border d-flex align-items-center gap-4 flex-wrap" style="border-color: rgba(0,0,0,0.05) !important;">
-                                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; background-color: var(--bg-sidebar); color: var(--gold);">
+                                        <div class="bg-card-custom p-4 rounded-4 border d-flex align-items-center gap-4 flex-wrap" style="border-color: rgba(0,0,0,0.05) !important;">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; background-color: var(--bg-sidebar); color: #b8973a !important;">
                                                 <i class="fa-solid fa-wine-glass" style="font-size: 2.5rem;"></i>
                                             </div>
                                             <div class="flex-grow-1">
@@ -1691,10 +1711,10 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <h4 class="text-dark mb-1" style="font-family: 'Playfair Display', serif; font-size: 1.2rem;"><?php echo htmlspecialchars($res['venue_name']); ?></h4>
                                                 <p class="text-muted mb-2" style="font-size: 0.85rem;"><i class="fa-solid fa-location-dot me-1 text-muted"></i> <?php echo htmlspecialchars($res['venue_address']); ?></p>
                                                 <?php if (!empty($res['table_number'])): ?>
-                                                    <span class="badge bg-light text-dark border me-2"><i class="fa-solid fa-chair me-1 text-muted"></i> Table/Zone: <?php echo htmlspecialchars($res['table_number']); ?></span>
+                                                    <span class="badge text-dark border me-2" style="background-color: #f8f9fa;"><i class="fa-solid fa-chair me-1" style="color: #6c757d;"></i> Table/Zone: <?php echo htmlspecialchars($res['table_number']); ?></span>
                                                 <?php endif; ?>
                                                 <?php if (!empty($res['special_requests'])): ?>
-                                                    <span class="badge bg-light text-dark border"><i class="fa-solid fa-comment-dots me-1 text-muted"></i> Special Request Added</span>
+                                                    <span class="badge text-dark border" style="background-color: #f8f9fa;"><i class="fa-solid fa-comment-dots me-1" style="color: #6c757d;"></i> Special Request Added</span>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="text-end" style="min-width: 150px;">
@@ -1742,7 +1762,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     ?>
                     
                     <div class="d-flex flex-column mb-5">
-                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.8rem; font-weight: 600;">
+                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem; font-weight: 600;">
                             <i class="fa-solid fa-crown me-2" style="color: #d4af37;"></i> Loyalty Status & Rewards
                         </h2>
                         <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">Track your progress, points, and rewards.</p>
@@ -1788,13 +1808,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     
                     <!-- Stats Section -->
-                    <h3 class="mb-4" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.4rem; font-weight: 600;">
+                    <h3 class="mb-4" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.4rem; font-weight: 600;">
                         <i class="fa-solid fa-chart-line me-2"></i> Rewards Statistics
                     </h3>
                     
                     <div class="row g-4 mb-5">
                         <div class="col-lg-3 col-sm-6">
-                            <div class="bg-white rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px; background-color: #fcf4db; border: 1px solid #f1e2b3;">
                                     <i class="fa-regular fa-star" style="color: #b48530; font-size: 1.2rem;"></i>
                                 </div>
@@ -1805,7 +1825,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6">
-                            <div class="bg-white rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px; background-color: #f1efed; border: 1px solid #e2e0dd;">
                                     <i class="fa-solid fa-gift" style="color: #6a8c79; font-size: 1.2rem;"></i>
                                 </div>
@@ -1816,7 +1836,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6">
-                            <div class="bg-white rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px; background-color: #fcf4db; border: 1px solid #f1e2b3;">
                                     <i class="fa-solid fa-clock-rotate-left" style="color: #5a2a35; font-size: 1.2rem;"></i>
                                 </div>
@@ -1827,7 +1847,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="col-lg-3 col-sm-6">
-                            <div class="bg-white rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 50px; height: 50px; background-color: #fcfbf8; border: 1px solid rgba(0,0,0,0.05);">
                                     <i class="fa-solid fa-wallet" style="color: #b48530; font-size: 1.2rem;"></i>
                                 </div>
@@ -1841,7 +1861,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     
                     <!-- Transactions Section -->
                     <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
-                        <h3 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.4rem; font-weight: 600;">
+                        <h3 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.4rem; font-weight: 600;">
                             <i class="fa-solid fa-clock-rotate-left me-2"></i> Point Transactions
                         </h3>
                         <div class="dropdown">
@@ -1857,7 +1877,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     
-                    <div class="bg-white rounded-4 border p-0 overflow-hidden" style="border-color: rgba(0,0,0,0.05) !important;">
+                    <div class="bg-card-custom rounded-4 border p-0 overflow-hidden" style="border-color: rgba(0,0,0,0.05) !important;">
                         <table class="table mb-0" style="font-size: 0.85rem;">
                             <thead style="background-color: #fcfbf8; border-bottom: 1px solid rgba(0,0,0,0.05);">
                                 <tr>
@@ -1904,17 +1924,17 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         } elseif ($t['points_deducted'] > 0) {
                                             $change_str = '-' . $t['points_deducted'];
                                             $change_class = 'text-warning';
-                                            $type_badge = '<span class="badge rounded-pill bg-warning text-dark" style="font-weight: 500; padding: 0.35rem 0.8rem;">Deduct</span>';
+                                            $type_badge = '<span class="badge rounded-pill bg-warning text-white" style="font-weight: 500; padding: 0.35rem 0.8rem;">Deduct</span>';
                                             $type_filter = 'deduct';
                                         }
                                         
                                         $ref = $t['order_number'] ? 'Order #' . $t['order_number'] : 'System Adjust';
                                 ?>
                                         <tr class="transaction-row" data-type="<?php echo $type_filter; ?>" style="border-bottom: 1px solid rgba(0,0,0,0.03);">
-                                            <td class="text-dark" style="padding: 1rem 1.5rem; border: none; font-weight: 500;"><?php echo date('d M Y, h:i A', strtotime($t['transaction_date'])); ?></td>
+                                            <td class="text-dark" style="padding: 1rem 1.5rem; border: none; font-weight: 500;"> <?php echo date('d M Y, h:i A', strtotime($t['transaction_date'])); ?></td>
                                             <td style="padding: 1rem 1.5rem; border: none;"><?php echo $type_badge; ?></td>
                                             <td class="<?php echo $change_class; ?>" style="padding: 1rem 1.5rem; border: none; font-weight: 600;"><?php echo $change_str; ?></td>
-                                            <td class="text-dark" style="padding: 1rem 1.5rem; border: none;"><?php echo htmlspecialchars($ref); ?></td>
+                                            <td class="text-dark" style="padding: 1rem 1.5rem; border: none;"> <?php echo htmlspecialchars($ref); ?></td>
                                         </tr>
                                 <?php
                                     endforeach;
@@ -1928,35 +1948,35 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- How to Redeem Points Section -->
-                    <h3 class="mb-4 mt-5" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.4rem; font-weight: 600;">
+                    <h3 class="mb-4 mt-5" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.4rem; font-weight: 600;">
                         <i class="fa-solid fa-gift me-2 text-gold" style="color: #d4af37;"></i> How to Redeem & Use Points
                     </h3>
                     
                     <div class="row g-4 mb-5">
                         <div class="col-md-4">
-                            <div class="bg-white rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 45px; height: 45px; background-color: #e6f2eb; color: #2e7d51;">
                                     <i class="fa-solid fa-receipt fa-lg"></i>
                                 </div>
-                                <h5 class="mb-2" style="font-size: 1.1rem; color: #222; font-weight: 600;">1. Earn on Every Order</h5>
+                                <h5 class="mb-2" style="font-size: 1.1rem; color: #3f1519; font-weight: 600;">1. Earn on Every Order</h5>
                                 <p class="text-muted mb-0" style="font-size: 0.85rem; line-height: 1.6;">You automatically earn points for every rupee spent at Medusa. Your Tier determines your points multiplier!</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="bg-white rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 45px; height: 45px; background-color: #fde8eb; color: #c92a3e;">
                                     <i class="fa-solid fa-money-bill-wave fa-lg"></i>
                                 </div>
-                                <h5 class="mb-2" style="font-size: 1.1rem; color: #222; font-weight: 600;">2. Apply at Checkout</h5>
+                                <h5 class="mb-2" style="font-size: 1.1rem; color: #3f1519; font-weight: 600;">2. Apply at Checkout</h5>
                                 <p class="text-muted mb-0" style="font-size: 0.85rem; line-height: 1.6;">During your next order, look for the "Use Reward Points" toggle on the checkout page to instantly apply your discount.</p>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="bg-white rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 h-100" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 45px; height: 45px; background-color: #fcf4db; color: #b48530;">
                                     <i class="fa-solid fa-ticket fa-lg"></i>
                                 </div>
-                                <h5 class="mb-2" style="font-size: 1.1rem; color: #222; font-weight: 600;">3. Claim Special Coupons</h5>
+                                <h5 class="mb-2" style="font-size: 1.1rem; color: #3f1519; font-weight: 600;">3. Claim Special Coupons</h5>
                                 <p class="text-muted mb-0" style="font-size: 0.85rem; line-height: 1.6;">You can also exchange your points for high-value exclusive coupons in the <strong>Coupons & Rewards</strong> tab.</p>
                             </div>
                         </div>
@@ -1968,11 +1988,11 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </h4>
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <h6 style="color: #222; font-weight: 600;">Points Expiry</h6>
+                                <h6 style="color: #3f1519; font-weight: 600;">Points Expiry</h6>
                                 <p class="text-muted mb-0" style="font-size: 0.85rem;">To encourage regular visits, a 20% deduction is applied to your balance if no orders are placed for 90 consecutive days. We'll email you 7 days before!</p>
                             </div>
                             <div class="col-md-6">
-                                <h6 style="color: #222; font-weight: 600;">Annual Tier Reset</h6>
+                                <h6 style="color: #3f1519; font-weight: 600;">Annual Tier Reset</h6>
                                 <p class="text-muted mb-0" style="font-size: 0.85rem;">On January 1st, all customers in Silver or Gold tiers are moved down one tier. Make sure to enjoy your premium benefits before year-end!</p>
                             </div>
                         </div>
@@ -2015,7 +2035,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- ══ TAB: NOTIFICATIONS LOG ══ -->
                 <div class="tab-pane fade" id="pill-notifications" role="tabpanel">
                     <div class="d-flex flex-column mb-5">
-                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.8rem; font-weight: 600;">
+                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem; font-weight: 600;">
                             <i class="fa-regular fa-bell me-2" style="color: #d4af37;"></i> Notification
                         </h2>
                         <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">Stay updated with your recent activity and important alerts.</p>
@@ -2023,7 +2043,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     
                     <div class="notif-list">
                         <?php if (empty($user_notifications)): ?>
-                            <div class="text-center py-5 bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="text-center py-5 bg-card-custom rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <i class="fa-regular fa-bell-slash mb-3" style="font-size: 2.5rem; color: #d4af37; opacity: 0.5;"></i>
                                 <p class="text-muted m-0">No notifications found.</p>
                             </div>
@@ -2048,7 +2068,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $badge_text = 'ORDER';
                                 }
                             ?>
-                                <div class="bg-white rounded-4 p-4 mb-3 d-flex align-items-center justify-content-between position-relative" style="border: 1px solid rgba(0,0,0,0.05); overflow: hidden; <?php echo $notif['is_read'] ? '' : 'box-shadow: 0 4px 15px rgba(0,0,0,0.03);'; ?>">
+                                <div class="bg-card-custom rounded-4 p-4 mb-3 d-flex align-items-center justify-content-between position-relative" style="border: 1px solid rgba(0,0,0,0.05); overflow: hidden; <?php echo $notif['is_read'] ? '' : 'box-shadow: 0 4px 15px rgba(0,0,0,0.03);'; ?>">
                                     <div class="position-absolute top-0 bottom-0 start-0" style="width: 4px; background-color: #d4af37;"></div>
                                     <div class="d-flex align-items-center">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-4" style="width: 55px; height: 55px; background-color: <?php echo $icon_bg; ?>;">
@@ -2056,7 +2076,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </div>
                                         <div class="d-flex flex-column">
                                             <span class="badge rounded-pill mb-2" style="background-color: <?php echo $badge_bg; ?>; color: <?php echo $badge_color; ?>; width: fit-content; font-size: 0.65rem; padding: 0.3rem 0.6rem; letter-spacing: 0.5px;"><?php echo $badge_text; ?></span>
-                                            <h5 class="mb-1" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.15rem; font-weight: 600;"><?php echo htmlspecialchars($notif['title']); ?></h5>
+                                            <h5 class="mb-1" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.15rem; font-weight: 600;"><?php echo htmlspecialchars($notif['title']); ?></h5>
                                             <p class="text-muted m-0" style="font-size: 0.85rem; max-width: 600px;"><?php echo htmlspecialchars($notif['message']); ?></p>
                                         </div>
                                     </div>
@@ -2072,7 +2092,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- ══ TAB 3: COUPONS & REWARDS ══ -->
                 <div class="tab-pane fade" id="pill-coupons" role="tabpanel">
                     <div class="d-flex flex-column mb-4">
-                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.8rem; font-weight: 600;">
+                        <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem; font-weight: 600;">
                             <i class="fa-solid fa-gift me-2" style="color: #d4af37;"></i> Coupons & Loyalty Rewards
                         </h2>
                         <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">Use your rewards and save more on your orders.</p>
@@ -2081,25 +2101,25 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Points Summary -->
                     <div class="row g-4 mb-5">
                         <div class="col-md-6">
-                            <div class="bg-white rounded-4 border p-4 h-100 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 h-100 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width: 70px; height: 70px; background-color: #fcf4db;">
                                     <i class="fa-regular fa-gem" style="color: #b48530; font-size: 2rem;"></i>
                                 </div>
                                 <div>
                                     <p class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Loyalty Points</p>
-                                    <h3 class="mb-1" style="font-family: 'Playfair Display', serif; color: #222; font-size: 2rem; font-weight: 600;"><?php echo number_format($loyalty_points); ?> <span style="font-size: 1.2rem; font-family: 'Plus Jakarta Sans', sans-serif;">pts</span></h3>
+                                    <h3 class="mb-1" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 2rem; font-weight: 600;"><?php echo number_format($loyalty_points); ?> <span style="font-size: 1.2rem; font-family: 'Plus Jakarta Sans', sans-serif;">pts</span></h3>
                                     <p class="text-muted m-0" style="font-size: 0.8rem;">Earn 1 point for every ₹100 spent.</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="bg-white rounded-4 border p-4 h-100 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom rounded-4 border p-4 h-100 d-flex align-items-center" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-4 flex-shrink-0" style="width: 70px; height: 70px; background-color: #fcfbf8; border: 1px solid rgba(0,0,0,0.03);">
                                     <i class="fa-solid fa-wallet" style="color: #b48530; font-size: 2rem;"></i>
                                 </div>
                                 <div>
                                     <p class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px; font-weight: 600;">Total Spent</p>
-                                    <h3 class="mb-1" style="font-family: 'Playfair Display', serif; color: #222; font-size: 2rem; font-weight: 600;">₹<?php echo number_format($total_spent, 2); ?></h3>
+                                    <h3 class="mb-1" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 2rem; font-weight: 600;">₹<?php echo number_format($total_spent, 2); ?></h3>
                                     <p class="text-muted m-0" style="font-size: 0.8rem;">Calculated from <?php echo $completed_count; ?> completed orders.</p>
                                 </div>
                             </div>
@@ -2108,7 +2128,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <!-- Coupons List -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.3rem; font-weight: 600;">
+                        <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.3rem; font-weight: 600;">
                             <i class="fa-solid fa-tag me-2" style="color: #b48530;"></i> Promo Coupons
                         </h4>
                         <div class="btn-group" role="group">
@@ -2118,7 +2138,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     
                     <?php if (empty($userCoupons)): ?>
-                        <div class="text-center py-5 bg-white rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                        <div class="text-center py-5 bg-card-custom rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                             <i class="fa-solid fa-ticket-simple mb-3" style="font-size: 2.5rem; color: #d4af37; opacity: 0.5;"></i>
                             <p class="text-muted m-0">No active coupons found. Leave a 5-star review to unlock a coupon!</p>
                         </div>
@@ -2143,7 +2163,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     }
                                 ?>
                                 <div class="col-xl-6 coupon-card" data-status="<?php echo strtolower($coupon->status); ?>" style="opacity: <?php echo $cardOpacity; ?>;">
-                                    <div class="bg-white p-4 rounded-4 border d-flex position-relative" style="border-color: rgba(0,0,0,0.05) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                                    <div class="bg-card-custom p-4 rounded-4 border d-flex position-relative" style="border-color: rgba(0,0,0,0.05) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                                         <div class="position-absolute top-0 end-0 mt-4 me-4">
                                             <?php echo $statusBadge; ?>
                                         </div>
@@ -2155,7 +2175,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </div>
                                         <div class="flex-grow-1 pe-5 d-flex flex-column justify-content-between">
                                             <div>
-                                                <h5 class="mb-1" style="font-family: 'Playfair Display', serif; color: #222; font-weight: 600; font-size: 1.1rem;"><?php echo intval($coupon->discount_value); ?>% Discount</h5>
+                                                <h5 class="mb-1" style="font-family: 'Playfair Display', serif; color: #3f1519; font-weight: 600; font-size: 1.1rem;"><?php echo intval($coupon->discount_value); ?>% Discount</h5>
                                                 <p class="text-muted m-0" style="font-size: 0.75rem;">Campaign: <?php echo htmlspecialchars($coupon->campaign_code); ?></p>
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-3" style="border: 1px dashed #d4af37; border-radius: 6px; padding: 0.4rem 0.8rem; background-color: #fcfbf8; width: fit-content;">
@@ -2266,7 +2286,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             }
                         ?>
                         <div class="col-lg-6">
-                            <div class="bg-white rounded-4 border p-4 position-relative" style="border-color: rgba(0,0,0,0.05) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;">
+                            <div class="bg-card-custom rounded-4 border p-4 position-relative" style="border-color: rgba(0,0,0,0.05) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;">
                                 <div class="position-absolute" style="top: 50%; right: -20px; transform: translateY(-50%); opacity: 0.08; pointer-events: none; z-index: 0;">
                                     <img src="assets/images/floral_watermark.png" width="180" alt="" onerror="this.style.display='none'">
                                 </div>
@@ -2285,7 +2305,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <span class="badge rounded-pill mb-2" style="background-color: #f1ebd9; color: #8e734a; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.5px; border: 1px solid rgba(0,0,0,0.05);">
                                             <?php echo $cat_badge; ?>
                                         </span>
-                                        <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.25rem; font-weight: 600;">
+                                        <h4 class="mb-3" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.25rem; font-weight: 600;">
                                             <?php echo htmlspecialchars($quota['item_name']); ?>
                                         </h4>
                                         
@@ -2308,7 +2328,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                 </div>
                                 
-                                <button class="btn w-100 position-relative" style="z-index: 1; border: 1px solid #5a2a35; color: #5a2a35; background-color: #fffafb; font-weight: 500; padding: 0.6rem; border-radius: 6px;">
+                                <button onclick="buyLiquorQuotaAgain(<?php echo $quota['food_item_id']; ?>)" class="btn w-100 position-relative" style="z-index: 1; border: 1px solid #5a2a35; color: #5a2a35; background-color: #fffafb; font-weight: 500; padding: 0.6rem; border-radius: 6px;">
                                     <i class="fa-solid fa-cart-plus me-2" style="color: #5a2a35;"></i> Buy Again
                                 </button>
                             </div>
@@ -2323,7 +2343,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="background-color: #5a2a35; width: 32px; height: 32px;">
                                     <i class="fa-solid fa-info text-white" style="font-size: 0.9rem;"></i>
                                 </div>
-                                <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.4rem;">How the Liquor Quota Works</h4>
+                                <h4 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.4rem;">How the Liquor Quota Works</h4>
                             </div>
 
                             <div class="d-flex align-items-start mb-4">
@@ -2462,7 +2482,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: var(--text-dark); font-size: 1.8rem;">
+                            <h2 class="m-0" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.8rem;">
                                 <i class="fa-solid fa-id-badge me-2" style="color: #d4af37;"></i> Membership Pass
                             </h2>
                             <p class="text-muted mt-2 mb-0" style="font-size: 0.95rem;">Your exclusive Medusa dining card.</p>
@@ -2476,7 +2496,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                         
                         <!-- Purchase / Renew Section -->
                         <div id="mc-purchase" style="display:none; text-align: center; max-width: 400px; margin-top: 20px;">
-                            <i class="fas fa-crown mb-3" style="font-size: 3rem; color: var(--gold);"></i>
+                            <i class="fas fa-crown mb-3" style="font-size: 3rem; color: #b8973a !important;"></i>
                             <h4 class="text-gold" id="mc-purchase-title">Get Your Medusa Elite Pass</h4>
                             <p class="text-muted mb-4" id="mc-purchase-desc">Unlock premium features, seamless billing, and exclusive rewards for just ₹599.</p>
                             <button class="btn btn-gold w-100 py-3" id="mc-buy-btn" onclick="buyMembership()" style="border-radius: 8px; font-weight: bold;">
@@ -2884,7 +2904,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <!-- ACCOUNT TAB -->
                         <div class="tab-pane fade show active" id="subnav-account" role="tabpanel">
                             <!-- Account Information -->
-                        <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                        <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="m-0 text-dark" style="font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
                                     <div style="background: rgba(0,0,0,0.05); padding: 8px; border-radius: 50%; display: flex;">
@@ -2923,7 +2943,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <div class="text-dark d-flex align-items-center gap-2" style="font-size: 0.95rem; font-weight: 500;">
                                             <i class="fa-solid fa-crown text-gold"></i> <?php echo htmlspecialchars($user_tier_name); ?> Member
                                         </div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">Member since May 2024</div>
+                                        <div class="text-secondary" style="font-size: 0.75rem;">Member since May 2024</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6 p-3 border-end">
@@ -2988,7 +3008,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
 
                         <!-- Danger Zone -->
-                        <div class="bg-white p-4 rounded-4 border danger-zone-card d-flex align-items-center flex-wrap gap-4">
+                        <div class="bg-card-custom p-4 rounded-4 border danger-zone-card d-flex align-items-center flex-wrap gap-4">
                             <div class="settings-icon-container danger-zone-icon m-0" style="width: 50px; height: 50px;">
                                 <i class="fa-solid fa-trash-can"></i>
                             </div>
@@ -2996,14 +3016,14 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <h5 class="text-danger mb-1" style="font-size: 1.05rem; font-weight: 600;">Danger Zone</h5>
                                 <p class="text-muted m-0" style="font-size: 0.8rem;">Once you delete your account, there is no going back.<br>Please be certain.</p>
                             </div>
-                            <button type="button" class="btn btn-outline-danger text-uppercase fw-bold bg-white" style="font-size: 0.8rem; letter-spacing: 0.5px; padding: 0.6rem 1.2rem; border-color: rgba(220,53,69,0.3);" onclick="showDeleteAccountModal()">Delete Account Permanently</button>
+                            <button type="button" class="btn btn-outline-danger text-uppercase fw-bold bg-card-custom" style="font-size: 0.8rem; letter-spacing: 0.5px; padding: 0.6rem 1.2rem; border-color: rgba(220,53,69,0.3);" onclick="showDeleteAccountModal()">Delete Account Permanently</button>
                         </div>
 
                     </div> <!-- End of subnav-account -->
 
                         <!-- ══ TAB: NOTIFICATIONS ══ -->
                         <div class="tab-pane fade" id="subnav-notifications" role="tabpanel">
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-1" style="font-size: 1.1rem; font-weight: 600;">Notification Preferences</h4>
                                 <p class="text-muted mb-4" style="font-size: 0.85rem;">Manage how we contact you.</p>
                                 
@@ -3027,7 +3047,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <!-- ══ TAB: PREFERENCES ══ -->
                         <div class="tab-pane fade" id="subnav-preferences" role="tabpanel">
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">System Preferences</h4>
                                 <form id="prefForm" onsubmit="submitSettingsForm(event)">
                                     <div class="row g-3 mb-4">
@@ -3055,7 +3075,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <!-- ══ TAB: PRIVACY ══ -->
                         <div class="tab-pane fade" id="subnav-privacy" role="tabpanel">
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-1" style="font-size: 1.1rem; font-weight: 600;">Privacy Controls</h4>
                                 <p class="text-muted mb-4" style="font-size: 0.85rem;">Manage how your data is used across the platform.</p>
                                 
@@ -3082,7 +3102,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <!-- Change Password -->
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Change Password</h4>
                                 <form id="passwordForm" onsubmit="submitPasswordForm(event)">
                                     <!-- Hidden username field for accessibility and password managers -->
@@ -3091,14 +3111,14 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="cur_pass">Current Password *</label>
                                         <div class="input-group">
                                             <input type="password" id="cur_pass" autocomplete="current-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);" required>
-                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('cur_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                            <button class="btn btn-outline-secondary bg-card-custom" type="button" onclick="togglePasswordVisibility('cur_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="new_pass">New Password *</label>
                                         <div class="input-group">
                                             <input type="password" id="new_pass" autocomplete="new-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);" oninput="checkPassStrength(this.value)" required>
-                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('new_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                            <button class="btn btn-outline-secondary bg-card-custom" type="button" onclick="togglePasswordVisibility('new_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
                                         </div>
                                         <div class="strength-bar mt-2">
                                             <div class="seg" id="seg1"></div>
@@ -3111,7 +3131,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <label class="text-muted d-block mb-1" style="font-size: 0.8rem;" for="conf_pass">Confirm New Password *</label>
                                         <div class="input-group">
                                             <input type="password" id="conf_pass" autocomplete="new-password" class="form-control" style="background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.1);" required>
-                                            <button class="btn btn-outline-secondary bg-white" type="button" onclick="togglePasswordVisibility('conf_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
+                                            <button class="btn btn-outline-secondary bg-card-custom" type="button" onclick="togglePasswordVisibility('conf_pass', this)" style="border-color: rgba(0,0,0,0.1); color: #6c757d;"><i class="fa-regular fa-eye"></i></button>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-dark text-uppercase fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px; border-radius: 6px; padding: 0.6rem 1.2rem;">Update Password</button>
@@ -3119,7 +3139,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
 
                             <!-- Two Factor Authentication -->
-                            <div class="bg-white p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <h4 class="text-dark mb-1" style="font-size: 1.1rem; font-weight: 600;">Two-Factor Authentication</h4>
@@ -3134,7 +3154,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="col-lg-6">
                             <!-- New: Login Alerts -->
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <h4 class="text-dark mb-1" style="font-size: 1.1rem; font-weight: 600;">Login Alerts</h4>
@@ -3147,7 +3167,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
 
                             <!-- New: Trusted Devices -->
-                            <div class="bg-white p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border mb-4" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Trusted Devices</h4>
                                 <ul class="list-group list-group-flush mb-3" id="trusted-devices-list">
                                     <?php
@@ -3189,7 +3209,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
 
                             <!-- New: Account Recovery -->
-                            <div class="bg-white p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
+                            <div class="bg-card-custom p-4 rounded-4 border" style="border-color: rgba(0,0,0,0.05) !important;">
                                 <h4 class="text-dark mb-3" style="font-size: 1.1rem; font-weight: 600;">Account Recovery</h4>
                                 <p class="text-muted mb-3" style="font-size: 0.85rem;">Add a fallback email in case you lose access.</p>
                                 <div class="input-group">
@@ -3201,7 +3221,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Recent Login Sessions -->
-                    <div class="bg-white p-4 rounded-4 border mt-4" style="border-color: rgba(0,0,0,0.05) !important;">
+                    <div class="bg-card-custom p-4 rounded-4 border mt-4" style="border-color: rgba(0,0,0,0.05) !important;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="text-dark m-0" style="font-size: 1.1rem; font-weight: 600;">Recent Login Sessions</h4>
                             <button type="button" class="btn btn-outline-danger btn-sm" onclick="logoutOtherDevices()">Logout Other Devices</button>
@@ -3304,7 +3324,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div id="feedback-history" style="max-height: 400px; overflow-y: auto;">
                                 <?php if (empty($feedbacks)): ?>
                                     <div class="text-center py-4 bg-black rounded border border-secondary">
-                                        <p class="text-white-50 m-0" style="font-size: 0.9rem;">You haven't submitted any feedback yet.</p>
+                                        <p class="text-dark-50 m-0" style="font-size: 0.9rem;">You haven't submitted any feedback yet.</p>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($feedbacks as $fb): ?>
@@ -3317,7 +3337,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 </div>
                                                 <span class="badge bg-dark border border-secondary text-capitalize" style="font-size: 0.7rem;"><?php echo htmlspecialchars($fb['type']); ?></span>
                                             </div>
-                                            <p class="m-0 text-white-50" style="font-size: 0.88rem;"><?php echo nl2br(htmlspecialchars($fb['review'])); ?></p>
+                                            <p class="m-0 text-dark-50" style="font-size: 0.88rem;"><?php echo nl2br(htmlspecialchars($fb['review'])); ?></p>
                                             <div class="text-end text-muted mt-2" style="font-size: 0.72rem;"><?php echo date('d M Y, h:i A', strtotime($fb['created_at'])); ?></div>
                                         </div>
                                     <?php endforeach; ?>
@@ -3334,7 +3354,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <h4 class="text-gold mb-3" style="font-size: 1.1rem; text-transform: uppercase;">Contact Help Desk</h4>
-                            <p class="text-white-50 mb-4" style="font-size: 0.92rem;">Need instant help? Feel free to call us or drop a message directly on WhatsApp.</p>
+                            <p class="text-dark-50 mb-4" style="font-size: 0.92rem;">Need instant help? Feel free to call us or drop a message directly on WhatsApp.</p>
                             
                             <div class="d-flex gap-3 mb-5">
                                 <a href="https://wa.me/919427272798" target="_blank" class="btn-gold-medusa" style="background-color: #25d366; color: #fff; width: 50%;">
@@ -3360,7 +3380,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             <!-- Ticket History -->
                             <div class="mt-4 pt-3 border-top border-secondary">
-                                <h5 class="text-white-50 mb-3" style="font-size: 0.9rem; text-transform: uppercase;">Active Tickets</h5>
+                                <h5 class="text-dark-50 mb-3" style="font-size: 0.9rem; text-transform: uppercase;">Active Tickets</h5>
                                 <?php if (empty($support_tickets)): ?>
                                     <p class="text-muted" style="font-size: 0.85rem;">No registered support tickets.</p>
                                 <?php else: ?>
@@ -3376,13 +3396,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <tbody>
                                                 <?php foreach ($support_tickets as $ticket): ?>
                                                     <tr>
-                                                        <td class="text-white"><?php echo htmlspecialchars($ticket['subject']); ?></td>
+                                                        <td class="text-dark"><?php echo htmlspecialchars($ticket['subject']); ?></td>
                                                         <td>
-                                                            <span class="badge <?php echo $ticket['status'] === 'open' ? 'bg-warning text-dark' : 'bg-secondary'; ?> text-uppercase" style="font-size: 0.65rem;">
+                                                            <span class="badge <?php echo $ticket['status'] === 'open' ? 'bg-warning text-white' : 'bg-secondary'; ?> text-uppercase" style="font-size: 0.65rem;">
                                                                 <?php echo htmlspecialchars($ticket['status']); ?>
                                                             </span>
                                                         </td>
-                                                        <td class="text-white-50"><?php echo date('d M Y', strtotime($ticket['created_at'])); ?></td>
+                                                        <td class="text-dark-50"><?php echo date('d M Y', strtotime($ticket['created_at'])); ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
@@ -3465,13 +3485,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body py-4 text-center">
-                    <p class="text-white-50 mb-4" id="otpModalDesc">Please enter the 6-digit One-Time Password sent to your new destination.</p>
+                    <p class="text-dark-50 mb-4" id="otpModalDesc">Please enter the 6-digit One-Time Password sent to your new destination.</p>
                     
                     <div class="d-flex justify-content-center gap-2 mb-4">
                         <input type="text" maxlength="6" id="otp-input-field" class="form-control form-control-medusa text-center font-weight-bold" style="font-size: 1.8rem; letter-spacing: 5px; width: 200px;" placeholder="000000">
                     </div>
                     
-                    <div class="text-white-50" style="font-size: 0.85rem;">
+                    <div class="text-dark-50" style="font-size: 0.85rem;">
                         Didn't receive code? 
                         <button type="button" class="btn btn-link text-gold p-0" id="otp-resend-btn" onclick="resendOTP()" disabled>Resend in <span id="otp-timer">30</span>s</button>
                     </div>
@@ -3488,7 +3508,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Delete Account Modal -->
     <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-white text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
+            <div class="modal-content bg-card-custom text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
                 <div class="modal-header border-bottom-0 pb-0">
                     <h5 class="modal-title text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation"></i> Delete Account</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -3524,7 +3544,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Delete Account OTP Modal -->
     <div class="modal fade" id="deleteOtpModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-white text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
+            <div class="modal-content bg-card-custom text-dark border-danger" style="border: 1px solid #ff4d4d; border-radius: 12px;">
                 <div class="modal-header border-bottom-0 pb-0">
                     <h5 class="modal-title text-danger fw-bold"><i class="fa-solid fa-key"></i> Verify Deletion</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -4150,6 +4170,29 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
+
+        // Buy Liquor Quota Again handler
+        async function buyLiquorQuotaAgain(foodItemId) {
+            try {
+                showToast('Adding item to cart...', 'info');
+                const response = await fetch('api/add-to-cart.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ food_item_id: foodItemId, quantity: 1 })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Item added to cart!', 'success');
+                    // Redirect to cart page after short delay
+                    setTimeout(() => { window.location.href = 'carttest.html'; }, 1000);
+                } else {
+                    showToast(result.message || 'Failed to add to cart.', 'error');
+                }
+            } catch(e) {
+                showToast('Error adding to cart.', 'error');
+            }
+        }
+
         // Reorder Items handler
         async function reorderItems(orderId) {
             try {
@@ -4527,7 +4570,7 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content rounded-4 border-0 shadow-lg">
       <div class="modal-header border-0 pb-0 px-4 pt-4">
-        <h5 class="modal-title" id="tierBenefitsModalLabel" style="font-family: 'Playfair Display', serif; color: #222; font-size: 1.5rem; font-weight: 600;">Loyalty Tier Benefits</h5>
+        <h5 class="modal-title" id="tierBenefitsModalLabel" style="font-family: 'Playfair Display', serif; color: #3f1519; font-size: 1.5rem; font-weight: 600;">Loyalty Tier Benefits</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body px-4 py-4">

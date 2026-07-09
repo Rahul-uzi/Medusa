@@ -26,7 +26,7 @@ if (!function_exists('generateBillPdf')) {
 
         // Template variables setup
         $website_name = get_env_var('RESTAURANT_NAME', 'Medusa');
-        $logo_path = dirname(__DIR__) . '/assets/images/versace_logo.jpg';
+        $logo_path = dirname(__DIR__) . '/assets/images/medusaa2(onlylogo).png';
 
         $variables = [
             'order' => $order,

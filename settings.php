@@ -1023,12 +1023,12 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- CRITICAL SPA PAGE TRANSITION CSS & SCRIPT -->
     <style>
-        html, body { background-color: #120307; }
+        html, body { background-color: #F9F6F0; }
         #nav-page-transition {
             position: fixed;
             inset: 0;
             z-index: 99999;
-            background: #120307;
+            background: #F9F6F0;
             pointer-events: all;
             opacity: 1;
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);

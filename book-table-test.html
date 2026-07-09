@@ -1348,12 +1348,6 @@
 
     // ---- Book Now: open modal ----
     function tlBookNow(id, lbl, seats, type) {
-      if (!loggedIn) {
-        if (confirm('You need to be logged in to book a table. Go to login page?')) {
-          window.location.href = 'login.html';
-        }
-        return;
-      }
       const typeLabel = TL_TYPE_LABELS[type] || 'Table';
       document.getElementById('modalTableTitle').innerText = `Book Table ${lbl} — ${typeLabel}`;
       document.getElementById('m_seats').value = seats;
@@ -1499,46 +1493,62 @@
       </div>
       <form id="modalBookingForm" onsubmit="submitBooking(event)">
         <div class="tl-modal-body">
-          <div style="margin-bottom: 12px;">
-            <label for="m_name"
-              style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Full
-              Name</label>
-            <input type="text" id="m_name" required
-              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s;">
-          </div>
-          <div style="margin-bottom: 12px;">
-            <label for="m_phone"
-              style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Phone
-              Number</label>
-            <input type="text" id="m_phone" required
-              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s;">
-          </div>
           <div style="display: flex; gap: 12px; margin-bottom: 12px;">
             <div style="flex: 1;">
-              <label for="m_date"
-                style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Date</label>
-              <input type="date" id="m_date" required
-                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s;">
+              <label for="m_name" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Full Name</label>
+              <input type="text" id="m_name" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
             </div>
             <div style="flex: 1;">
-              <label for="m_time"
-                style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Time</label>
-              <input type="time" id="m_time" required
-                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s;">
+              <label for="m_phone" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Phone Number</label>
+              <input type="text" id="m_phone" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
             </div>
           </div>
-          <div style="margin-bottom: 15px;">
-            <label for="m_request"
-              style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Special
-              Request</label>
-            <textarea id="m_request" rows="2"
-              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s;"></textarea>
+          
+          <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+            <div style="flex: 2;">
+              <label for="m_email" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Email Address</label>
+              <input type="email" id="m_email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <label for="m_adults" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Adults</label>
+              <input type="number" id="m_adults" required min="1" value="1" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <label for="m_kids" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Kids</label>
+              <input type="number" id="m_kids" required min="0" value="0" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+            </div>
           </div>
+
+          <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+              <label for="m_date" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Date</label>
+              <input type="date" id="m_date" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <label for="m_time" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Time</label>
+              <input type="time" id="m_time" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1.5;">
+              <label for="m_event" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Event Type</label>
+              <select id="m_event" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;">
+                <option value="None">Regular Dining</option>
+                <option value="Birthday">Birthday</option>
+                <option value="Anniversary">Anniversary</option>
+                <option value="Business">Business</option>
+                <option value="Date">Date Night</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label for="m_request" style="color: #4a4a4a; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: 600;">Special Request</label>
+            <textarea id="m_request" rows="1" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dcdcdc; background: #fafafa; color: #333; transition: all 0.2s; box-sizing: border-box;"></textarea>
+          </div>
+          
           <input type="hidden" id="m_seats">
           <input type="hidden" id="m_table_label">
-          <button type="submit" class="tl-book-this"
-            style="width: 100%; padding: 14px; border-radius: 8px; border: none; background: var(--rosewood); color: white; font-weight: bold; cursor: pointer; font-size: 1rem; letter-spacing: 0.5px;">Confirm
-            Booking</button>
+          <button type="submit" class="tl-book-this" style="width: 100%; padding: 12px; border-radius: 8px; border: none; background: var(--rosewood); color: white; font-weight: bold; cursor: pointer; font-size: 1rem; letter-spacing: 0.5px; box-sizing: border-box;">Confirm Booking</button>
         </div>
       </form>
     </div>
@@ -1564,7 +1574,7 @@
       border: 1px solid rgba(0, 0, 0, 0.05);
       border-radius: 16px;
       width: 90%;
-      max-width: 420px;
+      max-width: 650px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
       animation: slideUp 0.3s ease-out;
     }
@@ -1574,7 +1584,6 @@
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -1668,7 +1677,11 @@
       const data = {
         customer_name: document.getElementById('m_name').value,
         customer_phone: document.getElementById('m_phone').value,
-        guests: document.getElementById('m_seats').value,
+        customer_email: document.getElementById('m_email').value,
+        adults: document.getElementById('m_adults').value,
+        kids: document.getElementById('m_kids').value,
+        event_type: document.getElementById('m_event').value,
+        guests: parseInt(document.getElementById('m_adults').value) + parseInt(document.getElementById('m_kids').value),
         reservation_date: document.getElementById('m_date').value,
         reservation_time: document.getElementById('m_time').value,
         special_request: document.getElementById('m_request').value,

@@ -46,7 +46,7 @@
 }
 
 #main-navbar.navbar-scrolled {
-    background-color: rgba(27, 6, 11, 0.97) !important;
+    background-color: #3B111B !important;
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);

@@ -1556,7 +1556,7 @@ scrollToTopBtn.addEventListener('click', () => {
 <div id="payment-loader-overlay" class="payment-loader-overlay">
     <div class="loader-content">
         <div class="logo-container-loader">
-            <img src="assets/images/versace_logo.png" alt="Medusa Logo" class="loader-logo">
+            <img src="assets/images/medusaa2(onlylogo).png" alt="Medusa Logo" class="loader-logo">
             <div class="logo-glow"></div>
             <div class="spinner-ring"></div>
         </div>
