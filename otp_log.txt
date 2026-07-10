@@ -1308,3 +1308,4 @@ Download URL: http://192.168.1.6/restaurant_medusa/download_bill.php?id=109&toke
 [2026-07-08 21:03:28] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 [2026-07-08 21:06:15] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 [2026-07-08 21:15:09] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
+[2026-07-09 09:47:39] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
