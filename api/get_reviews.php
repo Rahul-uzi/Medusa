@@ -1,9 +1,22 @@
 <?php
 header('Content-Type: application/json');
 
-// Using the API Key and Place ID you provided
-$google_api_key = "AIzaSyDj3kNXQgPhCLT4iEYdBAgsctsRqEkS6pw";
-$place_id = "ChIJ3QPTMADvDzkRztLrdeXdGsg"; // Place ID for Medusa Bar & Lounge found via API
+// Load environment variables from .env file securely using a custom parser (avoids PHP 8 parse_ini_file # comment errors)
+$env_path = __DIR__ . '/../.env';
+$env_vars = [];
+if (file_exists($env_path)) {
+    $lines = file($env_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $env_vars[trim($name)] = trim($value);
+        }
+    }
+}
+
+$google_api_key = $env_vars['GOOGLE_REVIEWS_API_KEY'] ?? "";
+$place_id = $env_vars['GOOGLE_PLACE_ID'] ?? "";
 
 if (empty($google_api_key) || empty($place_id)) {
     echo json_encode(['error' => 'API Key or Place ID not configured.']);
