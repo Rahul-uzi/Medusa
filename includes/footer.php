@@ -139,7 +139,7 @@
 
         <!-- Brand Column -->
         <div>
-            <img src="assets/images/logo_right.png" alt="Medusa Logo" style="width: 200px; height: auto; margin: 0 0 16px 0; display: block;">
+            <img src="assets/images/logo_right.png" alt="La-Medusaa Logo" style="width: 200px; height: auto; margin: 0 0 16px 0; display: block;">
             <p>Experience culinary excellence, handcrafted cocktails, and unforgettable moments.</p>
             <div class="lux-footer-socials">
                 <a href="https://www.instagram.com/la_medusaa_mohali" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
@@ -172,7 +172,7 @@
             <h4>Contact</h4>
             <p><i class="fa-solid fa-location-dot" style="margin-right:8px; color:#C8A25A;"></i>SCO 44-45, Sector 68, SAS Nagar<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mohali, Punjab 160308</p>
             <p><i class="fa-solid fa-phone" style="margin-right:8px; color:#C8A25A;"></i>+91 84272 27398</p>
-            <p><i class="fa-regular fa-envelope" style="margin-right:8px; color:#C8A25A;"></i>contact@medusa.com</p>
+            <p><i class="fa-regular fa-envelope" style="margin-right:8px; color:#C8A25A;"></i>contact@La-Medusaa.com</p>
             <p style="margin-top: 10px;"><a href="#" style="color:#C8A25A; display:inline;"><i class="fa-solid fa-location-dot me-2"></i>View on Map &rarr;</a></p>
         </div>
 
@@ -188,6 +188,6 @@
 
     </div>
     <div class="lux-footer-bottom">
-        &copy; 2026 Medusa Restaurant, Bar &amp; Lounge. All rights reserved.
+        &copy; 2026 La-Medusaa Restaurant, Bar &amp; Lounge. All rights reserved.
     </div>
 </footer>

@@ -437,216 +437,56 @@
         /* ----- STICKY GALLERY SECTION ----- */
         .gallery {
             background-color: var(--bg-cream);
-            padding: 100px 40px;
+            padding: 60px 40px;
             position: relative;
         }
 
-        .gallery-wrapper {
-            display: flex;
-            gap: 80px;
-            max-width: 1400px;
-            margin: 0 auto;
-            align-items: flex-start;
-        }
-
-        .gallery-left {
-            position: sticky;
-            top: 120px;
-            /* Sits cleanly below the fixed navbar */
-            width: 35%;
-            text-align: left;
-        }
-
-        .gallery-header {
-            margin-bottom: 25px;
-            color: var(--text-burgundy);
-        }
-
-        .gallery-title {
-            font-family: var(--font-serif);
-            font-size: 2.8rem;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-            font-weight: 400;
-        }
-
-        .gallery-subtitle {
-            font-family: var(--font-playfair);
-            font-style: italic;
-            font-size: 1.2rem;
-            color: var(--text-gold);
-            position: relative;
-            display: inline-block;
-        }
-
-        .gallery-subtitle::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            width: 40px;
+        .signature-line {
             height: 1px;
-            background-color: var(--text-gold);
-            margin-left: 15px;
-        }
-
-        .gallery-description {
-            font-family: var(--font-sans);
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: var(--text-dark);
-            opacity: 0.8;
-            margin-bottom: 35px;
-            max-width: 380px;
-        }
-
-        .btn-gallery-more {
-            display: inline-block;
-            color: var(--text-burgundy);
-            border: 1px solid var(--text-burgundy);
-            font-family: var(--font-sans);
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 12px 28px;
-            text-decoration: none;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-gallery-more:hover {
-            background-color: var(--text-burgundy);
-            color: var(--text-white);
-        }
-
-        /* Right Column scrolling items */
-        .gallery-right {
-            width: 65%;
-        }
-
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }
-
-        /* Asymmetric/masonry grid for luxury feel */
-        .gallery-item {
+            background: linear-gradient(to right, transparent, #775a19, transparent);
             position: relative;
-            padding-top: 110%;
-            /* Tall aspect ratio for premium look */
-            overflow: hidden;
-            border-radius: 4px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
-        /* Asymmetric heights/offsets for masonry layout on desktop */
-        @media (min-width: 1025px) {
-            .gallery-grid {
-                align-items: start;
-            }
-
-            .gallery-item:nth-child(even) {
-                margin-top: 50px;
-                /* Offset every second card to create masonry effect */
-            }
-        }
-
-        /* Hover overlay */
-        .gallery-item::after {
-            content: '';
+        .signature-line::after {
+            content: '◆';
             position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0);
-            transition: background 0.3s ease-in-out;
-            z-index: 1;
-            pointer-events: none;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #775a19;
+            font-size: 8px;
+            background: #ece8df; /* Match gallery background var(--bg-cream) */
+            padding: 0 8px;
         }
 
-        .gallery-item:hover::after {
-            background: rgba(0, 0, 0, 0.28);
-        }
-
-        .gallery-item img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        /* Responsive stack for tablets and mobile */
-        @media (max-width: 1024px) {
-            .gallery-wrapper {
-                flex-direction: column;
-                gap: 50px;
-            }
-
-            .gallery-left {
-                position: static;
-                width: 100%;
-                text-align: center;
-            }
-
-            .gallery-left .gallery-description {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .gallery-subtitle::before {
-                display: none;
-                /* Hide single-sided line */
-            }
-
-            /* Restoring symmetrical visual lines for centered headers on tablet/mobile */
-            .gallery-subtitle::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 100%;
-                width: 40px;
-                height: 1px;
-                background-color: var(--text-gold);
-                margin-left: 15px;
-            }
-
-            .gallery-subtitle::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                right: 100%;
-                width: 40px;
-                height: 1px;
-                background-color: var(--text-gold);
-                margin-right: 15px;
-                display: inline-block;
-            }
-
-            .gallery-right {
-                width: 100%;
-            }
+        .tight-collage-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(12, 48px);
+            gap: 12px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         @media (max-width: 768px) {
-            .gallery-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+            .tight-collage-grid {
+                grid-template-rows: repeat(12, 40px);
+                max-width: 100%;
             }
+        }
 
-            .gallery-item:nth-child(even) {
-                margin-top: 0;
-            }
+        .gallery-hover-zoom {
+            overflow: hidden;
+            position: relative;
+        }
 
-            .gallery {
-                padding: 60px 20px;
-            }
+        .gallery-hover-zoom img {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform;
+        }
+
+        .gallery-hover-zoom:hover img {
+            transform: scale(1.08) !important;
         }
 
         /* ----- FOOTER ----- */
@@ -1346,6 +1186,10 @@
                         colors: {
                             gold: '#b8973a',
                             'gold-light': '#d4af5a',
+                            primary: '#2a0002',
+                            secondary: '#775a19',
+                            'outline-variant': '#dac1bf',
+                            'on-surface-variant': '#544341'
                         }
                     }
                 }
@@ -1503,28 +1347,56 @@
 
     <!-- Gallery Section -->
     <section class="gallery">
-        <div class="gallery-wrapper">
-            <div class="gallery-left">
-                <div class="gallery-header">
-                    <h2 class="gallery-title">GALLERY</h2>
-                    <div class="gallery-subtitle">Explore</div>
-                </div>
-                <p class="gallery-description">
-                    Immerse yourself in the culinary artistry and elegant ambiance of La Medusaa. Every dish is a
-                    masterpiece, crafted to delight all your senses.
+        <div class="max-w-[1440px] mx-auto px-container-padding">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <span class="font-label-md text-label-md text-secondary uppercase tracking-[0.2em] mb-4 block">VISUAL JOURNEY</span>
+                <h1 class="font-display-lg text-display-lg text-primary mb-4"
+                    style="font-family: var(--font-serif); font-size: 3rem;">Moments Worth Remembering</h1>
+                <div class="signature-line w-48 mx-auto mb-6"></div>
+                <p class="max-w-2xl mx-auto" style="font-family: var(--font-sans); color: var(--text-dark); opacity: 0.85; font-size: 0.95rem; line-height: 1.6;">
+                    Every image tells the story of unforgettable dining, crafted cocktails, vibrant celebrations, and timeless experiences at La Medusaa
                 </p>
-                <a href="gallery.php" class="btn-gallery-more">View Full Gallery</a>
             </div>
-            <div class="gallery-right">
-                <div class="gallery-grid">
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-01.jpg" alt="Gallery 1"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-02.jpg" alt="Gallery 2"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-03.jpeg" alt="Gallery 3"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-04.jpg" alt="Gallery 4"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-05.jpg" alt="Gallery 5"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-06.jpg" alt="Gallery 6"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-07.jpeg" alt="Gallery 7"></div>
-                    <div class="gallery-item"><img src="assets/images/gallery/gallery-08.jpg" alt="Gallery 8"></div>
+
+            <!-- Tightly Framed Gallery Collage -->
+            <div class="tight-collage-grid">
+                <!-- Focal Point 1: Noodles Close-up (Large) -->
+                <div class="gallery-hover-zoom col-span-12 md:col-span-6 row-span-8 relative overflow-hidden group border-[0.5px] border-secondary p-1">
+                    <img alt="Close-up of golden noodles" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" src="assets/images/gallery/gallery-11.jpeg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                    <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-10">
+                        <span class="text-white font-headline-sm italic tracking-widest" style="font-family: var(--font-playfair); font-size: 1.3rem;">Hand-Pulled Craft</span>
+                    </div>
+                </div>
+                
+                <!-- Background Grid 1: Curry Gravy Pouring -->
+                <div class="gallery-hover-zoom col-span-6 md:col-span-3 row-span-4 relative border-[0.5px] border-outline-variant p-1">
+                    <img alt="Atmospheric gallery shot" class="w-full h-full object-cover" src="assets/images/gallery/gallery-002.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                </div>
+                
+                <!-- Background Grid 2: Soup Bowl with Spoon -->
+                <div class="gallery-hover-zoom col-span-6 md:col-span-3 row-span-4 relative border-[0.5px] border-outline-variant p-1">
+                    <img alt="Atmospheric kitchen shot" class="w-full h-full object-cover" src="assets/images/gallery/gallery-10.jpeg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                </div>
+                
+                <!-- Focal Point 2: Curry Close-up -->
+                <div class="gallery-hover-zoom col-span-12 md:col-span-6 row-span-8 relative overflow-hidden group border-[0.5px] border-secondary p-1 md:translate-y-6">
+                    <img alt="Rich curry texture close-up" class="w-full h-full object-cover" src="assets/images/gallery/gallery-0.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                    <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-10">
+                        <span class="text-white font-headline-sm italic tracking-widest" style="font-family: var(--font-playfair); font-size: 1.3rem;">Spiced Heritage</span>
+                    </div>
+                </div>
+                
+                <!-- Background Grid 3: Plate with green napkin and cutlery -->
+                <div class="gallery-hover-zoom hidden md:block md:col-span-3 row-span-4 relative border-[0.5px] border-outline-variant p-1 -translate-y-6">
+                    <img alt="Detailed ingredient shot" class="w-full h-full object-cover" src="assets/images/gallery/gallery-0.jpeg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"/>
+                </div>
+                
+                <!-- Text Content / Call to Action Integrated into Grid -->
+                <div class="col-span-12 md:col-span-3 row-span-4 flex flex-col justify-end items-start md:items-end p-4 md:-translate-y-6">
+                    <p class="font-body-md text-body-md text-on-surface-variant text-left md:text-right max-w-xs" style="font-family: var(--font-sans); color: var(--text-dark); margin: 0; line-height: 1.8;">
+                        Each dish at La-Medusaa is a framed moment of culinary precision, where tradition meets the contemporary eye.
+                    </p>
                 </div>
             </div>
         </div>
