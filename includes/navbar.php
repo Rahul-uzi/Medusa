@@ -1,6 +1,6 @@
 <?php
 // Start Session if not already active
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
@@ -58,8 +58,8 @@ if (!empty($_SESSION['user_id'])) {
         <li><a href="index.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Home</a></li>
         <li><a href="about.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">About</a></li>
         <li><a href="menutest.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Menu</a></li>
-        <li><a href="gallery.php" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Gallery</a></li>
-        <li><a href="book-table-test.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Book Table</a></li>
+        <!-- <li><a href="gallery.php" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Gallery</a></li> -->
+        <!-- <li><a href="book-table-test.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Book Table</a></li> -->
         <li><a href="career.html" class="nav-link-item text-[0.75rem] font-medium tracking-[2px] uppercase text-[#F8EACE]/75 hover:text-[#C8A25A] transition-colors no-underline">Careers</a></li>
         
         <?php if (!empty($_SESSION['user_id'])): ?>
@@ -144,8 +144,8 @@ if (!empty($_SESSION['user_id'])) {
     <a href="index.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Home</a>
     <a href="about.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">About</a>
     <a href="menutest.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Menu</a>
-    <a href="gallery.php" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Gallery</a>
-    <a href="book-table-test.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Book Table</a>
+    <!-- <a href="gallery.php" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Gallery</a> -->
+    <!-- <a href="book-table-test.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Book Table</a> -->
     <a href="career.html" class="nav-link-item text-sm font-semibold tracking-[2px] uppercase text-[#F8EACE] hover:text-[#C8A25A] transition-colors no-underline">Careers</a>
     
     <?php if (!empty($_SESSION['user_id'])): ?>

@@ -113,27 +113,29 @@
         }
 
         .category-pill {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .category-pill.active {
-            background-color: #4a151b;
-            color: #dfba86;
-            border-color: #4a151b;
+        /* Snap scrolling utilities and dot styling */
+        .snap-x {
+            scroll-snap-type: x mandatory;
+        }
+        .snap-start {
+            scroll-snap-align: start;
+        }
+        .carousel-dot {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .category-pill.active i {
-            color: #dfba86;
-        }
-
-        /* Card Hover */
+        /* Card Hover and visual transitions */
         .menu-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s;
         }
 
         .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(25, 54, 39, 0.08);
+            border-color: rgba(223, 186, 134, 0.3);
         }
 
         /* Modal specific */
@@ -480,19 +482,22 @@
             container.innerHTML = categories.map((cat, index) => {
                 const icon = ICONS[cat] || 'fas fa-utensils';
                 const isActive = cat === activeCategory;
-                const isLast = index === categories.length - 1;
-                const activeClasses = isActive
-                    ? 'bg-[#3b1c1c] text-cream rounded-[14px] shadow-lg'
-                    : 'bg-transparent text-gray-800 hover:text-[#3b1c1c]';
+                const circleClasses = isActive
+                    ? 'bg-[#193627] text-[#dfba86] border-[#193627] shadow-md scale-105'
+                    : 'bg-[#f8f6f0] text-[#dfba86]/70 border-[#dfba86]/30 hover:border-[#dfba86] hover:bg-[#dfba86]/5';
+                const textClasses = isActive
+                    ? 'text-[#193627] font-extrabold'
+                    : 'text-gray-600 hover:text-[#193627] font-medium';
 
                 return `
-                    <div class="flex items-center shrink-0">
+                    <div class="flex flex-col items-center shrink-0">
                         <button onclick="filterCategory('${cat}')" 
-                                class="category-pill flex flex-col items-center justify-center min-w-[95px] h-[95px] px-2 ${activeClasses} transition-all">
-                            <i class="${icon} text-[28px] mb-2 ${isActive ? 'text-gold' : 'text-[#a48e6c] opacity-80'}"></i>
-                            <span class="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap mt-1">${cat}</span>
+                                class="category-pill flex flex-col items-center justify-center p-0 transition-all border-0 bg-transparent outline-none cursor-pointer">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center border transition-all ${circleClasses}">
+                                <i class="${icon} text-[22px]"></i>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest mt-2 whitespace-nowrap ${textClasses}">${cat}</span>
                         </button>
-                        ${!isLast ? '<div class="w-px h-10 bg-[#e0d6c8] mx-3"></div>' : ''}
                     </div>
                 `;
             }).join('');
@@ -503,6 +508,152 @@
             activeCategory = catName;
             renderCategories();
             displayMenuItems();
+        }
+
+        // Helper to generate dynamic banner
+        window.renderExploreCategoriesBanner = function() {
+            const bannerCategories = [
+                { name: 'Soups', label: 'Soups' },
+                { name: 'Salad', label: 'Salad' },
+                { name: 'Bread Basket', label: 'Bread Basket' },
+                { name: 'Sides', label: 'Sides' },
+                { name: 'Meals in the Bowl', label: 'Meals in the Bowl' },
+                { name: 'Main Course', label: 'Main Course' },
+                { name: 'Choice of Noodle', label: 'Noodles' },
+                { name: 'Choice of Rice', label: 'Rice' }
+            ];
+
+            const itemsHtml = bannerCategories.map(cat => {
+                const itemWithImg = allMenuItems.find(i => i.category === cat.name && i.image_url);
+                let imgSrc = itemWithImg ? itemWithImg.image_url : '';
+                if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                    if (!imgSrc.startsWith('uploads/')) {
+                        imgSrc = 'uploads/' + imgSrc;
+                    }
+                }
+                if (!imgSrc) {
+                    if (cat.name === 'Choice of Noodle') imgSrc = 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop';
+                    else if (cat.name === 'Choice of Rice') imgSrc = 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop';
+                    else imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                }
+
+                return `
+                    <div onclick="filterCategory('${cat.name}'); window.scrollTo({top: document.getElementById('categoryScroll').offsetTop - 100, behavior: 'smooth'});" 
+                         class="flex flex-col items-center gap-2 cursor-pointer group shrink-0">
+                        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#dfba86]/30 overflow-hidden group-hover:scale-105 group-hover:border-[#dfba86] transition-all duration-300 shadow-md">
+                            <img src="${imgSrc}" alt="${cat.label}" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-[9px] md:text-[10px] font-bold text-[#dfba86]/90 group-hover:text-[#dfba86] transition-colors uppercase tracking-widest text-center max-w-[80px]">${cat.label}</span>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="w-full bg-[#193627] border border-[#dfba86]/30 rounded-3xl p-6 md:p-8 my-16 text-center shadow-lg flex flex-col items-center justify-center fade-up">
+                    <div class="relative w-full flex items-center justify-center mb-6">
+                        <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/20 flex items-center justify-between pointer-events-none">
+                            <div class="w-1/4 border-t border-[#dfba86]/20"></div>
+                            <div class="w-1/4 border-t border-[#dfba86]/20"></div>
+                        </div>
+                        <span class="relative font-serif text-sm md:text-base font-bold text-[#dfba86] uppercase tracking-widest px-4 bg-[#193627] z-10 flex items-center gap-2">
+                            <i class="fas fa-star text-[10px] text-[#dfba86]"></i> Explore Our Categories <i class="fas fa-star text-[10px] text-[#dfba86]"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-center gap-4 md:gap-8 w-full overflow-x-auto hide-scrollbar py-2">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        // Scroll helper for chevrons
+        window.scrollCarousel = function(catId, direction) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            carousel.scrollBy({ left: direction * carousel.clientWidth, behavior: 'smooth' });
+        };
+
+        // Scroll helper for page dots
+        window.scrollToPage = function(catId, pageIdx) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            carousel.scrollTo({ left: pageIdx * carousel.clientWidth, behavior: 'smooth' });
+        };
+
+        // Update indicators on scroll
+        window.updateCarouselDots = function(catId) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            const scrollIndex = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            const dotsContainer = document.getElementById(`dots-${catId}`);
+            if (!dotsContainer) return;
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === scrollIndex) {
+                    dot.classList.add('bg-[#193627]', 'w-4');
+                    dot.classList.remove('bg-[#dfba86]/40', 'w-2');
+                } else {
+                    dot.classList.remove('bg-[#193627]', 'w-4');
+                    dot.classList.add('bg-[#dfba86]/40', 'w-2');
+                }
+            });
+
+            const prevBtn = document.getElementById(`prevBtn-${catId}`);
+            const nextBtn = document.getElementById(`nextBtn-${catId}`);
+            if (prevBtn) prevBtn.disabled = carousel.scrollLeft <= 5;
+            if (nextBtn) nextBtn.disabled = Math.ceil(carousel.scrollLeft) >= carousel.scrollWidth - carousel.clientWidth - 5;
+        };
+
+        function generateCardHtml(item, index, isCarousel) {
+            let imgSrc = item.image_url || '';
+            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                if (!imgSrc.startsWith('uploads/')) {
+                    imgSrc = 'uploads/' + imgSrc;
+                }
+            }
+            if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop';
+
+            const hasCust = item.customizations && item.customizations.length > 0;
+            const delay = (index % 4) * 0.1;
+
+            const isVeg = (item.diet_type === 'veg');
+            const dietBadge = isVeg 
+                ? `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`
+                : `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+
+            const cardClasses = isCarousel 
+                ? 'w-full sm:w-[calc(50%-12px)] xl:w-[calc(25%-18px)] shrink-0 snap-start'
+                : 'w-full';
+
+            return `
+                <div class="menu-card bg-white rounded-3xl p-4 flex flex-col justify-between ${cardClasses} h-[440px] fade-up shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#dfba86]/10 transition-all duration-300" style="animation-delay: ${delay}s">
+                    <div class="relative h-48 w-full rounded-2xl overflow-hidden bg-gray-100 mb-4 shrink-0 shadow-inner">
+                        <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
+                        ${hasCust ? '<div class="absolute top-3 left-3 bg-[#f9f6f0]/90 backdrop-blur-sm text-[#193627] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-sliders-h mr-1 text-[#dfba86]"></i>Customizable</div>' : ''}
+                    </div>
+                    <div class="flex flex-col flex-1 px-1">
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                            <h3 class="font-serif text-base font-bold text-gray-800 leading-tight line-clamp-2">${item.name}</h3>
+                            ${dietBadge}
+                        </div>
+                        <div class="font-sans font-bold text-sm text-[#2f1317] mb-2">₹${Math.round(parseFloat(item.price || 0))}</div>
+                        <p class="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-4 flex-grow">${item.description || 'Premium dish crafted with quality ingredients.'}</p>
+                        
+                        <div class="mt-auto pt-2">
+                            <button id="add-btn-${item.id}" onclick="handleAddToCart(${item.id})" class="flex items-center justify-between bg-[#193627] hover:bg-[#132c1e] text-white rounded-xl py-2.5 px-4 w-full transition-all text-xs font-bold uppercase tracking-wider border-0 cursor-pointer shadow-sm hover:shadow">
+                                <span>ADD TO CART</span>
+                                <span class="w-5 h-5 rounded-full bg-[#dfba86] text-[#193627] flex items-center justify-center font-bold text-xs"><i class="fas fa-plus text-[9px]"></i></span>
+                            </button>
+                            
+                            <div id="qty-controller-${item.id}" class="hidden items-center justify-between bg-[#193627] text-white rounded-xl overflow-hidden h-[38px] px-2 shadow-sm">
+                                <button onclick="changeQuantity(${item.id}, -1)" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border-0 cursor-pointer transition-colors"><i class="fas fa-minus text-[9px]"></i></button>
+                                <span id="qty-${item.id}" class="font-bold text-sm text-white px-2">1</span>
+                                <button onclick="changeQuantity(${item.id}, 1)" class="w-8 h-8 rounded-full bg-[#dfba86] text-[#193627] flex items-center justify-center border-0 cursor-pointer transition-colors"><i class="fas fa-plus text-[9px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function displayMenuItems() {
@@ -531,12 +682,33 @@
             });
 
             let html = '';
+            let catIndex = 0;
+
             for (const [cat, items] of Object.entries(grouped)) {
-                // Check if any items in this category have a subcategory
+                const catId = cat.replace(/[^a-zA-Z0-9]/g, '');
                 const hasSubcategories = items.some(item => item.subcategory);
 
+                // Render Carousel Header
+                const headerHtml = `
+                    <div class="relative w-full flex items-center justify-center my-12">
+                        <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/40 flex items-center justify-between pointer-events-none">
+                            <div class="w-[38%] border-t border-[#dfba86]/30 relative">
+                                <div class="absolute right-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                            </div>
+                            <div class="w-[38%] border-t border-[#dfba86]/30 relative">
+                                <div class="absolute left-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                            </div>
+                        </div>
+                        <span class="relative font-serif text-xl md:text-2xl font-bold text-[#193627] uppercase tracking-widest px-6 bg-cream z-10">${cat}</span>
+                        ${activeCategory === 'All' ? `
+                            <button onclick="filterCategory('${cat}')" class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#dfba86] hover:text-[#b8973a] transition-colors bg-transparent border-0 outline-none cursor-pointer uppercase tracking-widest flex items-center gap-1 font-serif">
+                                View All <i class="fas fa-arrow-right text-[10px] ml-1"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
                 if (hasSubcategories) {
-                    // Group items by subcategory
                     const subgrouped = {};
                     items.forEach(item => {
                         const sub = item.subcategory || 'Other';
@@ -546,76 +718,64 @@
 
                     html += `
                         <div class="w-full fade-up">
-                            <div class="flex items-center justify-center my-10 opacity-80">
-                                <div class="h-[1px] w-16 lg:w-32 bg-gold-dark relative"><div class="absolute -right-1.5 -top-1 w-2 h-2 rounded-full border border-gold-dark bg-cream"></div></div>
-                                <span class="font-serif text-xl md:text-2xl font-bold text-[#3b1c1c] uppercase tracking-widest mx-6">${cat}</span>
-                                <div class="h-[1px] w-16 lg:w-32 bg-gold-dark relative"><div class="absolute -left-1.5 -top-1 w-2 h-2 rounded-full border border-gold-dark bg-cream"></div></div>
-                            </div>
+                            ${headerHtml}
                     `;
 
-                    let subIndex = 0;
                     for (const [subcat, subitems] of Object.entries(subgrouped)) {
-                        const mtClass = subIndex === 0 ? 'mt-6' : 'mt-16';
-                        html += `
-                            <div class="w-full mb-8 ${mtClass}">
-                                <div class="flex items-center gap-4 mb-8">
-                                    <h4 class="font-serif text-md md:text-lg font-semibold text-rosewood uppercase tracking-wider">${subcat}</h4>
-                                    <div class="flex-grow h-[1px] bg-gradient-to-r from-gold-dark/30 to-transparent"></div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                        `;
+                        const subcatId = (catId + subcat.replace(/[^a-zA-Z0-9]/g, ''));
+                        const subcardsHtml = subitems.map((item, index) => generateCardHtml(item, index, activeCategory === 'All')).join('');
 
-                        subitems.forEach((item, index) => {
-                            let imgSrc = item.image_url || '';
-                            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
-                                if (!imgSrc.startsWith('uploads/')) {
-                                    imgSrc = 'uploads/' + imgSrc;
-                                }
-                            }
-                            if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop';
-
-                            const hasCust = item.customizations && item.customizations.length > 0;
-                            const delay = (index % 4) * 0.1;
-
-                            const isVeg = (item.diet_type === 'veg');
-                            const dietBadge = isVeg 
-                                ? `<span class="inline-flex shrink-0 align-middle mr-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`
-                                : `<span class="inline-flex shrink-0 align-middle mr-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+                        if (activeCategory === 'All') {
+                            const numDots = Math.ceil(subitems.length / (window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 4)));
+                            const dotsHtml = Array.from({ length: numDots }).map((_, idx) => `
+                                <div class="carousel-dot h-2 rounded-full cursor-pointer transition-all duration-300 ${idx === 0 ? 'bg-[#193627] w-4' : 'bg-[#dfba86]/40 w-2'}" 
+                                     onclick="scrollToPage('${subcatId}', ${idx})"></div>
+                            `).join('');
 
                             html += `
-                                <div class="menu-card bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col fade-up" style="animation-delay: ${delay}s">
-                                    <div class="relative h-48 w-full overflow-hidden bg-gray-100 shrink-0">
-                                        <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
-                                        ${hasCust ? '<div class="absolute top-3 left-3 bg-cream/90 backdrop-blur-sm text-rosewood text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-sliders-h mr-1"></i>Customizable</div>' : ''}
+                                <div class="w-full mb-8">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <h4 class="font-serif text-md font-semibold text-[#193627] uppercase tracking-wider">${subcat}</h4>
+                                        <div class="flex-grow h-[1px] bg-gradient-to-r from-[#dfba86]/30 to-transparent"></div>
                                     </div>
-                                    <div class="p-5 flex flex-col flex-1">
-                                        <div class="flex justify-between items-start gap-2 mb-2">
-                                            <h3 class="font-serif text-lg font-bold text-gray-900 leading-tight flex items-center">${dietBadge}<span>${item.name}</span></h3>
-                                            <span class="font-bold text-rosewood whitespace-nowrap">₹${Math.round(parseFloat(item.price || 0))}</span>
-                                        </div>
-                                        <p class="text-sm text-gray-500 leading-relaxed flex-1 mb-4">${item.description || 'Premium dish crafted with quality ingredients.'}</p>
+                                    <div class="relative group w-full mb-10">
+                                        <button onclick="scrollCarousel('${subcatId}', -1)" 
+                                                class="absolute -left-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                                id="prevBtn-${subcatId}" disabled>
+                                            <i class="fas fa-chevron-left text-xs"></i>
+                                        </button>
                                         
-                                        <div class="mt-auto">
-                                            <button id="add-btn-${item.id}" onclick="handleAddToCart(${item.id})" class="w-full py-2.5 rounded-lg border-2 border-rosewood text-rosewood font-semibold hover:bg-rosewood hover:text-white transition-colors text-sm uppercase tracking-wider">
-                                                Add to Cart
-                                            </button>
-                                            
-                                            <div id="qty-controller-${item.id}" class="hidden items-center justify-between bg-rosewood text-white rounded-lg overflow-hidden h-[44px]">
-                                                <button onclick="changeQuantity(${item.id}, -1)" class="w-12 h-full flex items-center justify-center hover:bg-maroon transition-colors"><i class="fas fa-minus text-xs"></i></button>
-                                                <span id="qty-${item.id}" class="font-bold w-8 text-center text-sm">1</span>
-                                                <button onclick="changeQuantity(${item.id}, 1)" class="w-12 h-full flex items-center justify-center hover:bg-maroon transition-colors"><i class="fas fa-plus text-xs"></i></button>
-                                            </div>
+                                        <div id="carousel-${subcatId}" 
+                                             class="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory py-4 px-2"
+                                             onscroll="updateCarouselDots('${subcatId}')">
+                                            ${subcardsHtml}
+                                        </div>
+                                        
+                                        <button onclick="scrollCarousel('${subcatId}', 1)" 
+                                                class="absolute -right-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                                id="nextBtn-${subcatId}" ${numDots <= 1 ? 'disabled' : ''}>
+                                            <i class="fas fa-chevron-right text-xs"></i>
+                                        </button>
+                                        
+                                        <div class="flex justify-center items-center gap-2 mt-4" id="dots-${subcatId}">
+                                            ${dotsHtml}
                                         </div>
                                     </div>
                                 </div>
                             `;
-                        });
-
-                        html += `
+                        } else {
+                            html += `
+                                <div class="w-full mb-8">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <h4 class="font-serif text-md font-semibold text-[#193627] uppercase tracking-wider">${subcat}</h4>
+                                        <div class="flex-grow h-[1px] bg-gradient-to-r from-[#dfba86]/30 to-transparent"></div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+                                        ${subcardsHtml}
+                                    </div>
                                 </div>
-                            </div>
-                        `;
-                        subIndex++;
+                            `;
+                        }
                     }
 
                     html += `
@@ -623,68 +783,80 @@
                     `;
                 } else {
                     // Standard rendering without subcategories
-                    html += `
-                        <div class="w-full fade-up">
-                            <div class="flex items-center justify-center my-10 opacity-80">
-                                <div class="h-[1px] w-16 lg:w-32 bg-gold-dark relative"><div class="absolute -right-1.5 -top-1 w-2 h-2 rounded-full border border-gold-dark bg-cream"></div></div>
-                                <span class="font-serif text-xl md:text-2xl font-bold text-[#3b1c1c] uppercase tracking-widest mx-6">${cat}</span>
-                                <div class="h-[1px] w-16 lg:w-32 bg-gold-dark relative"><div class="absolute -left-1.5 -top-1 w-2 h-2 rounded-full border border-gold-dark bg-cream"></div></div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
-                    `;
+                    const cardsHtml = items.map((item, index) => generateCardHtml(item, index, activeCategory === 'All')).join('');
 
-                    items.forEach((item, index) => {
-                        let imgSrc = item.image_url || '';
-                        if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
-                            if (!imgSrc.startsWith('uploads/')) {
-                                imgSrc = 'uploads/' + imgSrc;
-                            }
-                        }
-                        if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'; // Default placeholder
-
-                        const hasCust = item.customizations && item.customizations.length > 0;
-                        const delay = (index % 4) * 0.1;
-
-                        const isVeg = (item.diet_type === 'veg');
-                        const dietBadge = isVeg 
-                            ? `<span class="inline-flex shrink-0 align-middle mr-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`
-                            : `<span class="inline-flex shrink-0 align-middle mr-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+                    if (activeCategory === 'All') {
+                        const numDots = Math.ceil(items.length / (window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 4)));
+                        const dotsHtml = Array.from({ length: numDots }).map((_, idx) => `
+                            <div class="carousel-dot h-2 rounded-full cursor-pointer transition-all duration-300 ${idx === 0 ? 'bg-[#193627] w-4' : 'bg-[#dfba86]/40 w-2'}" 
+                                 onclick="scrollToPage('${catId}', ${idx})"></div>
+                        `).join('');
 
                         html += `
-                            <div class="menu-card bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col fade-up" style="animation-delay: ${delay}s">
-                                <div class="relative h-48 w-full overflow-hidden bg-gray-100 shrink-0">
-                                    <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
-                                    ${hasCust ? '<div class="absolute top-3 left-3 bg-cream/90 backdrop-blur-sm text-rosewood text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-sliders-h mr-1"></i>Customizable</div>' : ''}
-                                </div>
-                                <div class="p-5 flex flex-col flex-1">
-                                    <div class="flex justify-between items-start gap-2 mb-2">
-                                        <h3 class="font-serif text-lg font-bold text-gray-900 leading-tight flex items-center">${dietBadge}<span>${item.name}</span></h3>
-                                        <span class="font-bold text-rosewood whitespace-nowrap">₹${Math.round(parseFloat(item.price || 0))}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-500 leading-relaxed flex-1 mb-4">${item.description || 'Premium dish crafted with quality ingredients.'}</p>
+                            <div class="w-full fade-up">
+                                ${headerHtml}
+                                <div class="relative group w-full mb-12">
+                                    <button onclick="scrollCarousel('${catId}', -1)" 
+                                            class="absolute -left-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                            id="prevBtn-${catId}" disabled>
+                                        <i class="fas fa-chevron-left text-xs"></i>
+                                    </button>
                                     
-                                    <div class="mt-auto">
-                                        <button id="add-btn-${item.id}" onclick="handleAddToCart(${item.id})" class="w-full py-2.5 rounded-lg border-2 border-rosewood text-rosewood font-semibold hover:bg-rosewood hover:text-white transition-colors text-sm uppercase tracking-wider">
-                                            Add to Cart
-                                        </button>
-                                        
-                                        <div id="qty-controller-${item.id}" class="hidden items-center justify-between bg-rosewood text-white rounded-lg overflow-hidden h-[44px]">
-                                            <button onclick="changeQuantity(${item.id}, -1)" class="w-12 h-full flex items-center justify-center hover:bg-maroon transition-colors"><i class="fas fa-minus text-xs"></i></button>
-                                            <span id="qty-${item.id}" class="font-bold w-8 text-center text-sm">1</span>
-                                            <button onclick="changeQuantity(${item.id}, 1)" class="w-12 h-full flex items-center justify-center hover:bg-maroon transition-colors"><i class="fas fa-plus text-xs"></i></button>
-                                        </div>
+                                    <div id="carousel-${catId}" 
+                                         class="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory py-4 px-2"
+                                         onscroll="updateCarouselDots('${catId}')">
+                                        ${cardsHtml}
+                                    </div>
+                                    
+                                    <button onclick="scrollCarousel('${catId}', 1)" 
+                                            class="absolute -right-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                            id="nextBtn-${catId}" ${numDots <= 1 ? 'disabled' : ''}>
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </button>
+                                    
+                                    <div class="flex justify-center items-center gap-2 mt-4" id="dots-${catId}">
+                                        ${dotsHtml}
                                     </div>
                                 </div>
                             </div>
                         `;
-                    });
+                    } else {
+                        html += `
+                            <div class="w-full fade-up">
+                                ${headerHtml}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+                                    ${cardsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
 
-                    html += `</div></div>`;
+                catIndex++;
+                if (activeCategory === 'All' && catIndex === 3) {
+                    html += renderExploreCategoriesBanner();
                 }
             }
 
             container.innerHTML = html;
             syncCartUI();
+
+            // Trigger scroll indicators check initially
+            if (activeCategory === 'All') {
+                for (const [cat, items] of Object.entries(grouped)) {
+                    const hasSub = items.some(item => item.subcategory);
+                    if (hasSub) {
+                        const subCats = [...new Set(items.map(item => item.subcategory || 'Other'))];
+                        subCats.forEach(sub => {
+                            const subcatId = (cat.replace(/[^a-zA-Z0-9]/g, '') + sub.replace(/[^a-zA-Z0-9]/g, ''));
+                            updateCarouselDots(subcatId);
+                        });
+                    } else {
+                        const catId = cat.replace(/[^a-zA-Z0-9]/g, '');
+                        updateCarouselDots(catId);
+                    }
+                }
+            }
         }
 
         // Keep cart functions mostly intact, just update UI classes if needed.

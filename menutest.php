@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -23,7 +23,7 @@
 
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Menu - Medusa</title>
+    <title>Premium Menu - La-Medusaa</title>
     <!-- Global Theme Controller -->
     <script src="assets/js/theme-toggle.js"></script>
 
@@ -249,62 +249,40 @@
         /* ============================================================
            CATEGORY PILLS STYLES
         ============================================================ */
-        .category-selector-container {
-            width: 100%;
-            overflow: hidden;
-            padding: 10px 0;
-            margin-bottom: 2.5rem;
-            position: relative;
+        /* Scrollbar for categories */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .category-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px 20px;
-            justify-content: flex-start;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(223, 186, 134, 0.2) transparent;
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        .category-scroll::-webkit-scrollbar {
-            height: 5px;
-        }
-        .category-scroll::-webkit-scrollbar-thumb {
-            background: rgba(223, 186, 134, 0.25);
-            border-radius: 10px;
-        }
-        .category-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(223, 186, 134, 0.45);
-        }
-        .category-scroll::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
-        }
+
         .category-pill {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(223, 186, 134, 0.18);
-            color: var(--gray);
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            user-select: none;
-            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .category-pill:hover {
-            border-color: var(--gold);
-            color: #ffffff;
-            background: rgba(223, 186, 134, 0.05);
-            transform: translateY(-2px);
+
+        /* Snap scrolling utilities and dot styling */
+        .snap-x {
+            scroll-snap-type: x mandatory;
         }
-        .category-pill.active {
-            background: linear-gradient(135deg, var(--gold) 0%, #c89640 100%);
-            color: #0c0a0a;
-            border-color: var(--gold);
-            font-weight: 600;
-            box-shadow: 0 8px 20px rgba(223, 186, 134, 0.25);
+        .snap-start {
+            scroll-snap-align: start;
+        }
+        .carousel-dot {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Card Hover and visual transitions */
+        .menu-card {
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(25, 54, 39, 0.08);
+            border-color: rgba(223, 186, 134, 0.3);
         }
     </style>
 
@@ -405,7 +383,7 @@
                 // Add a welcome message
                 const titleEl = document.querySelector('.section-title');
                 if (titleEl) {
-                    titleEl.innerHTML = `Welcome to Medusa <br><small class="text-gold" style="font-size:0.5em;">Table ${tableCode} Menu</small>`;
+                    titleEl.innerHTML = `Welcome to La-Medusaa <br><small class="text-gold" style="font-size:0.5em;">Table ${tableCode} Menu</small>`;
                 }
             }
         });
@@ -417,38 +395,31 @@
         <div class="container">
             <h1 class="section-title fade-up">Explore Our Premium Menu</h1>
 
-            <!-- CATEGORY FILTER -->
-            <div class="category-selector-container fade-up">
-                <div class="category-scroll">
-                    <button class="category-pill active" onclick="filterCategory('All')">All</button>
-                    <button class="category-pill" onclick="filterCategory('Liquor')">Liquor</button>
-                    <button class="category-pill" onclick="filterCategory('Soups')">Soups</button>
-                    <button class="category-pill" onclick="filterCategory('Salad')">Salad</button>
-                    <button class="category-pill" onclick="filterCategory('Bread Basket')">Bread Basket</button>
-                    <button class="category-pill" onclick="filterCategory('Sides')">Sides</button>
-                    <button class="category-pill" onclick="filterCategory('Meals in the Bowl')">Meals in the Bowl</button>
-                    <button class="category-pill" onclick="filterCategory('Main Course')">Main Course</button>
-                    <button class="category-pill" onclick="filterCategory('Choice of Noodle')">Choice of Noodle</button>
-                    <button class="category-pill" onclick="filterCategory('Choice of Rice')">Choice of Rice</button>
-                    <button class="category-pill" onclick="filterCategory('Choice of Gravy')">Choice of Gravy</button>
-                    <button class="category-pill" onclick="filterCategory('Dim Sum Cart')">Dim Sum Cart</button>
-                    <button class="category-pill" onclick="filterCategory('Sushi Rolls')">Sushi Rolls</button>
-                    <button class="category-pill" onclick="filterCategory('Burgers & Sandwiches')">Burgers & Sandwiches</button>
-                    <button class="category-pill" onclick="filterCategory('Sharing Boards')">Sharing Boards</button>
-                    <button class="category-pill" onclick="filterCategory('Brick Oven Pizza')">Brick Oven Pizza</button>
-                    <button class="category-pill" onclick="filterCategory('Non-Veg Appetizer')">Non-Veg Appetizer</button>
-                    <button class="category-pill" onclick="filterCategory('Pasta & Risotto Station')">Pasta & Risotto Station</button>
-                    <button class="category-pill" onclick="filterCategory('Veg Appetizer')">Veg Appetizer</button>
-                    <button class="category-pill" onclick="filterCategory('Veg Indian Main Course')">Veg Indian Main Course</button>
-                    <button class="category-pill" onclick="filterCategory('Non-Veg Indian Main Course')">Non-Veg Indian Main Course</button>
-                    <button class="category-pill" onclick="filterCategory('Tandoori Starter')">Tandoori Starter</button>
+            <!-- CATEGORY NAVIGATION -->
+            <div class="w-full mb-12 fade-up relative group" style="animation-delay: 0.2s;">
+                <button onclick="scrollCategories(-300)"
+                    class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                    id="scrollLeftBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="flex gap-4 overflow-x-auto hide-scrollbar py-2 px-2 scroll-smooth cursor-grab active:cursor-grabbing"
+                    id="categoryScroll" onmousedown="startDrag(event)" onmouseleave="stopDrag()" onmouseup="stopDrag()"
+                    onmousemove="doDrag(event)" onscroll="updateScrollButtons()">
+                    <!-- Categories injected here -->
                 </div>
+
+                <button onclick="scrollCategories(300)"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                    id="scrollRightBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
 
-            <div class="row" id="menuContainer">
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-light"></div>
-                    <p class="mt-3">Loading menu...</p>
+            <!-- MENU ITEMS CONTAINER -->
+            <div id="menuContainer" class="min-h-[400px]">
+                <div class="flex justify-center items-center h-40">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-rosewood"></div>
                 </div>
             </div>
         </div>
@@ -502,6 +473,34 @@
         let allMenuItems = [];
         let localCart    = {};
         let custCurrentItem = null; // item currently open in customization modal
+        let activeCategory = 'All';
+
+        const ICONS = {
+            'All': 'fas fa-utensils',
+            'Beverages': 'fas fa-wine-glass-alt',
+            'Beverage': 'fas fa-wine-glass-alt',
+            'Soups': 'fas fa-mug-hot',
+            'Salad': 'fas fa-leaf',
+            'Bread Basket': 'fas fa-bread-slice',
+            'Sides': 'fas fa-cheese',
+            'Meals in the Bowl': 'fas fa-concierge-bell',
+            'Main Course': 'fas fa-utensils',
+            'Choice of Noodle': 'fas fa-wave-square',
+            'Choice of Rice': 'fas fa-seedling',
+            'Choice of Gravy': 'fas fa-tint',
+            'Dim Sum Cart': 'fas fa-box-open',
+            'Sushi Rolls': 'fas fa-fish',
+            'Burgers & Sandwiches': 'fas fa-hamburger',
+            'Sharing Boards': 'fas fa-pizza-slice',
+            'Brick Oven Pizza': 'fas fa-pizza-slice',
+            'Non-Veg Appetizer': 'fas fa-drumstick-bite',
+            'Appetizers': 'fas fa-pepper-hot',
+            'Pasta & Risotto Station': 'fas fa-plate-wheat',
+            'Veg Appetizer': 'fas fa-leaf',
+            'Veg Indian Main Course': 'fas fa-seedling',
+            'Non-Veg Indian Main Course': 'fas fa-drumstick-bite',
+            'Tandoori Starter': 'fas fa-fire'
+        };
 
         /* ============================================================
            LOAD MENU FROM API
@@ -513,7 +512,8 @@
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     allMenuItems = result.data;
-                    displayMenuItems(allMenuItems);
+                    renderCategories();
+                    displayMenuItems();
                     updateCartCount();
                     return;
                 }
@@ -527,7 +527,8 @@
                     { id:4, name:'Gulab Jamun',        description:'Sweet milk dumplings in warm cardamom syrup',      price:'129.00', image_url:'', category:'Sides', customizations:[] },
                     { id:5, name:'Paneer Tikka',       description:'Marinated cottage cheese grilled to perfection',   price:'279.00', image_url:'', category:'Non-Veg Appetizer', customizations:[] }
                 ];
-                displayMenuItems(allMenuItems);
+                renderCategories();
+                displayMenuItems();
                 updateCartCount();
             }
         }
@@ -535,53 +536,425 @@
         /* ============================================================
            DISPLAY MENU ITEMS
         ============================================================ */
-        function displayMenuItems(items) {
-            const container = document.getElementById('menuContainer');
-            if (!items || items.length === 0) {
-                container.innerHTML = `
-                <div class="col-12 text-center py-5 fade-up">
-                    <i class="fas fa-utensils text-muted mb-3" style="font-size: 3rem; color: var(--gold) !important; opacity: 0.6;"></i>
-                    <p class="text-muted" style="font-size: 1.1rem; font-family: 'Playfair Display', serif;">No dishes available in this category.</p>
-                </div>`;
-                return;
-            }
-            container.innerHTML = items.map(item => {
-                let imgSrc = item.image_url || '';
+        // Render Categories dynamically matching Mockup
+        function renderCategories() {
+            const container = document.getElementById('categoryScroll');
+            const categories = ['All', ...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+
+            container.innerHTML = categories.map((cat, index) => {
+                const icon = ICONS[cat] || 'fas fa-utensils';
+                const isActive = cat === activeCategory;
+                const circleClasses = isActive
+                    ? 'bg-[#193627] text-[#dfba86] border-[#193627] shadow-md scale-105'
+                    : 'bg-[#f8f6f0] text-[#dfba86]/70 border-[#dfba86]/30 hover:border-[#dfba86] hover:bg-[#dfba86]/5';
+                const textClasses = isActive
+                    ? 'text-[#193627] font-extrabold'
+                    : 'text-gray-600 hover:text-[#193627] font-medium';
+
+                return `
+                    <div class="flex flex-col items-center shrink-0">
+                        <button onclick="filterCategory('${cat}')" 
+                                class="category-pill flex flex-col items-center justify-center p-0 transition-all border-0 bg-transparent outline-none cursor-pointer">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center border transition-all ${circleClasses}">
+                                <i class="${icon} text-[22px]"></i>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest mt-2 whitespace-nowrap ${textClasses}">${cat}</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            setTimeout(updateScrollButtons, 50);
+        }
+
+        // Drag scroll navigation helpers
+        window.scrollCategories = function(amount) {
+            const container = document.getElementById('categoryScroll');
+            if (container) container.scrollBy({ left: amount, behavior: 'smooth' });
+        };
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        window.startDrag = function(e) {
+            isDown = true;
+            const container = document.getElementById('categoryScroll');
+            container.classList.remove('scroll-smooth');
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        };
+
+        window.stopDrag = function() {
+            isDown = false;
+            const container = document.getElementById('categoryScroll');
+            if (container) container.classList.add('scroll-smooth');
+        };
+
+        window.doDrag = function(e) {
+            if (!isDown) return;
+            e.preventDefault();
+            const container = document.getElementById('categoryScroll');
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 2;
+            container.scrollLeft = scrollLeft - walk;
+        };
+
+        window.updateScrollButtons = function() {
+            const container = document.getElementById('categoryScroll');
+            const leftBtn = document.getElementById('scrollLeftBtn');
+            const rightBtn = document.getElementById('scrollRightBtn');
+            if (!container || !leftBtn || !rightBtn) return;
+
+            leftBtn.disabled = container.scrollLeft <= 0;
+            rightBtn.disabled = Math.ceil(container.scrollLeft) >= container.scrollWidth - container.clientWidth;
+        };
+
+        // Explore Categories Banner generator
+        window.renderExploreCategoriesBanner = function() {
+            const bannerCategories = [
+                { name: 'Soups', label: 'Soups' },
+                { name: 'Salad', label: 'Salad' },
+                { name: 'Bread Basket', label: 'Bread Basket' },
+                { name: 'Sides', label: 'Sides' },
+                { name: 'Meals in the Bowl', label: 'Meals in the Bowl' },
+                { name: 'Main Course', label: 'Main Course' },
+                { name: 'Choice of Noodle', label: 'Noodles' },
+                { name: 'Choice of Rice', label: 'Rice' }
+            ];
+
+            const itemsHtml = bannerCategories.map(cat => {
+                const itemWithImg = allMenuItems.find(i => i.category === cat.name && i.image_url);
+                let imgSrc = itemWithImg ? itemWithImg.image_url : '';
                 if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
                     if (!imgSrc.startsWith('uploads/')) {
                         imgSrc = 'uploads/' + imgSrc;
                     }
                 }
-                if (!imgSrc) imgSrc = 'uploads/default.jpg';
-
-                const hasCust = item.customizations && item.customizations.length > 0;
-                const custBadge = hasCust
-                    ? `<span class="cust-badge"><i class="fas fa-sliders-h" style="font-size:0.65rem;margin-right:4px;"></i>Customizable</span>`
-                    : '';
+                if (!imgSrc) {
+                    if (cat.name === 'Choice of Noodle') imgSrc = 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop';
+                    else if (cat.name === 'Choice of Rice') imgSrc = 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop';
+                    else imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                }
 
                 return `
-                <div class="col-lg-4 col-md-6 mb-5 fade-up">
-                    <div class="menu-card">
-                        <div class="menu-card-img">
-                            <img src="${imgSrc}" alt="${item.name}" loading="lazy" onerror="this.src='uploads/default.jpg'">
+                    <div onclick="filterCategory('${cat.name}'); window.scrollTo({top: document.getElementById('categoryScroll').offsetTop - 100, behavior: 'smooth'});" 
+                         class="flex flex-col items-center gap-2 cursor-pointer group shrink-0">
+                        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#dfba86]/30 overflow-hidden group-hover:scale-105 group-hover:border-[#dfba86] transition-all duration-300 shadow-md">
+                            <img src="${imgSrc}" alt="${cat.label}" class="w-full h-full object-cover">
                         </div>
-                        <div class="menu-card-body">
-                            <h3 class="menu-title">${item.name}</h3>
-                            <p class="menu-description">${item.description || 'Fresh premium dish crafted with quality ingredients.'}</p>
-                            ${custBadge}
-                            <div class="menu-price">₹${parseFloat(item.price).toFixed(0)}</div>
-                            <div class="cart-controls">
-                                <button class="btn-premium w-100 add-btn" id="add-btn-${item.id}" onclick="handleAddToCart(${item.id})">Add To Cart</button>
-                                <div class="quantity-controller" id="qty-controller-${item.id}" style="display:none;">
-                                    <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
-                                    <span class="qty-number" id="qty-${item.id}">1</span>
-                                    <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
-                                </div>
+                        <span class="text-[9px] md:text-[10px] font-bold text-[#dfba86]/90 group-hover:text-[#dfba86] transition-colors uppercase tracking-widest text-center max-w-[80px]">${cat.label}</span>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="w-full bg-[#193627] border border-[#dfba86]/30 rounded-3xl p-6 md:p-8 my-16 text-center shadow-lg flex flex-col items-center justify-center fade-up">
+                    <div class="relative w-full flex items-center justify-center mb-6">
+                        <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/20 flex items-center justify-between pointer-events-none">
+                            <div class="w-1/4 border-t border-[#dfba86]/20"></div>
+                            <div class="w-1/4 border-t border-[#dfba86]/20"></div>
+                        </div>
+                        <span class="relative font-serif text-sm md:text-base font-bold text-[#dfba86] uppercase tracking-widest px-4 bg-[#193627] z-10 flex items-center gap-2">
+                            <i class="fas fa-star text-[10px] text-[#dfba86]"></i> Explore Our Categories <i class="fas fa-star text-[10px] text-[#dfba86]"></i>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-center gap-4 md:gap-8 w-full overflow-x-auto hide-scrollbar py-2">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        // Scroll helper for chevrons
+        window.scrollCarousel = function(catId, direction) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            carousel.scrollBy({ left: direction * carousel.clientWidth, behavior: 'smooth' });
+        };
+
+        // Scroll helper for page dots
+        window.scrollToPage = function(catId, pageIdx) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            carousel.scrollTo({ left: pageIdx * carousel.clientWidth, behavior: 'smooth' });
+        };
+
+        // Update indicators on scroll
+        window.updateCarouselDots = function(catId) {
+            const carousel = document.getElementById(`carousel-${catId}`);
+            if (!carousel) return;
+            const scrollIndex = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            const dotsContainer = document.getElementById(`dots-${catId}`);
+            if (!dotsContainer) return;
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === scrollIndex) {
+                    dot.classList.add('bg-[#193627]', 'w-4');
+                    dot.classList.remove('bg-[#dfba86]/40', 'w-2');
+                } else {
+                    dot.classList.remove('bg-[#193627]', 'w-4');
+                    dot.classList.add('bg-[#dfba86]/40', 'w-2');
+                }
+            });
+
+            const prevBtn = document.getElementById(`prevBtn-${catId}`);
+            const nextBtn = document.getElementById(`nextBtn-${catId}`);
+            if (prevBtn) prevBtn.disabled = carousel.scrollLeft <= 5;
+            if (nextBtn) nextBtn.disabled = Math.ceil(carousel.scrollLeft) >= carousel.scrollWidth - carousel.clientWidth - 5;
+        };
+
+        function generateCardHtml(item, index, isCarousel) {
+            let imgSrc = item.image_url || '';
+            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                if (!imgSrc.startsWith('uploads/')) {
+                    imgSrc = 'uploads/' + imgSrc;
+                }
+            }
+            if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop';
+
+            const hasCust = item.customizations && item.customizations.length > 0;
+            const delay = (index % 4) * 0.1;
+
+            const isVeg = (item.diet_type === 'veg');
+            const dietBadge = isVeg 
+                ? `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`
+                : `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+
+            const cardClasses = isCarousel 
+                ? 'w-full sm:w-[calc(50%-12px)] xl:w-[calc(25%-18px)] shrink-0 snap-start'
+                : 'w-full';
+
+            return `
+                <div class="menu-card bg-white rounded-3xl p-4 flex flex-col justify-between ${cardClasses} h-[440px] fade-up shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#dfba86]/10 transition-all duration-300" style="animation-delay: ${delay}s">
+                    <div class="relative h-48 w-full rounded-2xl overflow-hidden bg-gray-100 mb-4 shrink-0 shadow-inner">
+                        <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
+                        ${hasCust ? '<div class="absolute top-3 left-3 bg-[#f9f6f0]/90 backdrop-blur-sm text-[#193627] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-sliders-h mr-1 text-[#dfba86]"></i>Customizable</div>' : ''}
+                    </div>
+                    <div class="flex flex-col flex-1 px-1">
+                        <div class="flex justify-between items-start gap-2 mb-1">
+                            <h3 class="font-serif text-base font-bold text-gray-800 leading-tight line-clamp-2">${item.name}</h3>
+                            ${dietBadge}
+                        </div>
+                        <div class="font-sans font-bold text-sm text-[#2f1317] mb-2">₹${Math.round(parseFloat(item.price || 0))}</div>
+                        <p class="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-4 flex-grow">${item.description || 'Premium dish crafted with quality ingredients.'}</p>
+                        
+                        <div class="mt-auto pt-2">
+                            <button id="add-btn-${item.id}" onclick="handleAddToCart(${item.id})" class="flex items-center justify-between bg-[#193627] hover:bg-[#132c1e] text-white rounded-xl py-2.5 px-4 w-full transition-all text-xs font-bold uppercase tracking-wider border-0 cursor-pointer shadow-sm hover:shadow">
+                                <span>ADD TO CART</span>
+                                <span class="w-5 h-5 rounded-full bg-[#dfba86] text-[#193627] flex items-center justify-center font-bold text-xs"><i class="fas fa-plus text-[9px]"></i></span>
+                            </button>
+                            
+                            <div id="qty-controller-${item.id}" class="hidden items-center justify-between bg-[#193627] text-white rounded-xl overflow-hidden h-[38px] px-2 shadow-sm">
+                                <button onclick="changeQuantity(${item.id}, -1)" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border-0 cursor-pointer transition-colors"><i class="fas fa-minus text-[9px]"></i></button>
+                                <span id="qty-${item.id}" class="font-bold text-sm text-white px-2">1</span>
+                                <button onclick="changeQuantity(${item.id}, 1)" class="w-8 h-8 rounded-full bg-[#dfba86] text-[#193627] flex items-center justify-center border-0 cursor-pointer transition-colors"><i class="fas fa-plus text-[9px]"></i></button>
                             </div>
                         </div>
                     </div>
-                </div>`;
-            }).join('');
+                </div>
+            `;
+        }
+
+        function displayMenuItems() {
+            const container = document.getElementById('menuContainer');
+
+            let itemsToRender = allMenuItems;
+            if (activeCategory !== 'All') {
+                itemsToRender = allMenuItems.filter(i => i.category === activeCategory);
+            }
+
+            if (itemsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 fade-up">
+                        <i class="fas fa-utensils text-5xl text-gray-300 mb-4"></i>
+                        <p class="font-serif text-xl text-gray-500">No dishes available.</p>
+                    </div>`;
+                return;
+            }
+
+            // Group by category for rendering
+            const grouped = {};
+            itemsToRender.forEach(item => {
+                const c = item.category || 'Other';
+                if (!grouped[c]) grouped[c] = [];
+                grouped[c].push(item);
+            });
+
+            let html = '';
+            let catIndex = 0;
+
+            for (const [cat, items] of Object.entries(grouped)) {
+                const catId = cat.replace(/[^a-zA-Z0-9]/g, '');
+                const hasSubcategories = items.some(item => item.subcategory);
+
+                // Render Carousel Header
+                const headerHtml = `
+                    <div class="relative w-full flex items-center justify-center my-12">
+                        <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/40 flex items-center justify-between pointer-events-none">
+                            <div class="w-[38%] border-t border-[#dfba86]/30 relative">
+                                <div class="absolute right-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                            </div>
+                            <div class="w-[38%] border-t border-[#dfba86]/30 relative">
+                                <div class="absolute left-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                            </div>
+                        </div>
+                        <span class="relative font-serif text-xl md:text-2xl font-bold text-[#193627] uppercase tracking-widest px-6 bg-cream z-10">${cat}</span>
+                        ${activeCategory === 'All' ? `
+                            <button onclick="filterCategory('${cat}')" class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#dfba86] hover:text-[#b8973a] transition-colors bg-transparent border-0 outline-none cursor-pointer uppercase tracking-widest flex items-center gap-1 font-serif">
+                                View All <i class="fas fa-arrow-right text-[10px] ml-1"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                if (hasSubcategories) {
+                    const subgrouped = {};
+                    items.forEach(item => {
+                        const sub = item.subcategory || 'Other';
+                        if (!subgrouped[sub]) subgrouped[sub] = [];
+                        subgrouped[sub].push(item);
+                    });
+
+                    html += `
+                        <div class="w-full fade-up">
+                            ${headerHtml}
+                    `;
+
+                    for (const [subcat, subitems] of Object.entries(subgrouped)) {
+                        const subcatId = (catId + subcat.replace(/[^a-zA-Z0-9]/g, ''));
+                        const subcardsHtml = subitems.map((item, index) => generateCardHtml(item, index, activeCategory === 'All')).join('');
+
+                        if (activeCategory === 'All') {
+                            const numDots = Math.ceil(subitems.length / (window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 4)));
+                            const dotsHtml = Array.from({ length: numDots }).map((_, idx) => `
+                                <div class="carousel-dot h-2 rounded-full cursor-pointer transition-all duration-300 ${idx === 0 ? 'bg-[#193627] w-4' : 'bg-[#dfba86]/40 w-2'}" 
+                                     onclick="scrollToPage('${subcatId}', ${idx})"></div>
+                            `).join('');
+
+                            html += `
+                                <div class="w-full mb-8">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <h4 class="font-serif text-md font-semibold text-[#193627] uppercase tracking-wider">${subcat}</h4>
+                                        <div class="flex-grow h-[1px] bg-gradient-to-r from-[#dfba86]/30 to-transparent"></div>
+                                    </div>
+                                    <div class="relative group w-full mb-10">
+                                        <button onclick="scrollCarousel('${subcatId}', -1)" 
+                                                class="absolute -left-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                                id="prevBtn-${subcatId}" disabled>
+                                            <i class="fas fa-chevron-left text-xs"></i>
+                                        </button>
+                                        
+                                        <div id="carousel-${subcatId}" 
+                                             class="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory py-4 px-2"
+                                             onscroll="updateCarouselDots('${subcatId}')">
+                                            ${subcardsHtml}
+                                        </div>
+                                        
+                                        <button onclick="scrollCarousel('${subcatId}', 1)" 
+                                                class="absolute -right-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                                id="nextBtn-${subcatId}" ${numDots <= 1 ? 'disabled' : ''}>
+                                            <i class="fas fa-chevron-right text-xs"></i>
+                                        </button>
+                                        
+                                        <div class="flex justify-center items-center gap-2 mt-4" id="dots-${subcatId}">
+                                            ${dotsHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="w-full mb-8">
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <h4 class="font-serif text-md font-semibold text-[#193627] uppercase tracking-wider">${subcat}</h4>
+                                        <div class="flex-grow h-[1px] bg-gradient-to-r from-[#dfba86]/30 to-transparent"></div>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+                                        ${subcardsHtml}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    html += `
+                        </div>
+                    `;
+                } else {
+                    const cardsHtml = items.map((item, index) => generateCardHtml(item, index, activeCategory === 'All')).join('');
+
+                    if (activeCategory === 'All') {
+                        const numDots = Math.ceil(items.length / (window.innerWidth < 768 ? 1 : (window.innerWidth < 1200 ? 2 : 4)));
+                        const dotsHtml = Array.from({ length: numDots }).map((_, idx) => `
+                            <div class="carousel-dot h-2 rounded-full cursor-pointer transition-all duration-300 ${idx === 0 ? 'bg-[#193627] w-4' : 'bg-[#dfba86]/40 w-2'}" 
+                                 onclick="scrollToPage('${catId}', ${idx})"></div>
+                        `).join('');
+
+                        html += `
+                            <div class="w-full fade-up">
+                                ${headerHtml}
+                                <div class="relative group w-full mb-12">
+                                    <button onclick="scrollCarousel('${catId}', -1)" 
+                                            class="absolute -left-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                            id="prevBtn-${catId}" disabled>
+                                        <i class="fas fa-chevron-left text-xs"></i>
+                                    </button>
+                                    
+                                    <div id="carousel-${catId}" 
+                                         class="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory py-4 px-2"
+                                         onscroll="updateCarouselDots('${catId}')">
+                                        ${cardsHtml}
+                                    </div>
+                                    
+                                    <button onclick="scrollCarousel('${catId}', 1)" 
+                                            class="absolute -right-5 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full border border-[#dfba86] bg-[#f9f6f0] text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                                            id="nextBtn-${catId}" ${numDots <= 1 ? 'disabled' : ''}>
+                                        <i class="fas fa-chevron-right text-xs"></i>
+                                    </button>
+                                    
+                                    <div class="flex justify-center items-center gap-2 mt-4" id="dots-${catId}">
+                                        ${dotsHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="w-full fade-up">
+                                ${headerHtml}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+                                    ${cardsHtml}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                catIndex++;
+                if (activeCategory === 'All' && catIndex === 3) {
+                    html += renderExploreCategoriesBanner();
+                }
+            }
+
+            container.innerHTML = html;
+            syncCartUI();
+
+            // Trigger scroll indicators check initially
+            if (activeCategory === 'All') {
+                for (const [cat, items] of Object.entries(grouped)) {
+                    const hasSub = items.some(item => item.subcategory);
+                    if (hasSub) {
+                        const subCats = [...new Set(items.map(item => item.subcategory || 'Other'))];
+                        subCats.forEach(sub => {
+                            const subcatId = (cat.replace(/[^a-zA-Z0-9]/g, '') + sub.replace(/[^a-zA-Z0-9]/g, ''));
+                            updateCarouselDots(subcatId);
+                        });
+                    } else {
+                        const catId = cat.replace(/[^a-zA-Z0-9]/g, '');
+                        updateCarouselDots(catId);
+                    }
+                }
+            }
         }
 
         /* ============================================================
@@ -752,11 +1125,29 @@
            CART UI HELPERS
         ============================================================ */
         function toggleCartUI(id, isAdded) {
-            const addBtn  = document.getElementById(`add-btn-${id}`);
+            const addBtn = document.getElementById(`add-btn-${id}`);
             const qtyCtrl = document.getElementById(`qty-controller-${id}`);
             if (addBtn && qtyCtrl) {
-                addBtn.style.display  = isAdded ? 'none' : 'block';
-                qtyCtrl.style.display = isAdded ? 'flex'  : 'none';
+                if (isAdded) {
+                    addBtn.classList.add('hidden');
+                    qtyCtrl.classList.remove('hidden');
+                    qtyCtrl.classList.add('flex');
+                } else {
+                    addBtn.classList.remove('hidden');
+                    qtyCtrl.classList.add('hidden');
+                    qtyCtrl.classList.remove('flex');
+                }
+            }
+        }
+
+        function syncCartUI() {
+            allMenuItems.forEach(i => toggleCartUI(i.id, false));
+            for (const [id, qty] of Object.entries(localCart)) {
+                if (qty > 0) {
+                    const el = document.getElementById(`qty-${id}`);
+                    if (el) el.textContent = qty;
+                    toggleCartUI(id, true);
+                }
             }
         }
 
@@ -767,14 +1158,10 @@
             const floatCartCountEl = document.getElementById('floatingCartCount');
             if (floatCartCountEl) floatCartCountEl.textContent = `${count} Items`;
             const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
-            document.getElementById('floatingCartPrice').textContent = total.toFixed(0);
+            const floatPriceEl = document.getElementById('floatingCartPrice');
+            if (floatPriceEl) floatPriceEl.textContent = total.toFixed(0);
 
-            allMenuItems.forEach(i => toggleCartUI(i.id, false));
-            items.forEach(item => {
-                const el = document.getElementById(`qty-${item.id}`);
-                if (el) el.textContent = item.quantity;
-                toggleCartUI(item.id, item.quantity > 0);
-            });
+            syncCartUI();
         }
 
         /* ============================================================
@@ -915,35 +1302,10 @@
             }
         }
 
-        /* ============================================================
-           FILTER BY CATEGORY
-        ============================================================ */
-        let activeCategory = 'All';
         function filterCategory(categoryName) {
             activeCategory = categoryName;
-            
-            // Update active pill styling
-            const pills = document.querySelectorAll('.category-pill');
-            pills.forEach(pill => {
-                const text = pill.textContent.trim();
-                if (text.toLowerCase() === categoryName.toLowerCase()) {
-                    pill.classList.add('active');
-                } else {
-                    pill.classList.remove('active');
-                }
-            });
-
-            // Filter menu items
-            if (categoryName === 'All') {
-                displayMenuItems(allMenuItems);
-            } else {
-                const filtered = allMenuItems.filter(item => {
-                    const itemCat = item.category ? item.category.trim().toLowerCase() : '';
-                    const filterCat = categoryName.trim().toLowerCase();
-                    return itemCat === filterCat;
-                });
-                displayMenuItems(filtered);
-            }
+            renderCategories();
+            displayMenuItems();
         }
 
         /* ============================================================
