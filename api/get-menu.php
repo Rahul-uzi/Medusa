@@ -5,7 +5,7 @@ security_apply_headers('public-short');
 
 try {
     // Fetch all available food items
-    $stmt = $pdo->query("SELECT * FROM food_items WHERE is_available = 1 ORDER BY id ASC");
+    $stmt = $pdo->query("SELECT * FROM food_items WHERE is_available = 1 ORDER BY sort_order ASC, id ASC");
     $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Check if dish_customizations table exists
@@ -35,8 +35,12 @@ try {
         }
     }
 
+    $cat_file = __DIR__ . '/../admintest/categories.json';
+    $categories = file_exists($cat_file) ? json_decode(file_get_contents($cat_file), true) : [];
+
     echo json_encode([
         'success' => true,
+        'categories' => $categories,
         'data'    => $items
     ]);
 } catch (Exception $e) {

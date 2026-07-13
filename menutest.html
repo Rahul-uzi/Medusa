@@ -390,6 +390,8 @@
             'Choice of Noodle': 'fas fa-wave-square',
             'Choice of Rice': 'fas fa-seedling',
             'Choice of Gravy': 'fas fa-tint',
+            'Chinese & Korean': 'fas fa-bowl-rice',
+            'Indian': 'fas fa-pepper-hot',
             'Dim Sum Cart': 'fas fa-box-open',
             'Sushi Rolls': 'fas fa-fish',
             'Burgers & Sandwiches': 'fas fa-hamburger',
@@ -397,6 +399,7 @@
             'Brick Oven Pizza': 'fas fa-pizza-slice',
             'Non-Veg Appetizer': 'fas fa-drumstick-bite',
             'Appetizers': 'fas fa-pepper-hot',
+            'Appetizer': 'fas fa-drumstick-bite',
             'Pasta & Risotto Station': 'fas fa-plate-wheat',
             'Veg Appetizer': 'fas fa-leaf',
             'Veg Indian Main Course': 'fas fa-seedling',
@@ -443,6 +446,8 @@
             });
         });
 
+        let allCategories = [];
+
         async function loadMenu() {
             try {
                 const res = await fetch('api/get-menu.php', {
@@ -452,6 +457,7 @@
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     allMenuItems = result.data;
+                    allCategories = result.categories && result.categories.length > 0 ? result.categories : [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                     renderCategories();
                     displayMenuItems();
                     updateCartCount();
@@ -467,6 +473,7 @@
                     { id: 4, name: 'Burrata & Heirloom Tomatoes', description: 'Creamy burrata with heirloom tomatoes, basil oil, and aged balsamic.', price: '380.00', image_url: '', category: 'Appetizers', customizations: [] },
                     { id: 5, name: 'Seared Scallops', description: 'Pan-seared scallops with cauliflower puree, chives, and brown butter.', price: '520.00', image_url: '', category: 'Appetizers', customizations: [] }
                 ];
+                allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                 renderCategories();
                 displayMenuItems();
                 updateCartCount();
@@ -475,7 +482,7 @@
 
         function renderCategories() {
             const container = document.getElementById('categoryScroll');
-            const categories = ['All', ...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+            const categories = ['All', ...allCategories];
 
             container.innerHTML = categories.map((cat, index) => {
                 const icon = ICONS[cat] || 'fas fa-utensils';
@@ -531,7 +538,17 @@
             });
 
             let html = '';
-            for (const [cat, items] of Object.entries(grouped)) {
+            
+            // Sort the grouped categories based on allCategories order
+            const sortedCategories = Object.keys(grouped).sort((a, b) => {
+                const indexA = allCategories.indexOf(a);
+                const indexB = allCategories.indexOf(b);
+                // If not found in allCategories, put at the end
+                return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+            });
+
+            for (const cat of sortedCategories) {
+                const items = grouped[cat];
                 // Check if any items in this category have a subcategory
                 const hasSubcategories = items.some(item => item.subcategory);
 
