@@ -25,3 +25,26 @@ Options -Indexes
 
 # 4. Block access to hidden directory/dotfiles (e.g. .git, .env, .htaccess itself)
 RedirectMatch 403 /\..*$
+
+# ==============================================================================
+# VIDEO STREAMING — Range Request Support
+# Without this, browsers cannot seek/stream video; they must download the entire
+# file before playing, which causes videos to appear blank for external users.
+# ==============================================================================
+
+# Enable byte-range requests for media files (essential for video streaming)
+<IfModule mod_headers.c>
+    <FilesMatch "\.(mp4|webm|ogg|ogv|mov|m4v)$">
+        Header set Accept-Ranges bytes
+        # Cache video for 30 days — avoids re-downloading 65 MB on every visit
+        Header set Cache-Control "public, max-age=2592000, immutable"
+        Header set Vary "Accept-Encoding"
+    </FilesMatch>
+</IfModule>
+
+# Correct MIME type for MP4 video (prevents browser refusing to play)
+<IfModule mod_mime.c>
+    AddType video/mp4 .mp4 .m4v
+    AddType video/webm .webm
+    AddType video/ogg .ogv .ogg
+</IfModule>

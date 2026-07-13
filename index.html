@@ -119,10 +119,11 @@
         }
 
         .hero-content {
-            flex: 0 0 55%;
-            padding-right: 50px;
+            flex: 0 0 100%;
+            padding: 0;
             position: relative;
             z-index: 20;
+            text-align: center;
         }
 
         .hero-subtitle {
@@ -148,14 +149,14 @@
             width: 50px;
             height: 1px;
             background-color: var(--text-gold);
-            margin-bottom: 30px;
+            margin: 0 auto 30px auto;
             opacity: 0.7;
         }
 
         .hero-text {
             font-size: 1.05rem;
-            max-width: 400px;
-            margin-bottom: 45px;
+            max-width: 450px;
+            margin: 0 auto 45px auto;
             color: var(--text-light);
             line-height: 1.7;
         }
@@ -163,6 +164,7 @@
         .hero-actions {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 35px;
         }
 
@@ -217,26 +219,74 @@
             height: 100%;
             overflow: hidden;
             z-index: 1;
+            /* Dark base — shows in the center gap while video streams in */
+            background: #0c0705;
         }
 
-        .hero-image-wrapper video {
+        .hero-image-wrapper video.video-blur {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center center;
-            opacity: 0.55;
+            filter: blur(25px);
+            opacity: 0.4;
+            transform: scale(1.1);
+        }
+
+        .hero-image-wrapper video.video-main-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            object-fit: cover;
+            -webkit-mask-image: linear-gradient(to left, transparent 0%, black 8%);
+            mask-image: linear-gradient(to left, transparent 0%, black 8%);
+            opacity: 0.9;
             transition: opacity 0.5s ease;
         }
 
-        /* Dark gradient on left half to keep text legible */
+        .hero-image-wrapper video.video-main {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+            object-fit: cover;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%);
+            mask-image: linear-gradient(to right, transparent 0%, black 8%);
+            opacity: 0.9;
+            transition: opacity 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .hero-image-wrapper video.video-main {
+                width: 100%;
+                object-fit: cover;
+                object-position: center;
+                -webkit-mask-image: none;
+                mask-image: none;
+            }
+
+            .hero-image-wrapper video.video-blur,
+            .hero-image-wrapper video.video-main-left {
+                display: none;
+            }
+        }
+
+        /* Dark gradient overlay to keep centered text legible */
         .hero-image-wrapper::before {
             content: '';
             position: absolute;
             left: 0;
             top: 0;
-            width: 65%;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(to right, rgba(18, 10, 7, 0.92) 0%, rgba(18, 10, 7, 0.55) 60%, transparent 100%);
+            background: radial-gradient(circle at center, rgba(18, 10, 7, 0.92) 0%, rgba(18, 10, 7, 0.6) 45%, rgba(18, 10, 7, 0.2) 100%);
             z-index: 2;
         }
 
@@ -1207,8 +1257,17 @@
         </div>
 
         <div class="hero-image-wrapper">
-            <video autoplay loop muted playsinline>
-                <source src="assets/video/into_video.mp4" type="video/mp4">
+            <!-- Blurred full-frame base video -->
+            <video autoplay loop muted playsinline class="video-blur" preload="metadata">
+                <source src="assets/video/into_video_compressed.mp4" type="video/mp4">
+            </video>
+            <!-- Left-side panel video — starts 6 s in to show different content than right -->
+            <video autoplay loop muted playsinline class="video-main-left" preload="metadata">
+                <source src="assets/video/into_video_compressed.mp4#t=6" type="video/mp4">
+            </video>
+            <!-- Primary right-side background video -->
+            <video autoplay loop muted playsinline class="video-main" id="hero-video-main" preload="metadata" poster="assets/images/hero_poster.png">
+                <source src="assets/video/into_video_compressed.mp4" type="video/mp4">
             </video>
         </div>
     </section>
@@ -1340,6 +1399,7 @@
                     </p>
                 </div>
             </div>
+        </div>
     </section>
 
     <!-- THE ESSENCE SECTION -->
@@ -1379,56 +1439,12 @@
             <h2 class="section-title reveal">Guest Experiences</h2>
             <p class="section-subtitle reveal">Accolades from our esteemed patrons</p>
 
-            <div class="row g-4">
-                <!-- REVIEW 1 -->
-                <div class="col-md-6 col-lg-4 reveal">
-                    <div class="review-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">"Medusa is not merely a restaurant; it's a sensory performance. The
-                            butter chicken customizations are absolutely exquisite. A truly majestic fine dining
-                            encounter."</div>
-                        <div class="reviewer-info">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop"
-                                class="reviewer-avatar" alt="Patron Avatar">
-                            <div>
-                                <div class="reviewer-name">Vikram Malhotra</div>
-                                <div class="reviewer-title">Elite Member</div>
-                            </div>
-                        </div>
+            <div class="row g-4" id="google-reviews-container">
+                <div class="col-12 text-center" style="padding: 40px 0;">
+                    <div class="spinner-border text-gold" role="status" style="color: var(--text-gold);">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                </div>
-                <!-- REVIEW 2 -->
-                <div class="col-md-6 col-lg-4 reveal">
-                    <div class="review-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">"The private cellar wine options paired with the custom pizza was
-                            incredibly divine. The candlelit atmosphere creates a level of elegance unmatched in the
-                            city."</div>
-                        <div class="reviewer-info">
-                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop"
-                                class="reviewer-avatar" alt="Patron Avatar">
-                            <div>
-                                <div class="reviewer-name">Ananya Sen</div>
-                                <div class="reviewer-title">Food Critic</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- REVIEW 3 -->
-                <div class="col-md-6 col-lg-4 reveal d-md-none d-lg-block">
-                    <div class="review-card">
-                        <div class="stars">★★★★★</div>
-                        <div class="review-text">"Flawless reservation system and outstanding service. The dessert list
-                            is a masterpiece of flavors. Easily the finest dining establishment in the region."</div>
-                        <div class="reviewer-info">
-                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop"
-                                class="reviewer-avatar" alt="Patron Avatar">
-                            <div>
-                                <div class="reviewer-name">Rohan Verma</div>
-                                <div class="reviewer-title">Gourmand</div>
-                            </div>
-                        </div>
-                    </div>
+                    <p style="color: var(--text-light); margin-top: 15px;">Fetching live reviews from Google...</p>
                 </div>
             </div>
         </div>
@@ -1686,6 +1702,72 @@
             window.addEventListener('load', initGalleryAnimations);
         })();
     </script>
+    <script>
+        // Fetch and Render Google Reviews
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('google-reviews-container');
+            if (!container) return;
+
+            fetch('api/get_reviews.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success' && data.reviews.length > 0) {
+                        let html = '';
+                        data.reviews.forEach((review, index) => {
+                            // Only show up to 3 reviews on desktop, hide the 3rd one on tablet for grid symmetry
+                            let classes = 'col-md-6 col-lg-4 reveal active';
+                            if (index > 2) return;
+                            if (index === 2) classes += ' d-md-none d-lg-block';
+
+                            // Generate star string
+                            const stars = '★'.repeat(Math.round(review.rating)) + '☆'.repeat(5 - Math.round(review.rating));
+
+                            html += `
+                                <div class="${classes}" style="transition-delay: ${index * 0.15}s;">
+                                    <div class="review-card">
+                                        <div class="stars">${stars}</div>
+                                        <div class="review-text">"${review.text}"</div>
+                                        <div class="reviewer-info">
+                                            <img src="${review.profile_photo_url || 'https://via.placeholder.com/100'}"
+                                                class="reviewer-avatar" alt="${review.author_name}" referrerpolicy="no-referrer">
+                                            <div>
+                                                <div class="reviewer-name">${review.author_name}</div>
+                                                <div class="reviewer-title">Google Local Guide</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        container.innerHTML = html;
+                    } else if (data.error) {
+                        container.innerHTML = `
+                            <div class="col-12 text-center" style="padding: 40px 0;">
+                                <p style="color: #e74c3c;">⚠️ ${data.error}</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = `
+                            <div class="col-12 text-center" style="padding: 40px 0;">
+                                <p style="color: var(--text-light);">No reviews found yet. Be the first to leave a review!</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching reviews:', err);
+                    container.innerHTML = `
+                        <div class="col-12 text-center" style="padding: 40px 0;">
+                            <p style="color: #e74c3c;">⚠️ Failed to load reviews. Please try again later.</p>
+                        </div>
+                    `;
+                });
+        });
+    </script>
+
+
+
 </body>
 
 </html>
