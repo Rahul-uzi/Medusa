@@ -1234,6 +1234,28 @@ if (isset($_REQUEST['action'])) {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    // Update Menu Order (Drag and Drop)
+    if ($action === 'update_menu_order') {
+        $order = json_decode($_POST['order'] ?? '[]');
+        if (is_array($order)) {
+            $pdo->beginTransaction();
+            try {
+                $stmt = $pdo->prepare("UPDATE food_items SET sort_order = ? WHERE id = ?");
+                foreach ($order as $index => $id) {
+                    $stmt->execute([$index, $id]);
+                }
+                $pdo->commit();
+                echo json_encode(['success' => true]);
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Invalid order data']);
+        }
+        exit;
+    }
     
     // Settle dine-in bill
     if ($action === 'settle_bill') {
@@ -4030,7 +4052,7 @@ html:not(.light-mode) .form-select:focus{
                         <div class="col-md-4">
                             <label class="form-label text-muted small text-uppercase">Category</label>
                             <select id="menu_category_select" class="form-select bg-dark text-white border-secondary form-control-dashboard">
-                                <option value="all">All Categories</option>
+                                <option value="">All Categories</option>
                                 <option value="Beverages">Beverages</option>
                                 <option value="Soups">Soups</option>
                                 <option value="Salad">Salad</option>
@@ -4038,9 +4060,8 @@ html:not(.light-mode) .form-select:focus{
                                 <option value="Sides">Sides</option>
                                 <option value="Meals in the Bowl">Meals in the Bowl</option>
                                 <option value="Main Course">Main Course</option>
-                                <option value="Choice of Noodle">Choice of Noodle</option>
-                                <option value="Choice of Rice">Choice of Rice</option>
-                                <option value="Choice of Gravy">Choice of Gravy</option>
+                                <option value="Chinese & Korean">Chinese & Korean</option>
+                                <option value="Indian">Indian</option>
                                 <option value="Dim Sum Cart">Dim Sum Cart</option>
                                 <option value="Sushi Rolls">Sushi Rolls</option>
                                 <option value="Burgers & Sandwiches">Burgers & Sandwiches</option>
@@ -4108,9 +4129,13 @@ html:not(.light-mode) .form-select:focus{
                     </button>
                 </div>
                 <div class="table-responsive">
-                    <table class="table premium-table align-middle">
+                    <table class="table premium-table align-middle" id="menu-search-results-table">
                         <thead>
                             <tr>
+                                <th style="width: 40px;" class="text-center">
+                                    <input class="form-check-input" type="checkbox" id="selectAllSearchResults" onclick="document.querySelectorAll('.search-result-checkbox').forEach(cb => cb.checked = this.checked)">
+                                </th>
+                                <th style="width: 40px;"></th>
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Category</th>
@@ -5397,9 +5422,8 @@ html:not(.light-mode) .form-select:focus{
                                 <option value="Sides">Sides</option>
                                 <option value="Meals in the Bowl">Meals in the Bowl</option>
                                 <option value="Main Course">Main Course</option>
-                                <option value="Choice of Noodle">Choice of Noodle</option>
-                                <option value="Choice of Rice">Choice of Rice</option>
-                                <option value="Choice of Gravy">Choice of Gravy</option>
+                                <option value="Chinese & Korean">Chinese & Korean</option>
+                                <option value="Indian">Indian</option>
                                 <option value="Dim Sum Cart">Dim Sum Cart</option>
                                 <option value="Sushi Rolls">Sushi Rolls</option>
                                 <option value="Burgers & Sandwiches">Burgers & Sandwiches</option>
@@ -5408,9 +5432,6 @@ html:not(.light-mode) .form-select:focus{
                                 <option value="Non-Veg Appetizer">Non-Veg Appetizer</option>
                                 <option value="Pasta & Risotto Station">Pasta & Risotto Station</option>
                                 <option value="Veg Appetizer">Veg Appetizer</option>
-                                <option value="Veg Indian Main Course">Veg Indian Main Course</option>
-                                <option value="Non-Veg Indian Main Course">Non-Veg Indian Main Course</option>
-                                <option value="Tandoori Starter">Tandoori Starter</option>
                             </select>
                         </div>
 
@@ -6873,7 +6894,13 @@ html:not(.light-mode) .form-select:focus{
                 const custActive = custCount > 0 ? 'active' : '';
                 const isAvail = dish.is_available == 1;
 
-                return `<tr>
+                return `<tr data-id="${dish.id}">
+                    <td class="text-center">
+                        <input class="form-check-input search-result-checkbox" type="checkbox" value="${dish.id}">
+                    </td>
+                    <td class="text-center">
+                        <i class="fas fa-grip-vertical text-muted cursor-grab drag-handle" style="cursor: grab;"></i>
+                    </td>
                     <td><img src="${imgSrc}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop&auto=format'"></td>
                     <td>${dietBadge}<strong>${dish.name}</strong> ${bestBadge}</td>
                     <td class="text-uppercase">
@@ -9088,6 +9115,31 @@ function printTableQR() {
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tbody = document.getElementById('menu-search-results-body');
+        if (tbody) {
+            new Sortable(tbody, {
+                handle: '.drag-handle',
+                animation: 150,
+                onEnd: function (evt) {
+                    const rowIds = Array.from(tbody.querySelectorAll('tr')).map(tr => tr.getAttribute('data-id')).filter(id => id);
+                    if(rowIds.length > 0) {
+                        fetch('dashboardtest.php?action=update_menu_order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: 'order=' + encodeURIComponent(JSON.stringify(rowIds))
+                        }).then(r => r.json()).then(res => {
+                            if(res.success) showToast('Menu order updated!', 'success');
+                            else showToast('Failed to update order.', 'error');
+                        });
+                    }
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
 

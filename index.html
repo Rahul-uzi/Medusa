@@ -219,6 +219,8 @@
             height: 100%;
             overflow: hidden;
             z-index: 1;
+            /* Dark base — shows in the center gap while video streams in */
+            background: #0c0705;
         }
 
         .hero-image-wrapper video.video-blur {
@@ -1411,13 +1413,16 @@
         </div>
 
         <div class="hero-image-wrapper">
-            <video autoplay loop muted playsinline class="video-blur">
+            <!-- Blurred full-frame base video -->
+            <video autoplay loop muted playsinline class="video-blur" preload="metadata">
                 <source src="assets/video/into_video_compressed.mp4" type="video/mp4">
             </video>
-            <video autoplay loop muted playsinline class="video-main-left">
+            <!-- Left-side panel video — starts 6 s in to show different content than right -->
+            <video autoplay loop muted playsinline class="video-main-left" preload="metadata">
                 <source src="assets/video/into_video_compressed.mp4#t=6" type="video/mp4">
             </video>
-            <video autoplay loop muted playsinline class="video-main">
+            <!-- Primary right-side background video -->
+            <video autoplay loop muted playsinline class="video-main" id="hero-video-main" preload="metadata" poster="assets/images/hero_poster.png">
                 <source src="assets/video/into_video_compressed.mp4" type="video/mp4">
             </video>
         </div>
@@ -1888,6 +1893,9 @@
                 });
         });
     </script>
+
+
+
 </body>
 
 </html>
