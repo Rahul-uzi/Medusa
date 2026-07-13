@@ -1,7 +1,10 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/config.php';
-requireLogin();
+if (empty($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized login required']);
+    exit;
+}
 
 $user_id = $_SESSION['user_id'];
 

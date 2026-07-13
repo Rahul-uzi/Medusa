@@ -395,25 +395,38 @@
         <div class="container">
             <h1 class="section-title fade-up">Explore Our Premium Menu</h1>
 
-            <!-- CATEGORY NAVIGATION -->
-            <div class="w-full mb-12 fade-up relative group" style="animation-delay: 0.2s;">
-                <button onclick="scrollCategories(-300)"
-                    class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
-                    id="scrollLeftBtn">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                <div class="flex gap-4 overflow-x-auto hide-scrollbar py-2 px-2 scroll-smooth cursor-grab active:cursor-grabbing"
-                    id="categoryScroll" onmousedown="startDrag(event)" onmouseleave="stopDrag()" onmouseup="stopDrag()"
-                    onmousemove="doDrag(event)" onscroll="updateScrollButtons()">
-                    <!-- Categories injected here -->
+            <!-- CATEGORY NAVIGATION (Explore Our Categories) -->
+            <div class="w-full mb-12 text-center flex flex-col items-center justify-center fade-up relative group" style="animation-delay: 0.2s;">
+                <div class="relative w-full flex items-center justify-center mb-6">
+                    <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/30 flex items-center justify-between pointer-events-none">
+                        <div class="w-1/4 border-t border-[#dfba86]/30"></div>
+                        <div class="w-1/4 border-t border-[#dfba86]/30"></div>
+                    </div>
+                    <span class="relative font-serif text-sm md:text-base font-bold text-[#193627] uppercase tracking-widest px-4 bg-[#f9f6f0] z-10 flex items-center gap-2">
+                        <i class="fas fa-leaf text-xs text-[#dfba86]"></i> Explore Our Categories <i class="fas fa-leaf text-xs text-[#dfba86]"></i>
+                    </span>
                 </div>
 
-                <button onclick="scrollCategories(300)"
-                    class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
-                    id="scrollRightBtn">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                <div class="relative w-full">
+                    <button onclick="scrollCategories(-300)"
+                        class="absolute -left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                        id="scrollLeftBtn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+
+                    <div class="flex items-center justify-start gap-2 md:gap-3 w-full overflow-x-auto hide-scrollbar py-2 scroll-smooth cursor-grab active:cursor-grabbing"
+                        id="categoryScroll" style="padding-left: calc(50% - 50px); padding-right: calc(50% - 50px);"
+                        onmousedown="startDrag(event)" onmouseleave="stopDrag()" onmouseup="stopDrag()"
+                        onmousemove="doDrag(event)" onscroll="updateScrollButtons()">
+                        <!-- Categories injected here -->
+                    </div>
+
+                    <button onclick="scrollCategories(300)"
+                        class="absolute -right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
+                        id="scrollRightBtn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- MENU ITEMS CONTAINER -->
@@ -536,34 +549,182 @@
         /* ============================================================
            DISPLAY MENU ITEMS
         ============================================================ */
-        // Render Categories dynamically matching Mockup
+        function centerActivePill(index) {
+            const el = document.getElementById(`cat-pill-${index}`);
+            const container = document.getElementById('categoryScroll');
+            if (el && container) {
+                const offset = el.offsetLeft - (container.offsetWidth / 2) + (el.offsetWidth / 2);
+                container.scrollTo({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function handleCategoryScroll() {
+            const container = document.getElementById('categoryScroll');
+            if (!container) return;
+            const items = container.children;
+            if (items.length === 0) return;
+
+            const midIndex = Math.floor(allCategories.length / 2);
+            const categories = [
+                ...allCategories.slice(0, midIndex),
+                'All',
+                ...allCategories.slice(midIndex)
+            ];
+
+            let activeIdx = 0;
+            let minDistance = Infinity;
+            const containerCenter = container.scrollLeft + (container.offsetWidth / 2);
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+                const dist = Math.abs(itemCenter - containerCenter);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    activeIdx = i;
+                }
+            }
+
+            const newActiveCategory = categories[activeIdx];
+            if (newActiveCategory && newActiveCategory !== activeCategory) {
+                activeCategory = newActiveCategory;
+                displayMenuItems();
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+                const dist = Math.abs(itemCenter - containerCenter);
+                const distUnits = dist / 100;
+
+                let scale = 1.0;
+                let opacity = 1.0;
+                if (distUnits <= 0.5) {
+                    const ratio = distUnits / 0.5;
+                    scale = 1.35 - (0.35 * ratio);
+                    opacity = 1.0;
+                } else if (distUnits <= 1.5) {
+                    const ratio = (distUnits - 0.5) / 1.0;
+                    scale = 1.0 - (0.18 * ratio);
+                    opacity = 0.9 - (0.22 * ratio);
+                } else if (distUnits <= 2.5) {
+                    const ratio = (distUnits - 1.5) / 1.0;
+                    scale = 0.82 - (0.14 * ratio);
+                    opacity = 0.68 - (0.18 * ratio);
+                } else {
+                    scale = 0.68 - (0.13 * Math.min(distUnits - 2.5, 1));
+                    opacity = 0.5 - (0.15 * Math.min(distUnits - 2.5, 1));
+                }
+
+                const circle = item.querySelector('.circle-wrap');
+                if (circle) {
+                    circle.style.transform = `scale(${scale})`;
+                }
+                item.style.opacity = opacity;
+
+                const labelWrap = item.querySelector('.label-wrap');
+                const isActive = (i === activeIdx);
+                const cat = categories[i];
+
+                if (isActive) {
+                    if (circle && !circle.classList.contains('bg-[#193627]')) {
+                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86] p-1.5 bg-[#193627] flex items-center justify-center transition-all duration-300 shadow-md overflow-hidden";
+                    }
+                    if (labelWrap && !labelWrap.querySelector('.active-ornament')) {
+                        labelWrap.innerHTML = `
+                            <span class="text-[10px] md:text-[11px] font-bold text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
+                            <div class="active-ornament flex items-center justify-center gap-1 mt-1">
+                                <div class="w-5 h-[1px] bg-[#dfba86]/50"></div>
+                                <span class="text-[7px] text-[#dfba86]">✦</span>
+                                <div class="w-5 h-[1px] bg-[#dfba86]/50"></div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (circle && circle.classList.contains('bg-[#193627]')) {
+                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md";
+                    }
+                    if (labelWrap && (labelWrap.querySelector('.active-ornament') || labelWrap.querySelector('span').classList.contains('text-[#193627]'))) {
+                        labelWrap.innerHTML = `<span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>`;
+                    }
+                }
+            }
+        }
+
         function renderCategories() {
             const container = document.getElementById('categoryScroll');
-            const categories = ['All', ...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+            const midIndex = Math.floor(allCategories.length / 2);
+            const categories = [
+                ...allCategories.slice(0, midIndex),
+                'All',
+                ...allCategories.slice(midIndex)
+            ];
 
             container.innerHTML = categories.map((cat, index) => {
-                const icon = ICONS[cat] || 'fas fa-utensils';
-                const isActive = cat === activeCategory;
-                const circleClasses = isActive
-                    ? 'bg-[#193627] text-[#dfba86] border-[#193627] shadow-md scale-105'
-                    : 'bg-[#f8f6f0] text-[#dfba86]/70 border-[#dfba86]/30 hover:border-[#dfba86] hover:bg-[#dfba86]/5';
-                const textClasses = isActive
-                    ? 'text-[#193627] font-extrabold'
-                    : 'text-gray-600 hover:text-[#193627] font-medium';
+                let imgSrc = '';
+                if (cat === 'All') {
+                    imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                } else {
+                    const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
+                    imgSrc = itemWithImg ? itemWithImg.image_url : '';
+                }
+                
+                if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                    if (!imgSrc.startsWith('uploads/')) {
+                        imgSrc = 'uploads/' + imgSrc;
+                    }
+                }
+                if (!imgSrc) {
+                    const PLACEHOLDERS = {
+                        'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                        'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
+                        'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
+                        'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                        'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
+                        'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
+                        'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
+                        'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
+                        'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
+                        'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
+                        'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                        'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=200&h=200&fit=crop',
+                        'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                        'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
+                        'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
+                        'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                        'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                        'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
+                        'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
+                        'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
+                    };
+                    imgSrc = PLACEHOLDERS[cat] || PLACEHOLDERS['All'];
+                }
 
                 return `
-                    <div class="flex flex-col items-center shrink-0">
-                        <button onclick="filterCategory('${cat}')" 
-                                class="category-pill flex flex-col items-center justify-center p-0 transition-all border-0 bg-transparent outline-none cursor-pointer">
-                            <div class="w-16 h-16 rounded-full flex items-center justify-center border transition-all ${circleClasses}">
-                                <i class="${icon} text-[22px]"></i>
-                            </div>
-                            <span class="text-[9px] font-bold uppercase tracking-widest mt-2 whitespace-nowrap ${textClasses}">${cat}</span>
-                        </button>
+                    <div onclick="filterCategory('${cat}', ${index})" id="cat-pill-${index}"
+                         class="flex flex-col items-center gap-2 cursor-pointer group shrink-0 transition-all duration-300 py-3 select-none"
+                         style="width: 100px;">
+                        <div class="circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md">
+                            <img src="${imgSrc}" alt="${cat}" class="w-full h-full rounded-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
+                        </div>
+                        <div class="label-wrap flex flex-col items-center min-h-[30px] justify-start w-full">
+                            <span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
+                        </div>
                     </div>
                 `;
             }).join('');
-            setTimeout(updateScrollButtons, 50);
+
+            if (!container.dataset.hasScrollListener) {
+                container.addEventListener('scroll', handleCategoryScroll);
+                container.dataset.hasScrollListener = 'true';
+            }
+
+            setTimeout(() => {
+                updateScrollButtons();
+                const activeIdx = categories.indexOf(activeCategory);
+                centerActivePill(activeIdx);
+                handleCategoryScroll();
+            }, 50);
         }
 
         // Drag scroll navigation helpers
@@ -611,16 +772,7 @@
 
         // Explore Categories Banner generator
         window.renderExploreCategoriesBanner = function() {
-            const bannerCategories = [
-                { name: 'Soups', label: 'Soups' },
-                { name: 'Salad', label: 'Salad' },
-                { name: 'Bread Basket', label: 'Bread Basket' },
-                { name: 'Sides', label: 'Sides' },
-                { name: 'Meals in the Bowl', label: 'Meals in the Bowl' },
-                { name: 'Main Course', label: 'Main Course' },
-                { name: 'Choice of Noodle', label: 'Noodles' },
-                { name: 'Choice of Rice', label: 'Rice' }
-            ];
+            const bannerCategories = allCategories.map(cat => ({ name: cat, label: cat }));
 
             const itemsHtml = bannerCategories.map(cat => {
                 const itemWithImg = allMenuItems.find(i => i.category === cat.name && i.image_url);
@@ -631,16 +783,36 @@
                     }
                 }
                 if (!imgSrc) {
-                    if (cat.name === 'Choice of Noodle') imgSrc = 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop';
-                    else if (cat.name === 'Choice of Rice') imgSrc = 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop';
-                    else imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                    const PLACEHOLDERS = {
+                        'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                        'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
+                        'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
+                        'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                        'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
+                        'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
+                        'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
+                        'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
+                        'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
+                        'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
+                        'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                        'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=200&h=200&fit=crop',
+                        'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                        'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
+                        'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
+                        'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                        'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                        'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
+                        'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
+                        'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
+                    };
+                    imgSrc = PLACEHOLDERS[cat.name] || PLACEHOLDERS['All'];
                 }
 
                 return `
                     <div onclick="filterCategory('${cat.name}'); window.scrollTo({top: document.getElementById('categoryScroll').offsetTop - 100, behavior: 'smooth'});" 
                          class="flex flex-col items-center gap-2 cursor-pointer group shrink-0">
                         <div class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-[#dfba86]/30 overflow-hidden group-hover:scale-105 group-hover:border-[#dfba86] transition-all duration-300 shadow-md">
-                            <img src="${imgSrc}" alt="${cat.label}" class="w-full h-full object-cover">
+                            <img src="${imgSrc}" alt="${cat.label}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
                         </div>
                         <span class="text-[9px] md:text-[10px] font-bold text-[#dfba86]/90 group-hover:text-[#dfba86] transition-colors uppercase tracking-widest text-center max-w-[80px]">${cat.label}</span>
                     </div>
@@ -658,7 +830,7 @@
                             <i class="fas fa-star text-[10px] text-[#dfba86]"></i> Explore Our Categories <i class="fas fa-star text-[10px] text-[#dfba86]"></i>
                         </span>
                     </div>
-                    <div class="flex items-center justify-center gap-4 md:gap-8 w-full overflow-x-auto hide-scrollbar py-2">
+                    <div class="flex items-center justify-start gap-4 md:gap-8 w-full overflow-x-auto hide-scrollbar py-2 px-4">
                         ${itemsHtml}
                     </div>
                 </div>
@@ -710,7 +882,29 @@
                     imgSrc = 'uploads/' + imgSrc;
                 }
             }
-            if (!imgSrc) imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop';
+            
+            const PLACEHOLDERS = {
+                'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop',
+                'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=500&h=400&fit=crop',
+                'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=400&fit=crop',
+                'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop',
+                'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=500&h=400&fit=crop',
+                'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&h=400&fit=crop',
+                'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&h=400&fit=crop',
+                'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=400&fit=crop',
+                'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&h=400&fit=crop',
+                'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&h=400&fit=crop',
+                'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=400&fit=crop',
+                'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500&h=400&fit=crop',
+                'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=400&fit=crop',
+                'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=500&h=400&fit=crop',
+                'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=500&h=400&fit=crop',
+                'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&h=400&fit=crop',
+                'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&h=400&fit=crop',
+                'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&h=400&fit=crop'
+            };
+            const fallbackSrc = PLACEHOLDERS[item.category] || PLACEHOLDERS['All'];
+            if (!imgSrc) imgSrc = fallbackSrc;
 
             const hasCust = item.customizations && item.customizations.length > 0;
             const delay = (index % 4) * 0.1;
@@ -727,7 +921,7 @@
             return `
                 <div class="menu-card bg-white rounded-3xl p-4 flex flex-col justify-between ${cardClasses} h-[440px] fade-up shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#dfba86]/10 transition-all duration-300" style="animation-delay: ${delay}s">
                     <div class="relative h-48 w-full rounded-2xl overflow-hidden bg-gray-100 mb-4 shrink-0 shadow-inner">
-                        <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
+                        <img src="${imgSrc}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
                         ${hasCust ? '<div class="absolute top-3 left-3 bg-[#f9f6f0]/90 backdrop-blur-sm text-[#193627] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm"><i class="fas fa-sliders-h mr-1 text-[#dfba86]"></i>Customizable</div>' : ''}
                     </div>
                     <div class="flex flex-col flex-1 px-1">
@@ -931,9 +1125,6 @@
                 }
 
                 catIndex++;
-                if (activeCategory === 'All' && catIndex === 3) {
-                    html += renderExploreCategoriesBanner();
-                }
             }
 
             container.innerHTML = html;
@@ -1302,10 +1493,20 @@
             }
         }
 
-        function filterCategory(categoryName) {
-            activeCategory = categoryName;
-            renderCategories();
-            displayMenuItems();
+        function filterCategory(catName, index) {
+            activeCategory = catName;
+            const midIndex = Math.floor(allCategories.length / 2);
+            const categories = [
+                ...allCategories.slice(0, midIndex),
+                'All',
+                ...allCategories.slice(midIndex)
+            ];
+            const targetIdx = index !== undefined ? index : categories.indexOf(catName);
+            if (targetIdx !== -1) {
+                centerActivePill(targetIdx);
+            } else {
+                displayMenuItems();
+            }
         }
 
         /* ============================================================
