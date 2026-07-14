@@ -77,7 +77,7 @@
     </script>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Great+Vibes&display=swap"
         rel="stylesheet">
 
     <style>
@@ -230,46 +230,93 @@
     <div id="navbar-placeholder"></div>
     <script src="assets/js/navbar.js" defer></script>
 
-    <!-- HERO SECTION -->
-    <section class="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center bg-black overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <img src="assets/images/hero_steak.png" alt="Restaurant Interior"
-                class="w-full h-full object-cover opacity-70">
-            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/70"></div>
-        </div>
-        <div class="relative z-10 text-center px-4 fade-up">
-            <h1 class="font-serif text-5xl md:text-6xl text-white mb-4 section-title">Our Menu</h1>
-            <div class="flex items-center justify-center gap-3 mb-6 opacity-80">
-                <div class="h-px w-24 bg-gold-dark"></div>
-                <i class="fas fa-fan text-gold-dark text-xs"></i>
-                <div class="h-px w-24 bg-gold-dark"></div>
+    <!-- HERO CONTAINER (to allow medallion overflow) -->
+    <div class="relative w-full">
+        <!-- HERO SECTION -->
+        <section class="relative w-full h-[50vh] min-h-[420px] flex items-center justify-center bg-black overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img id="hero-bg-img" src="assets/images/hero_steak.png" alt="Restaurant Interior"
+                    class="w-full h-full object-cover opacity-70 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/70"></div>
             </div>
-            <p class="text-white max-w-xl mx-auto font-light leading-relaxed text-sm md:text-base">
-                Discover a curated selection of dishes crafted with passion, the finest ingredients, and unforgettable
-                flavors.
-            </p>
+            <div class="relative z-20 text-center px-4 fade-up">
+                <span id="hero-script-heading" class="italic text-[#dfba86] text-3xl md:text-4xl mb-1 block tracking-wider font-serif transition-opacity duration-300" style="font-family: 'Great Vibes', cursive;">Savor the Excellence</span>
+                <h1 class="font-serif text-5xl md:text-6xl text-white mb-3 section-title">Our Menu</h1>
+                <div class="flex items-center justify-center gap-3 mb-4 opacity-80">
+                    <div class="h-px w-24 bg-gold-dark"></div>
+                    <i class="fas fa-fan text-gold-dark text-xs animate-spin-slow"></i>
+                    <div class="h-px w-24 bg-gold-dark"></div>
+                </div>
+                <p id="hero-description" class="text-white max-w-xl mx-auto font-light leading-relaxed text-sm md:text-base transition-opacity duration-300">
+                    Discover a curated selection of dishes crafted with passion, the finest ingredients, and unforgettable
+                    flavors.
+                </p>
+                
+                <!-- Tab Toggle Buttons -->
+                <div class="flex justify-center items-center gap-4 mt-6">
+                    <button id="tab-food" onclick="switchTab('food')" class="flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg">
+                        <svg class="w-4 h-4 text-[#dfba86]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3c-1.1 0-2 .9-2 2h4c0-1.1-.9-2-2-2zm10 13c0-4.97-4.03-9-9-9s-9 4.03-9 9h18zm-19 2h20v2H3v-2z"/>
+                        </svg>
+                        <span>Food</span>
+                    </button>
+                    <button id="tab-beverages" onclick="switchTab('beverages')" class="flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10">
+                        <svg class="w-4 h-4 text-[#dfba86]" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5.66 3h12.68c.28 0 .5.22.5.5v1.22c0 .94-.52 1.8-1.34 2.23L13 9.42V18h3.5c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5H7.5c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5H11V9.42L6.5 6.95C5.68 6.53 5.16 5.66 5.16 4.72V3.5c0-.28.22-.5.5-.5z"/>
+                        </svg>
+                        <span>Beverages</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Curved Bottom SVG -->
+            <div class="absolute bottom-[-1px] left-0 w-full overflow-hidden leading-none z-10">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="relative block w-full h-[40px] md:h-[55px]">
+                    <path d="M0,0 Q600,120 1200,0 L1200,120 L0,120 Z" fill="#f9f6f0"></path>
+                </svg>
+            </div>
+        </section>
+        
+        <!-- Medusa Medallion centered overlapping the curve (outside overflow-hidden to prevent clipping) -->
+        <div class="absolute bottom-0 md:bottom-[2px] left-1/2 -translate-x-1/2 z-20 w-10 h-10 md:w-13 md:h-13 rounded-full bg-[#120307] border-2 border-[#dfba86] flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-105">
+            <img src="assets/images/medusaa2(onlylogo).png" alt="Medusa Logo" class="w-7 h-7 md:w-9 md:h-9 object-contain" onerror="this.src='assets/images/logo.png'">
         </div>
-        <!-- Torn Paper Effect -->
-        <div class="torn-paper"></div>
-    </section>
+    </div>
 
     <!-- MAIN CONTENT -->
     <main class="container mx-auto px-4 md:px-8 lg:px-12 py-12 relative z-20">
 
         <!-- CATEGORY NAVIGATION (Explore Our Categories) -->
         <div class="w-full mb-12 text-center flex flex-col items-center justify-center fade-up relative group" style="animation-delay: 0.2s;">
-            <div class="relative w-full flex items-center justify-center mb-6">
-                <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/30 flex items-center justify-between pointer-events-none">
-                    <div class="w-1/4 border-t border-[#dfba86]/30"></div>
-                    <div class="w-1/4 border-t border-[#dfba86]/30"></div>
+            <!-- Two-line Header with gold line dividers -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <!-- Line 1: EXPLORE OUR with short side lines -->
+                <div class="flex items-center gap-4 mb-2">
+                    <!-- Left Divider: line - diamond - line -->
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-8 md:w-12 h-px bg-[#dfba86]/40"></div>
+                        <div class="w-1.5 h-1.5 rotate-45 bg-[#dfba86]"></div>
+                        <div class="w-4 md:w-6 h-px bg-[#dfba86]/40"></div>
+                    </div>
+                    
+                    <!-- Text: EXPLORE OUR -->
+                    <span class="font-serif text-xs md:text-sm font-semibold tracking-[0.25em] text-[#dfba86] uppercase">Explore Our</span>
+                    
+                    <!-- Right Divider: line - diamond - line -->
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-4 md:w-6 h-px bg-[#dfba86]/40"></div>
+                        <div class="w-1.5 h-1.5 rotate-45 bg-[#dfba86]"></div>
+                        <div class="w-8 md:w-12 h-px bg-[#dfba86]/40"></div>
+                    </div>
                 </div>
-                <span class="relative font-serif text-sm md:text-base font-bold text-[#193627] uppercase tracking-widest px-4 bg-[#f9f6f0] z-10 flex items-center gap-2">
-                    <i class="fas fa-leaf text-xs text-[#dfba86]"></i> Explore Our Categories <i class="fas fa-leaf text-xs text-[#dfba86]"></i>
-                </span>
+                
+                <!-- Line 2: CATEGORIES (Large, Green Serif) -->
+                <h2 id="explore-categories-title" class="font-serif text-2xl md:text-4xl font-bold text-[#193627] uppercase tracking-widest">
+                    Food Categories
+                </h2>
             </div>
 
             <div class="relative w-full">
-                <button onclick="scrollCategories(-300)"
+                <button onclick="navigateCategory(-1)"
                     class="absolute -left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
                     id="scrollLeftBtn">
                     <i class="fas fa-chevron-left"></i>
@@ -282,7 +329,7 @@
                     <!-- Categories injected here -->
                 </div>
 
-                <button onclick="scrollCategories(300)"
+                <button onclick="navigateCategory(1)"
                     class="absolute -right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#f9f6f0] shadow-md border border-[#dfba86] flex items-center justify-center text-[#dfba86] hover:bg-[#dfba86] hover:text-[#193627] transition-all hidden md:flex opacity-0 group-hover:opacity-100 disabled:opacity-0 disabled:cursor-not-allowed"
                     id="scrollRightBtn">
                     <i class="fas fa-chevron-right"></i>
@@ -504,157 +551,301 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
             }
         }
 
-        function handleCategoryScroll() {
+        const BEVERAGE_IMAGES = {
+            'All': 'grid-icon',
+            'Signature Cocktails': 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=200&h=200&fit=crop',
+            'Mocktails': 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200&h=200&fit=crop',
+            'Classic Cocktails': 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=200&h=200&fit=crop',
+            'Beer': 'https://images.unsplash.com/photo-1567696911980-2dea991db2dd?w=200&h=200&fit=crop',
+            'Wine': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&h=200&fit=crop',
+            'Spirits': 'https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=200&h=200&fit=crop',
+            'Whiskey': 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=200&h=200&fit=crop',
+            'Champagne & Sparkling': 'https://images.unsplash.com/photo-1594487524733-f24b33d0e6ab?w=200&h=200&fit=crop',
+            'Non-Alcoholic': 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=200&h=200&fit=crop'
+        };
+
+        const BEVERAGE_MAPPING = {
+            'Signature Cocktails': {
+                filterFn: item => item.subcategory === 'Cocktails' && (item.name.toLowerCase().includes('sangria'))
+            },
+            'Mocktails': {
+                filterFn: item => item.subcategory === 'Signature Mocktails'
+            },
+            'Classic Cocktails': {
+                filterFn: item => item.subcategory === 'Cocktails' && !(item.name.toLowerCase().includes('sangria'))
+            },
+            'Beer': {
+                filterFn: item => item.subcategory === 'Beer'
+            },
+            'Wine': {
+                filterFn: item => ['red wine', 'white wine', 'rose wine'].includes(item.subcategory.toLowerCase())
+            },
+            'Spirits': {
+                filterFn: item => ['vodka', 'rum', 'gin', 'tequila', 'liqueur', 'shooters'].includes(item.subcategory.toLowerCase())
+            },
+            'Whiskey': {
+                filterFn: item => ['single malt whiskey', 'blended malt whiskey', 'other world whiskey'].includes(item.subcategory.toLowerCase())
+            },
+            'Champagne & Sparkling': {
+                filterFn: item => ['sparkling / champagne'].includes(item.subcategory.toLowerCase())
+            },
+            'Non-Alcoholic': {
+                filterFn: item => ['coffee (cold)', 'shakes & smoothies', 'quenchers', 'detox'].includes(item.subcategory.toLowerCase())
+            }
+        };
+
+        let currentTab = 'food';
+
+        function getCategoriesForCurrentTab() {
+            if (currentTab === 'beverages') {
+                return [
+                    'All',
+                    'Signature Cocktails',
+                    'Mocktails',
+                    'Classic Cocktails',
+                    'Beer',
+                    'Wine',
+                    'Spirits',
+                    'Whiskey',
+                    'Champagne & Sparkling',
+                    'Non-Alcoholic'
+                ];
+            } else {
+                return ['All', ...allCategories.filter(c => c !== 'Beverages' && c !== 'Beverage')];
+            }
+        }
+
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            currentTab = tab;
+            
+            const foodBtn = document.getElementById('tab-food');
+            const bevBtn = document.getElementById('tab-beverages');
+            
+            if (tab === 'food') {
+                foodBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg";
+                bevBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10";
+            } else {
+                bevBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg";
+                foodBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10";
+            }
+            
+            const scriptHeading = document.getElementById('hero-script-heading');
+            const description = document.getElementById('hero-description');
+            const bgImg = document.getElementById('hero-bg-img');
+            const exploreTitle = document.getElementById('explore-categories-title');
+            
+            scriptHeading.style.opacity = 0;
+            description.style.opacity = 0;
+            bgImg.style.opacity = 0;
+            
+            setTimeout(() => {
+                if (tab === 'food') {
+                    scriptHeading.textContent = "Savor the Excellence";
+                    description.textContent = "Discover a curated selection of dishes crafted with passion, the finest ingredients, and unforgettable flavors.";
+                    bgImg.src = "assets/images/hero_steak.png";
+                    exploreTitle.textContent = "Food Categories";
+                } else {
+                    scriptHeading.textContent = "Sip. Savor. Celebrate.";
+                    description.textContent = "Discover a curated selection of beverages crafted to elevate every moment.";
+                    bgImg.src = "assets/images/hero_beverages.png";
+                    exploreTitle.textContent = "Beverage Categories";
+                }
+                
+                scriptHeading.style.opacity = 1;
+                description.style.opacity = 1;
+                bgImg.style.opacity = 0.7;
+            }, 300);
+            
             const container = document.getElementById('categoryScroll');
-            if (!container) return;
-            const items = container.children;
-            if (items.length === 0) return;
+            if (container) {
+                container.removeEventListener('scroll', handleCategoryScroll);
+                delete container.dataset.hasScrollListener;
+            }
 
-            const midIndex = Math.floor(allCategories.length / 2);
-            const categories = [
-                ...allCategories.slice(0, midIndex),
-                'All',
-                ...allCategories.slice(midIndex)
-            ];
+            activeCategory = 'All';
+            renderCategories();
+            displayMenuItems();
+        }
 
+        let scrollTimeout;
+
+        function getCenteredCategoryIndex(container) {
+            const containerCenter = container.scrollLeft + (container.clientWidth / 2);
+            const items = container.querySelectorAll('.group');
             let activeIdx = 0;
             let minDistance = Infinity;
-            const containerCenter = container.scrollLeft + (container.offsetWidth / 2);
-
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+            
+            items.forEach((item, i) => {
+                const itemCenter = item.offsetLeft + (item.clientWidth / 2);
                 const dist = Math.abs(itemCenter - containerCenter);
                 if (dist < minDistance) {
                     minDistance = dist;
                     activeIdx = i;
                 }
-            }
+            });
+            return activeIdx;
+        }
 
-            const newActiveCategory = categories[activeIdx];
-            if (newActiveCategory && newActiveCategory !== activeCategory) {
-                activeCategory = newActiveCategory;
-                displayMenuItems();
-            }
+        function updateCenteredHighlightVisuals(forcedActiveIdx) {
+            const container = document.getElementById('categoryScroll');
+            if (!container) return;
+            const items = container.querySelectorAll('.group');
+            if (items.length === 0) return;
+
+            const categories = getCategoriesForCurrentTab();
+            const activeIdx = (forcedActiveIdx !== undefined) ? forcedActiveIdx : getCenteredCategoryIndex(container);
 
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
-                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
-                const dist = Math.abs(itemCenter - containerCenter);
-                const distUnits = dist / 100;
-
-                let scale = 1.0;
-                let opacity = 1.0;
-                if (distUnits <= 0.5) {
-                    const ratio = distUnits / 0.5;
-                    scale = 1.35 - (0.35 * ratio);
-                    opacity = 1.0;
-                } else if (distUnits <= 1.5) {
-                    const ratio = (distUnits - 0.5) / 1.0;
-                    scale = 1.0 - (0.18 * ratio);
-                    opacity = 0.9 - (0.22 * ratio);
-                } else if (distUnits <= 2.5) {
-                    const ratio = (distUnits - 1.5) / 1.0;
-                    scale = 0.82 - (0.14 * ratio);
-                    opacity = 0.68 - (0.18 * ratio);
-                } else {
-                    scale = 0.68 - (0.13 * Math.min(distUnits - 2.5, 1));
-                    opacity = 0.5 - (0.15 * Math.min(distUnits - 2.5, 1));
-                }
+                const isActive = (i === activeIdx);
+                const scale = isActive ? 1.25 : 1.0;
+                const opacity = isActive ? 1.0 : 0.9;
 
                 const circle = item.querySelector('.circle-wrap');
+                const innerWrap = item.querySelector('.inner-wrap');
                 if (circle) {
                     circle.style.transform = `scale(${scale})`;
                 }
                 item.style.opacity = opacity;
 
                 const labelWrap = item.querySelector('.label-wrap');
-                const isActive = (i === activeIdx);
                 const cat = categories[i];
+                let displayName = cat;
+                if (cat === 'Pasta & Risotto Station') displayName = 'Pasta & Risotto';
+                if (cat === 'Brick Oven Pizza') displayName = 'Pizza';
+                if (cat === 'Appetizer') displayName = 'Appetizers';
 
                 if (isActive) {
-                    if (circle && !circle.classList.contains('bg-[#193627]')) {
-                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86] p-1.5 bg-[#193627] flex items-center justify-center transition-all duration-300 shadow-md overflow-hidden";
+                    if (circle) {
+                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-[#193627] p-1 bg-white flex items-center justify-center transition-all duration-300 shadow-lg overflow-hidden";
+                    }
+                    if (innerWrap) {
+                        innerWrap.className = "inner-wrap w-full h-full rounded-full border border-[#dfba86] overflow-hidden";
                     }
                     if (labelWrap && !labelWrap.querySelector('.active-ornament')) {
                         labelWrap.innerHTML = `
-                            <span class="text-[10px] md:text-[11px] font-bold text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
-                            <div class="active-ornament flex items-center justify-center gap-1 mt-1">
-                                <div class="w-5 h-[1px] bg-[#dfba86]/50"></div>
-                                <span class="text-[7px] text-[#dfba86]">✦</span>
-                                <div class="w-5 h-[1px] bg-[#dfba86]/50"></div>
+                            <span class="text-[10px] md:text-[11px] font-bold text-[#193627] uppercase tracking-widest text-center mt-2">${displayName}</span>
+                            <div class="active-ornament flex items-center justify-center gap-1.5 mt-1">
+                                <div class="w-4 h-[1px] bg-[#dfba86]"></div>
+                                <div class="w-1 h-1 rotate-45 bg-[#dfba86]"></div>
+                                <div class="w-4 h-[1px] bg-[#dfba86]"></div>
                             </div>
                         `;
                     }
                 } else {
-                    if (circle && circle.classList.contains('bg-[#193627]')) {
-                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md";
+                    if (circle) {
+                        circle.className = "circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-sm bg-white p-0.5";
+                    }
+                    if (innerWrap) {
+                        innerWrap.className = "inner-wrap w-full h-full rounded-full border border-transparent overflow-hidden";
                     }
                     if (labelWrap && (labelWrap.querySelector('.active-ornament') || labelWrap.querySelector('span').classList.contains('text-[#193627]'))) {
-                        labelWrap.innerHTML = `<span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>`;
+                        labelWrap.innerHTML = `<span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${displayName}</span>`;
                     }
                 }
             }
         }
 
+        function handleCategoryScroll() {
+            // Update highlights in real-time
+            updateCenteredHighlightVisuals();
+
+            // Debounce active category update and menu load
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const container = document.getElementById('categoryScroll');
+                if (!container) return;
+
+                const categories = getCategoriesForCurrentTab();
+                const activeIdx = getCenteredCategoryIndex(container);
+                const newActiveCategory = categories[activeIdx];
+
+                if (newActiveCategory && newActiveCategory !== activeCategory) {
+                    activeCategory = newActiveCategory;
+                    displayMenuItems();
+                }
+            }, 150);
+        }
+
         function renderCategories() {
             const container = document.getElementById('categoryScroll');
-            const midIndex = Math.floor(allCategories.length / 2);
-            const categories = [
-                ...allCategories.slice(0, midIndex),
-                'All',
-                ...allCategories.slice(midIndex)
-            ];
+            const categories = getCategoriesForCurrentTab();
 
             container.innerHTML = categories.map((cat, index) => {
+                let isGrid = (cat.toLowerCase() === 'all');
                 let imgSrc = '';
-                if (cat === 'All') {
-                    imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
-                } else {
-                    const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
-                    imgSrc = itemWithImg ? itemWithImg.image_url : '';
-                }
                 
-                if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
-                    if (!imgSrc.startsWith('uploads/')) {
-                        imgSrc = 'uploads/' + imgSrc;
+                if (!isGrid) {
+                    if (currentTab === 'beverages') {
+                        imgSrc = BEVERAGE_IMAGES[cat] || BEVERAGE_IMAGES['All'];
+                    } else {
+                        const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
+                        imgSrc = itemWithImg ? itemWithImg.image_url : '';
+                        
+                        if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                            if (!imgSrc.startsWith('uploads/')) {
+                                imgSrc = 'uploads/' + imgSrc;
+                            }
+                        }
+                        if (!imgSrc) {
+                            const PLACEHOLDERS = {
+                                'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
+                                'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
+                                'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                                'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
+                                'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
+                                'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
+                                'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
+                                'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
+                                'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
+                                'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                                'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                                'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
+                                'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
+                                'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                                'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                                'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
+                                'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
+                                'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
+                            };
+                            imgSrc = PLACEHOLDERS[cat] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                        }
                     }
                 }
-                if (!imgSrc) {
-                    const PLACEHOLDERS = {
-                        'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
-                        'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
-                        'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
-                        'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
-                        'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
-                        'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
-                        'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
-                        'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
-                        'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
-                        'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
-                        'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
-                        'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=200&h=200&fit=crop',
-                        'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
-                        'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
-                        'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
-                        'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
-                        'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
-                        'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
-                        'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
-                        'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
-                    };
-                    imgSrc = PLACEHOLDERS[cat] || PLACEHOLDERS['All'];
+
+                let displayName = cat;
+                if (cat === 'Pasta & Risotto Station') displayName = 'Pasta & Risotto';
+                if (cat === 'Brick Oven Pizza') displayName = 'Pizza';
+                if (cat === 'Appetizer') displayName = 'Appetizers';
+
+                let innerContent = '';
+                if (isGrid) {
+                    innerContent = `
+                        <div class="w-full h-full bg-[#f9f6f0] flex items-center justify-center">
+                            <svg class="w-7 h-7 text-[#dfba86]" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                                <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                            </svg>
+                        </div>
+                    `;
+                } else {
+                    innerContent = `<img src="${imgSrc}" alt="${cat}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">`;
                 }
 
                 return `
                     <div onclick="filterCategory('${cat}', ${index})" id="cat-pill-${index}"
                          class="flex flex-col items-center gap-2 cursor-pointer group shrink-0 transition-all duration-300 py-3 select-none"
                          style="width: 100px;">
-                        <div class="circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md">
-                            <img src="${imgSrc}" alt="${cat}" class="w-full h-full rounded-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
+                        <div class="circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-sm bg-white p-0.5">
+                            <div class="inner-wrap w-full h-full rounded-full border border-transparent overflow-hidden">
+                                ${innerContent}
+                            </div>
                         </div>
                         <div class="label-wrap flex flex-col items-center min-h-[30px] justify-start w-full">
-                            <span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
+                            <span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${displayName}</span>
                         </div>
                     </div>
                 `;
@@ -675,18 +866,19 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
 
         function filterCategory(catName, index) {
             activeCategory = catName;
-            const midIndex = Math.floor(allCategories.length / 2);
-            const categories = [
-                ...allCategories.slice(0, midIndex),
-                'All',
-                ...allCategories.slice(midIndex)
-            ];
+            const categories = getCategoriesForCurrentTab();
             const targetIdx = index !== undefined ? index : categories.indexOf(catName);
+            
+            // Instantly render matching items
+            displayMenuItems();
+            
+            // Center the selected category pill
             if (targetIdx !== -1) {
                 centerActivePill(targetIdx);
-            } else {
-                displayMenuItems();
             }
+            
+            // Instantly update categories navigation highlight styling
+            updateCenteredHighlightVisuals(targetIdx);
         }
 
         // Scroll helper for chevrons
@@ -747,15 +939,31 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                 'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&h=400&fit=crop',
                 'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&h=400&fit=crop',
                 'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=400&fit=crop',
-                'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500&h=400&fit=crop',
                 'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=400&fit=crop',
                 'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=500&h=400&fit=crop',
                 'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=500&h=400&fit=crop',
                 'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&h=400&fit=crop',
                 'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&h=400&fit=crop',
-                'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&h=400&fit=crop'
+                'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&h=400&fit=crop',
+                'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500&h=400&fit=crop',
+                // Subcategory fallbacks
+                'Cocktails': 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=500&h=400&fit=crop',
+                'Signature Mocktails': 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&h=400&fit=crop',
+                'Beer': 'https://images.unsplash.com/photo-1567696911980-2dea991db2dd?w=500&h=400&fit=crop',
+                'Red Wine': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=500&h=400&fit=crop',
+                'White Wine': 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=500&h=400&fit=crop',
+                'Rose Wine': 'https://images.unsplash.com/photo-1553184920-f80868a29db9?w=500&h=400&fit=crop',
+                'Sparkling / Champagne': 'https://images.unsplash.com/photo-1594487524733-f24b33d0e6ab?w=500&h=400&fit=crop',
+                'Vodka': 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?w=500&h=400&fit=crop',
+                'Rum': 'https://images.unsplash.com/photo-1614313511387-1436a4480fed?w=500&h=400&fit=crop',
+                'Gin': 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=500&h=400&fit=crop',
+                'Tequila': 'https://images.unsplash.com/photo-1516535794938-6063878f28cc?w=500&h=400&fit=crop',
+                'Whiskey': 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=500&h=400&fit=crop',
+                'Single Malt Whiskey': 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=500&h=400&fit=crop',
+                'Blended Malt Whiskey': 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=500&h=400&fit=crop',
+                'Other World Whiskey': 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=500&h=400&fit=crop'
             };
-            const fallbackSrc = PLACEHOLDERS[item.category] || PLACEHOLDERS['All'];
+            let fallbackSrc = PLACEHOLDERS[item.subcategory] || PLACEHOLDERS[item.category] || PLACEHOLDERS['All'];
             if (!imgSrc) imgSrc = fallbackSrc;
 
             const hasCust = item.customizations && item.customizations.length > 0;
@@ -804,56 +1012,96 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
         function displayMenuItems() {
             const container = document.getElementById('menuContainer');
 
-            let itemsToRender = allMenuItems;
-            if (activeCategory !== 'All') {
-                itemsToRender = allMenuItems.filter(i => i.category === activeCategory);
+            let itemsToRender = [];
+            if (currentTab === 'beverages') {
+                itemsToRender = allMenuItems.filter(item => item.category === 'Beverages');
+                if (activeCategory !== 'All') {
+                    const mapping = BEVERAGE_MAPPING[activeCategory];
+                    if (mapping) {
+                        itemsToRender = itemsToRender.filter(mapping.filterFn);
+                    }
+                }
+            } else {
+                itemsToRender = allMenuItems.filter(item => item.category !== 'Beverages' && item.category !== 'Beverage');
+                if (activeCategory !== 'All') {
+                    itemsToRender = itemsToRender.filter(item => item.category === activeCategory);
+                }
             }
 
             if (itemsToRender.length === 0) {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 fade-up">
-                        <i class="fas fa-utensils text-5xl text-gray-300 mb-4"></i>
-                        <p class="font-serif text-xl text-gray-500">No dishes available.</p>
+                        <i class="${currentTab === 'beverages' ? 'fas fa-wine-glass-alt' : 'fas fa-utensils'} text-5xl text-gray-300 mb-4"></i>
+                        <p class="font-serif text-xl text-gray-500">No items available.</p>
                     </div>`;
                 return;
             }
 
-            // Group by category for rendering
             const grouped = {};
-            itemsToRender.forEach(item => {
-                const c = item.category || 'Other';
-                if (!grouped[c]) grouped[c] = [];
-                grouped[c].push(item);
-            });
+            if (currentTab === 'beverages') {
+                if (activeCategory === 'All') {
+                    Object.keys(BEVERAGE_MAPPING).forEach(bevCat => {
+                        const itemsInBevCat = itemsToRender.filter(BEVERAGE_MAPPING[bevCat].filterFn);
+                        if (itemsInBevCat.length > 0) {
+                            grouped[bevCat] = itemsInBevCat;
+                        }
+                    });
+                } else {
+                    grouped[activeCategory] = itemsToRender;
+                }
+            } else {
+                itemsToRender.forEach(item => {
+                    const c = item.category || 'Other';
+                    if (!grouped[c]) grouped[c] = [];
+                    grouped[c].push(item);
+                });
+            }
 
             let html = '';
             let catIndex = 0;
             
-            // Sort the grouped categories based on allCategories order
-            const sortedCategories = Object.keys(grouped).sort((a, b) => {
-                const indexA = allCategories.indexOf(a);
-                const indexB = allCategories.indexOf(b);
-                // If not found in allCategories, put at the end
-                return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
-            });
+            let sortedCategories = [];
+            if (currentTab === 'beverages') {
+                sortedCategories = Object.keys(grouped).sort((a, b) => {
+                    const order = Object.keys(BEVERAGE_MAPPING);
+                    return order.indexOf(a) - order.indexOf(b);
+                });
+            } else {
+                sortedCategories = Object.keys(grouped).sort((a, b) => {
+                    const indexA = allCategories.indexOf(a);
+                    const indexB = allCategories.indexOf(b);
+                    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+                });
+            }
 
             for (const cat of sortedCategories) {
                 const items = grouped[cat];
                 const catId = cat.replace(/[^a-zA-Z0-9]/g, '');
-                const hasSubcategories = items.some(item => item.subcategory);
+                
+                let hasSubcategories = false;
+                if (currentTab === 'beverages') {
+                    const uniqueSubs = [...new Set(items.map(item => item.subcategory).filter(Boolean))];
+                    hasSubcategories = (uniqueSubs.length > 1);
+                } else {
+                    hasSubcategories = items.some(item => item.subcategory);
+                }
 
-                // Render Carousel Header
+                let displayCatName = cat;
+                if (cat === 'Pasta & Risotto Station') displayCatName = 'Pasta & Risotto';
+                if (cat === 'Brick Oven Pizza') displayCatName = 'Pizza';
+                if (cat === 'Appetizer') displayCatName = 'Appetizers';
+
                 const headerHtml = `
                     <div class="relative w-full flex items-center justify-center my-12">
                         <div class="absolute left-0 right-0 h-[1px] bg-[#dfba86]/40 flex items-center justify-between pointer-events-none">
                             <div class="w-[38%] border-t border-[#dfba86]/30 relative">
-                                <div class="absolute right-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                                <div class="absolute right-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-[#f9f6f0]"></div>
                             </div>
                             <div class="w-[38%] border-t border-[#dfba86]/30 relative">
-                                <div class="absolute left-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-cream"></div>
+                                <div class="absolute left-0 -top-1 w-2 h-2 rotate-45 border border-[#dfba86] bg-[#f9f6f0]"></div>
                             </div>
                         </div>
-                        <span class="relative font-serif text-xl md:text-2xl font-bold text-[#193627] uppercase tracking-widest px-6 bg-cream z-10">${cat}</span>
+                        <span class="relative font-serif text-xl md:text-2xl font-bold text-[#193627] uppercase tracking-widest px-6 bg-[#f9f6f0] z-10">${displayCatName}</span>
                         ${activeCategory === 'All' ? `
                             <button onclick="filterCategory('${cat}')" class="absolute right-0 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#dfba86] hover:text-[#b8973a] transition-colors bg-transparent border-0 outline-none cursor-pointer uppercase tracking-widest flex items-center gap-1 font-serif">
                                 View All <i class="fas fa-arrow-right text-[10px] ml-1"></i>
@@ -936,7 +1184,6 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                         </div>
                     `;
                 } else {
-                    // Standard rendering without subcategories
                     const cardsHtml = items.map((item, index) => generateCardHtml(item, index, activeCategory === 'All')).join('');
 
                     if (activeCategory === 'All') {
@@ -992,10 +1239,16 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
             container.innerHTML = html;
             syncCartUI();
 
-            // Trigger scroll indicators check initially
             if (activeCategory === 'All') {
                 for (const [cat, items] of Object.entries(grouped)) {
-                    const hasSub = items.some(item => item.subcategory);
+                    let hasSub = false;
+                    if (currentTab === 'beverages') {
+                        const uniqueSubs = [...new Set(items.map(item => item.subcategory).filter(Boolean))];
+                        hasSub = (uniqueSubs.length > 1);
+                    } else {
+                        hasSub = items.some(item => item.subcategory);
+                    }
+
                     if (hasSub) {
                         const subCats = [...new Set(items.map(item => item.subcategory || 'Other'))];
                         subCats.forEach(sub => {
@@ -1353,6 +1606,25 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
             if (container) container.scrollBy({ left: amount, behavior: 'smooth' });
         }
 
+        function navigateCategory(direction) {
+            const container = document.getElementById('categoryScroll');
+            if (!container) return;
+
+            const categories = getCategoriesForCurrentTab();
+            const currentIdx = getCenteredCategoryIndex(container);
+            
+            // Calculate target index based on direction
+            let targetIdx = currentIdx + direction;
+            
+            // Clamp targetIdx to valid bounds
+            if (targetIdx < 0) targetIdx = 0;
+            if (targetIdx >= categories.length) targetIdx = categories.length - 1;
+            
+            // Filter and center the category
+            const targetCat = categories[targetIdx];
+            filterCategory(targetCat, targetIdx);
+        }
+
         let isDown = false;
         let startX;
         let scrollLeft;
@@ -1389,6 +1661,24 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
             leftBtn.disabled = container.scrollLeft <= 0;
             rightBtn.disabled = Math.ceil(container.scrollLeft) >= container.scrollWidth - container.clientWidth;
         }
+
+        // Keydown listener for Left/Right arrow keys to scroll categories
+        document.addEventListener('keydown', (e) => {
+            // Prevent scrolling if user is typing in form fields or search boxes
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+            const container = document.getElementById('categoryScroll');
+            if (!container) return;
+
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                scrollCategories(-150);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                scrollCategories(150);
+            }
+        });
 
         window.addEventListener('pageshow', (event) => {
             window.hasAlertedForLogin = false;
