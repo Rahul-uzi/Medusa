@@ -252,20 +252,26 @@
                     flavors.
                 </p>
                 
-                <!-- Tab Toggle Buttons -->
-                <div class="flex justify-center items-center gap-4 mt-6">
-                    <button id="tab-food" onclick="switchTab('food')" class="flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg">
-                        <svg class="w-4 h-4 text-[#dfba86]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3c-1.1 0-2 .9-2 2h4c0-1.1-.9-2-2-2zm10 13c0-4.97-4.03-9-9-9s-9 4.03-9 9h18zm-19 2h20v2H3v-2z"/>
-                        </svg>
-                        <span>Food</span>
-                    </button>
-                    <button id="tab-beverages" onclick="switchTab('beverages')" class="flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10">
-                        <svg class="w-4 h-4 text-[#dfba86]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M5.66 3h12.68c.28 0 .5.22.5.5v1.22c0 .94-.52 1.8-1.34 2.23L13 9.42V18h3.5c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5H7.5c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5H11V9.42L6.5 6.95C5.68 6.53 5.16 5.66 5.16 4.72V3.5c0-.28.22-.5.5-.5z"/>
-                        </svg>
-                        <span>Beverages</span>
-                    </button>
+                <!-- Tab Toggle Buttons (Sliding Pill) -->
+                <div class="flex justify-center items-center mt-6">
+                    <div class="relative flex items-center bg-[#f9f6f0] rounded-full p-1 border border-[#dfba86]/30 shadow-md">
+                        <div class="relative flex w-full">
+                            <!-- Sliding Background -->
+                            <div id="tab-slider" class="absolute left-0 top-0 bottom-0 w-1/2 rounded-full bg-[#193627] shadow-md transition-transform duration-300 ease-out z-0"></div>
+                            
+                            <!-- Food Button -->
+                            <button id="tab-food" onclick="switchTab('food')" class="relative z-10 w-1/2 flex items-center justify-center gap-2 px-6 py-2.5 rounded-full transition-colors duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer text-white border-0 bg-transparent min-w-[140px] focus:outline-none">
+                                <i class="fas fa-concierge-bell text-[#dfba86]"></i>
+                                <span>Food</span>
+                            </button>
+                            
+                            <!-- Beverages Button -->
+                            <button id="tab-beverages" onclick="switchTab('beverages')" class="relative z-10 w-1/2 flex items-center justify-center gap-2 px-6 py-2.5 rounded-full transition-colors duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer text-[#193627] border-0 bg-transparent min-w-[140px] focus:outline-none">
+                                <i class="fas fa-martini-glass text-[#dfba86]"></i>
+                                <span>Beverages</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- Curved Bottom SVG -->
@@ -412,7 +418,7 @@
         let allMenuItems = [];
         let localCart = {};
         let custCurrentItem = null;
-        let activeCategory = 'All';
+        let activeCategory = null;
 
         // Check 36-hour cart expiry
         try {
@@ -520,6 +526,7 @@
                 if (result.success && result.data && result.data.length > 0) {
                     allMenuItems = result.data;
                     allCategories = result.categories && result.categories.length > 0 ? result.categories : [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+                    if (!activeCategory) activeCategory = getCategoriesForCurrentTab()[0];
                     renderCategories();
                     displayMenuItems();
                     updateCartCount();
@@ -535,7 +542,8 @@
                     { id: 4, name: 'Burrata & Heirloom Tomatoes', description: 'Creamy burrata with heirloom tomatoes, basil oil, and aged balsamic.', price: '380.00', image_url: '', category: 'Appetizers', customizations: [] },
                     { id: 5, name: 'Seared Scallops', description: 'Pan-seared scallops with cauliflower puree, chives, and brown butter.', price: '520.00', image_url: '', category: 'Appetizers', customizations: [] }
                 ];
-allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+                allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
+                if (!activeCategory) activeCategory = getCategoriesForCurrentTab()[0];
                 renderCategories();
                 displayMenuItems();
                 updateCartCount();
@@ -599,7 +607,6 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
         function getCategoriesForCurrentTab() {
             if (currentTab === 'beverages') {
                 return [
-                    'All',
                     'Signature Cocktails',
                     'Mocktails',
                     'Classic Cocktails',
@@ -611,7 +618,7 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                     'Non-Alcoholic'
                 ];
             } else {
-                return ['All', ...allCategories.filter(c => c !== 'Beverages' && c !== 'Beverage')];
+                return allCategories.filter(c => c !== 'Beverages' && c !== 'Beverage');
             }
         }
 
@@ -621,13 +628,20 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
             
             const foodBtn = document.getElementById('tab-food');
             const bevBtn = document.getElementById('tab-beverages');
+            const slider = document.getElementById('tab-slider');
             
             if (tab === 'food') {
-                foodBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg";
-                bevBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10";
+                if(slider) slider.style.transform = 'translateX(0)';
+                foodBtn.classList.remove('text-[#193627]');
+                foodBtn.classList.add('text-white');
+                bevBtn.classList.remove('text-white');
+                bevBtn.classList.add('text-[#193627]');
             } else {
-                bevBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#193627] text-white border-[#dfba86] hover:shadow-lg";
-                foodBtn.className = "flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 font-bold uppercase tracking-wider text-xs md:text-sm cursor-pointer shadow-md bg-[#f9f6f0] text-[#193627] border-[#dfba86]/30 hover:bg-[#dfba86]/10";
+                if(slider) slider.style.transform = 'translateX(100%)';
+                bevBtn.classList.remove('text-[#193627]');
+                bevBtn.classList.add('text-white');
+                foodBtn.classList.remove('text-white');
+                foodBtn.classList.add('text-[#193627]');
             }
             
             const scriptHeading = document.getElementById('hero-script-heading');
@@ -663,7 +677,7 @@ allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                 delete container.dataset.hasScrollListener;
             }
 
-            activeCategory = 'All';
+            activeCategory = getCategoriesForCurrentTab()[0];
             renderCategories();
             displayMenuItems();
         }
