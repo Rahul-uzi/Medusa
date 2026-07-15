@@ -484,6 +484,7 @@
 
     <script>
         let allMenuItems = [];
+        let allCategories = [];
         let localCart    = {};
         let custCurrentItem = null; // item currently open in customization modal
         let activeCategory = 'All';
@@ -517,7 +518,7 @@
 
         /* ============================================================
            LOAD MENU FROM API
-        ============================================================ */
+         ============================================================ */
         async function loadMenu() {
             try {
                 const res = await fetch('api/get-menu.php');
@@ -525,6 +526,7 @@
                 const result = await res.json();
                 if (result.success && result.data && result.data.length > 0) {
                     allMenuItems = result.data;
+                    allCategories = result.categories && result.categories.length > 0 ? result.categories : [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                     renderCategories();
                     displayMenuItems();
                     updateCartCount();
@@ -540,6 +542,7 @@
                     { id:4, name:'Gulab Jamun',        description:'Sweet milk dumplings in warm cardamom syrup',      price:'129.00', image_url:'', category:'Sides', customizations:[] },
                     { id:5, name:'Paneer Tikka',       description:'Marinated cottage cheese grilled to perfection',   price:'279.00', image_url:'', category:'Non-Veg Appetizer', customizations:[] }
                 ];
+                allCategories = [...new Set(allMenuItems.map(i => i.category).filter(Boolean))];
                 renderCategories();
                 displayMenuItems();
                 updateCartCount();

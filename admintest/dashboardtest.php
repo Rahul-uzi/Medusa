@@ -1238,13 +1238,24 @@ if (isset($_REQUEST['action'])) {
     // Update Menu Order (Drag and Drop)
     if ($action === 'update_menu_order') {
         $order = json_decode($_POST['order'] ?? '[]');
-        if (is_array($order)) {
+        if (is_array($order) && count($order) > 0) {
             $pdo->beginTransaction();
             try {
-                $stmt = $pdo->prepare("UPDATE food_items SET sort_order = ? WHERE id = ?");
+                // Fetch the current sort_orders for the items being reordered
+                $placeholders = implode(',', array_fill(0, count($order), '?'));
+                $stmt = $pdo->prepare("SELECT id, sort_order FROM food_items WHERE id IN ($placeholders) ORDER BY sort_order ASC, id ASC");
+                $stmt->execute($order);
+                $current_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Map the original sort_orders to the new order sequence
+                $original_sort_orders = array_column($current_items, 'sort_order');
+                
+                $update_stmt = $pdo->prepare("UPDATE food_items SET sort_order = ? WHERE id = ?");
                 foreach ($order as $index => $id) {
-                    $stmt->execute([$index, $id]);
+                    $new_sort_order = isset($original_sort_orders[$index]) ? $original_sort_orders[$index] : $index;
+                    $update_stmt->execute([$new_sort_order, intval($id)]);
                 }
+                
                 $pdo->commit();
                 echo json_encode(['success' => true]);
             } catch (PDOException $e) {
@@ -1252,8 +1263,83 @@ if (isset($_REQUEST['action'])) {
                 echo json_encode(['success' => false, 'message' => $e->getMessage()]);
             }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Invalid order data']);
+            echo json_encode(['success' => false, 'message' => 'Invalid or empty order data']);
         }
+        exit;
+    }
+    
+    // Save categories to categories.json
+    if ($action === 'save_categories') {
+        $categoriesData = json_decode($_POST['categories'] ?? '[]', true);
+        if (is_array($categoriesData)) {
+            $clean_categories = [];
+            $pdo->beginTransaction();
+            try {
+                foreach ($categoriesData as $item) {
+                    if (!is_array($item)) continue;
+                    $original = trim($item['original'] ?? '');
+                    $current = trim($item['current'] ?? '');
+                    
+                    if ($current === '') continue;
+                    
+                    // If it was renamed, update the database items
+                    if ($original !== '' && $original !== $current) {
+                        $stmt = $pdo->prepare("UPDATE food_items SET category = ? WHERE category = ?");
+                        $stmt->execute([$current, $original]);
+                    }
+                    
+                    $clean_categories[] = $current;
+                }
+                
+                $clean_categories = array_values(array_unique($clean_categories));
+                
+                $cat_file = __DIR__ . '/categories.json';
+                if (file_put_contents($cat_file, json_encode($clean_categories, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))) {
+                    $pdo->commit();
+                    echo json_encode(['success' => true]);
+                } else {
+                    $pdo->rollBack();
+                    echo json_encode(['success' => false, 'message' => 'Failed to write categories file']);
+                }
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Invalid categories data']);
+        }
+        exit;
+    }
+
+    // Get categories from categories.json
+    if ($action === 'get_categories') {
+        $cat_file = __DIR__ . '/categories.json';
+        $cats = file_exists($cat_file) ? json_decode(file_get_contents($cat_file), true) : [];
+        echo json_encode(['success' => true, 'categories' => $cats]);
+        exit;
+    }
+
+    // Check category usage in dishes
+    if ($action === 'check_category_usage') {
+        $category = $_REQUEST['category'] ?? '';
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM food_items WHERE category = ?");
+        $stmt->execute([$category]);
+        $count = (int)$stmt->fetchColumn();
+        echo json_encode(['success' => true, 'count' => $count]);
+        exit;
+    }
+
+    // Get dishes by category (for sorting/reordering)
+    if ($action === 'get_dishes_by_category') {
+        $category = $_REQUEST['category'] ?? '';
+        if ($category === '') {
+            $stmt = $pdo->query("SELECT id, name, price, image_url, category, sort_order, diet_type FROM food_items ORDER BY sort_order ASC, id ASC");
+        } else {
+            $stmt = $pdo->prepare("SELECT id, name, price, image_url, category, sort_order, diet_type FROM food_items WHERE category = ? ORDER BY sort_order ASC, id ASC");
+            $stmt->execute([$category]);
+        }
+        $dishes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'dishes' => $dishes]);
         exit;
     }
     
@@ -4053,26 +4139,13 @@ html:not(.light-mode) .form-select:focus{
                             <label class="form-label text-muted small text-uppercase">Category</label>
                             <select id="menu_category_select" class="form-select bg-dark text-white border-secondary form-control-dashboard">
                                 <option value="">All Categories</option>
-                                <option value="Beverages">Beverages</option>
-                                <option value="Soups">Soups</option>
-                                <option value="Salad">Salad</option>
-                                <option value="Bread Basket">Bread Basket</option>
-                                <option value="Sides">Sides</option>
-                                <option value="Meals in the Bowl">Meals in the Bowl</option>
-                                <option value="Main Course">Main Course</option>
-                                <option value="Chinese & Korean">Chinese & Korean</option>
-                                <option value="Indian">Indian</option>
-                                <option value="Dim Sum Cart">Dim Sum Cart</option>
-                                <option value="Sushi Rolls">Sushi Rolls</option>
-                                <option value="Burgers & Sandwiches">Burgers & Sandwiches</option>
-                                <option value="Sharing Boards">Sharing Boards</option>
-                                <option value="Brick Oven Pizza">Brick Oven Pizza</option>
-                                <option value="Non-Veg Appetizer">Non-Veg Appetizer</option>
-                                <option value="Pasta & Risotto Station">Pasta & Risotto Station</option>
-                                <option value="Veg Appetizer">Veg Appetizer</option>
-                                <option value="Veg Indian Main Course">Veg Indian Main Course</option>
-                                <option value="Non-Veg Indian Main Course">Non-Veg Indian Main Course</option>
-                                <option value="Tandoori Starter">Tandoori Starter</option>
+                                <?php
+                                $cat_file = __DIR__ . '/categories.json';
+                                $cats = file_exists($cat_file) ? json_decode(file_get_contents($cat_file), true) : [];
+                                foreach ($cats as $c) {
+                                    echo '<option value="' . htmlspecialchars($c) . '">' . htmlspecialchars($c) . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -4135,7 +4208,6 @@ html:not(.light-mode) .form-select:focus{
                                 <th style="width: 40px;" class="text-center">
                                     <input class="form-check-input" type="checkbox" id="selectAllSearchResults" onclick="document.querySelectorAll('.search-result-checkbox').forEach(cb => cb.checked = this.checked)">
                                 </th>
-                                <th style="width: 40px;"></th>
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Category</th>
@@ -4151,9 +4223,17 @@ html:not(.light-mode) .form-select:focus{
             </div>
 
             <div class="content-card">
-                <div class="card-header-premium">
+                <div class="card-header-premium flex-wrap gap-2">
                     <span>Active Food Items</span>
-                    <button class="btn btn-gold-action btn-action-wide" onclick="openAddMenuModal()"><i class="fas fa-plus"></i><span>Add New Dish</span></button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-white border-secondary" onclick="openManageCategoriesModal()">
+                            <i class="fas fa-tags me-1"></i> Manage Categories
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-white border-secondary" onclick="openReorderDishesModal()">
+                            <i class="fas fa-sort me-1"></i> Reorder Dishes
+                        </button>
+                        <button class="btn btn-gold-action btn-action-wide" onclick="openAddMenuModal()"><i class="fas fa-plus"></i><span>Add New Dish</span></button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table premium-table align-middle">
@@ -5394,6 +5474,71 @@ html:not(.light-mode) .form-select:focus{
                 </div>
             </div>
         </div>
+
+    <!-- Manage Categories Modal -->
+    <div class="modal" id="manageCategoriesModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-playfair"><i class="fas fa-tags text-gold me-2"></i>Manage Categories</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Drag and drop categories to reorder them on the public menu. You can also edit names inline. Deleting is only allowed for unused categories.</p>
+                    
+                    <div class="mb-4" style="max-height: 300px; overflow-y: auto;">
+                        <ul id="categories-sortable-list" class="list-group bg-dark border-secondary">
+                            <!-- Items populated dynamically by JS -->
+                        </ul>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="new-category-input" class="form-control bg-dark text-white border-secondary" placeholder="New category name (e.g. Desserts)">
+                        <button type="button" class="btn btn-gold-action" id="add-category-btn" onclick="addNewCategoryRow()">
+                            <i class="fas fa-plus me-1"></i> Add
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-gold-action" onclick="saveCategoriesSequence()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reorder Dishes Modal -->
+    <div class="modal" id="reorderDishesModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark border-secondary text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-playfair"><i class="fas fa-sort text-gold me-2"></i>Reorder Dishes</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Select Category to Reorder</label>
+                        <select id="reorder-category-select" class="form-select bg-dark text-white border-secondary" onchange="loadDishesForReordering(this.value)">
+                            <option value="">-- Choose Category --</option>
+                            <!-- Dynamically loaded -->
+                        </select>
+                    </div>
+
+                    <p class="text-muted small mb-2" id="reorder-dishes-instruction" style="display:none;">Drag and drop the dishes below to change their visual sequence on the menu card.</p>
+                    
+                    <div class="position-relative mb-2" style="max-height: 400px; overflow-y: auto;">
+                        <ul id="dishes-sortable-list" class="list-group bg-dark border-secondary">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-gold-action" id="save-dishes-order-btn" onclick="saveDishesSequence()" disabled>Save Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Menu CRUD Modal -->
     <div class="modal" id="menuCrudModal" tabindex="-1">
@@ -6897,9 +7042,6 @@ html:not(.light-mode) .form-select:focus{
                 return `<tr data-id="${dish.id}">
                     <td class="text-center">
                         <input class="form-check-input search-result-checkbox" type="checkbox" value="${dish.id}">
-                    </td>
-                    <td class="text-center">
-                        <i class="fas fa-grip-vertical text-muted cursor-grab drag-handle" style="cursor: grab;"></i>
                     </td>
                     <td><img src="${imgSrc}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop&auto=format'"></td>
                     <td>${dietBadge}<strong>${dish.name}</strong> ${bestBadge}</td>
@@ -9139,6 +9281,310 @@ function printTableQR() {
             });
         }
     });
+
+    // Categories and reordering variables
+    let categoriesSortable = null;
+    let dishesSortable = null;
+
+    // Load categories dynamically for the Manage Categories list & dropdowns
+    function openManageCategoriesModal() {
+        fetch('dashboardtest.php?action=get_categories')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    populateCategoriesList(data.categories);
+                    const modal = new bootstrap.Modal(document.getElementById('manageCategoriesModal'));
+                    modal.show();
+                } else {
+                    showToast('Failed to load categories.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error fetching categories.', 'error');
+            });
+    }
+
+    function populateCategoriesList(categories) {
+        const list = document.getElementById('categories-sortable-list');
+        list.innerHTML = '';
+        categories.forEach(cat => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item bg-dark border-secondary text-white d-flex align-items-center justify-content-between p-2';
+            li.setAttribute('data-category', cat);
+            li.innerHTML = `
+                <div class="d-flex align-items-center flex-grow-1 gap-2">
+                    <span class="category-drag-handle text-muted cursor-grab" style="cursor: move;"><i class="fas fa-grip-vertical"></i></span>
+                    <input type="text" class="form-control form-control-sm bg-dark text-white border-0 py-0 category-name-input" value="${escapeHtml(cat)}" style="box-shadow: none;">
+                </div>
+                <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="deleteCategoryRow(this, '${escapeHtml(cat)}')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            list.appendChild(li);
+        });
+
+        // Initialize Sortable on categories list
+        if (categoriesSortable) {
+            categoriesSortable.destroy();
+        }
+        categoriesSortable = new Sortable(list, {
+            handle: '.category-drag-handle',
+            animation: 150
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Add temporary new category row to the modal list
+    function addNewCategoryRow() {
+        const input = document.getElementById('new-category-input');
+        const catName = input.value.trim();
+        if (!catName) {
+            showToast('Category name cannot be empty', 'error');
+            return;
+        }
+
+        // Check for duplicates in list
+        const existingInputs = Array.from(document.querySelectorAll('.category-name-input')).map(inp => inp.value.trim().toLowerCase());
+        if (existingInputs.includes(catName.toLowerCase())) {
+            showToast('Category already exists in list', 'error');
+            return;
+        }
+
+        const list = document.getElementById('categories-sortable-list');
+        const li = document.createElement('li');
+        li.className = 'list-group-item bg-dark border-secondary text-white d-flex align-items-center justify-content-between p-2';
+        li.setAttribute('data-category', ''); // empty means added fresh
+        li.innerHTML = `
+            <div class="d-flex align-items-center flex-grow-1 gap-2">
+                <span class="category-drag-handle text-muted cursor-grab" style="cursor: move;"><i class="fas fa-grip-vertical"></i></span>
+                <input type="text" class="form-control form-control-sm bg-dark text-white border-0 py-0 category-name-input" value="${escapeHtml(catName)}" style="box-shadow: none;">
+            </div>
+            <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="deleteCategoryRow(this, '')">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+        list.appendChild(li);
+        input.value = '';
+    }
+
+    // Delete a category row from the list (with DB check if it was pre-existing)
+    function deleteCategoryRow(button, originalName) {
+        const row = button.closest('li');
+        if (!originalName) {
+            // It's a newly added category, not saved in DB yet. Safe to delete.
+            row.remove();
+            return;
+        }
+
+        // Call backend to check if the category is used by dishes
+        fetch('dashboardtest.php?action=check_category_usage&category=' + encodeURIComponent(originalName))
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.count > 0) {
+                        alert(`Cannot delete category "${originalName}" because it is currently used by ${data.count} dishes.\nPlease assign those dishes to another category first.`);
+                    } else {
+                        if (confirm(`Are you sure you want to delete category "${originalName}"?`)) {
+                            row.remove();
+                        }
+                    }
+                } else {
+                    showToast('Failed to check category usage.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error checking category usage.', 'error');
+            });
+    }
+
+    // Save the entire categories sequence (renamed, added, reordered) to the backend
+    function saveCategoriesSequence() {
+        const listItems = Array.from(document.querySelectorAll('#categories-sortable-list li'));
+        const categoriesData = listItems.map(li => {
+            return {
+                original: li.getAttribute('data-category'), // empty if new
+                current: li.querySelector('.category-name-input').value.trim()
+            };
+        });
+
+        // Validation: check for empty names
+        if (categoriesData.some(c => !c.current)) {
+            showToast('Category names cannot be empty.', 'error');
+            return;
+        }
+
+        // Validation: check for duplicates
+        const names = categoriesData.map(c => c.current.toLowerCase());
+        const uniqueNames = new Set(names);
+        if (names.length !== uniqueNames.size) {
+            showToast('Category names must be unique.', 'error');
+            return;
+        }
+
+        fetch('dashboardtest.php?action=save_categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'categories=' + encodeURIComponent(JSON.stringify(categoriesData))
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Categories updated successfully!', 'success');
+                // Hide modal
+                const modalEl = document.getElementById('manageCategoriesModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
+                // Reload page to refresh all category dropdowns and menus
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showToast(data.message || 'Failed to save categories.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Error saving categories.', 'error');
+        });
+    }
+
+    // Reorder Dishes JS logic
+    function openReorderDishesModal() {
+        // Load categories into select
+        fetch('dashboardtest.php?action=get_categories')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('reorder-category-select');
+                    select.innerHTML = '<option value="">-- Choose Category --</option>';
+                    data.categories.forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat;
+                        opt.textContent = cat;
+                        select.appendChild(opt);
+                    });
+
+                    // Clear dishes list
+                    document.getElementById('dishes-sortable-list').innerHTML = '';
+                    document.getElementById('reorder-dishes-instruction').style.display = 'none';
+                    document.getElementById('save-dishes-order-btn').disabled = true;
+
+                    const modal = new bootstrap.Modal(document.getElementById('reorderDishesModal'));
+                    modal.show();
+                } else {
+                    showToast('Failed to load categories.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error loading categories.', 'error');
+            });
+    }
+
+    // Load dishes under selected category to sort
+    function loadDishesForReordering(category) {
+        const list = document.getElementById('dishes-sortable-list');
+        list.innerHTML = '';
+        document.getElementById('reorder-dishes-instruction').style.display = 'none';
+        document.getElementById('save-dishes-order-btn').disabled = true;
+
+        if (!category) return;
+
+        fetch('dashboardtest.php?action=get_dishes_by_category&category=' + encodeURIComponent(category))
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.dishes.length === 0) {
+                        list.innerHTML = '<div class="text-center p-3 text-muted">No dishes found in this category.</div>';
+                        return;
+                    }
+
+                    document.getElementById('reorder-dishes-instruction').style.display = 'block';
+                    document.getElementById('save-dishes-order-btn').disabled = false;
+
+                    data.dishes.forEach(dish => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item bg-dark border-secondary text-white d-flex align-items-center justify-content-between p-2';
+                        li.setAttribute('data-id', dish.id);
+                        
+                        const imageHtml = dish.image ? 
+                            `<img src="../${escapeHtml(dish.image)}" alt="" class="rounded" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1);">` :
+                            `<div class="rounded bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;"><i class="fas fa-utensils text-white-50"></i></div>`;
+
+                        li.innerHTML = `
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="dish-drag-handle text-muted cursor-grab" style="cursor: move;"><i class="fas fa-grip-vertical"></i></span>
+                                ${imageHtml}
+                                <div>
+                                    <div class="fw-bold">${escapeHtml(dish.name)}</div>
+                                    <div class="small text-muted">Price: ₹${parseFloat(dish.price).toFixed(2)} | Diet: ${escapeHtml(dish.diet_type)}</div>
+                                </div>
+                            </div>
+                            <div class="text-muted small">ID: #${dish.id}</div>
+                        `;
+                        list.appendChild(li);
+                    });
+
+                    // Initialize Sortable on dishes list
+                    if (dishesSortable) {
+                        dishesSortable.destroy();
+                    }
+                    dishesSortable = new Sortable(list, {
+                        handle: '.dish-drag-handle',
+                        animation: 150
+                    });
+                } else {
+                    showToast('Failed to load dishes.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('Error loading dishes.', 'error');
+            });
+    }
+
+    // Save the reordered sequence of dishes
+    function saveDishesSequence() {
+        const listItems = Array.from(document.querySelectorAll('#dishes-sortable-list li'));
+        const rowIds = listItems.map(li => li.getAttribute('data-id')).filter(id => id);
+
+        if (rowIds.length === 0) {
+            showToast('No dishes to sort.', 'error');
+            return;
+        }
+
+        fetch('dashboardtest.php?action=update_menu_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'order=' + encodeURIComponent(JSON.stringify(rowIds))
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                showToast('Dish order updated successfully!', 'success');
+                const modalEl = document.getElementById('reorderDishesModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                
+                // Refresh menu search table if open
+                if (typeof performMenuSearch === 'function') {
+                    performMenuSearch();
+                }
+            } else {
+                showToast('Failed to update dish order.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Error saving dish sequence.', 'error');
+        });
+    }
 </script>
 </body>
 </html>
