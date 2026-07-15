@@ -254,7 +254,11 @@ function requireLogin() {
             json_response(['success' => false, 'message' => 'Unauthorized login required'], 401);
         } else {
             // Redirect HTML pages to login
-            header('Location: login.html');
+            $login_redirect = 'login.html';
+            if (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admintest') {
+                $login_redirect = '../login.html';
+            }
+            header('Location: ' . $login_redirect);
             exit;
         }
     }
@@ -274,7 +278,11 @@ function requireLogin() {
                     (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')) {
                     json_response(['success' => false, 'message' => 'Session expired or logged out from other devices. Please login again.'], 401);
                 } else {
-                    header('Location: login.html');
+                    $login_redirect = 'login.html';
+                    if (basename(dirname($_SERVER['SCRIPT_NAME'] ?? '')) === 'admintest') {
+                        $login_redirect = '../login.html';
+                    }
+                    header('Location: ' . $login_redirect);
                     exit;
                 }
             }
