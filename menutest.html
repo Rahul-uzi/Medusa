@@ -983,10 +983,36 @@
             const hasCust = item.customizations && item.customizations.length > 0;
             const delay = (index % 4) * 0.1;
 
+            let hasNonVegOption = false;
+            if (item.customizations && item.customizations.length > 0) {
+                for (const cust of item.customizations) {
+                    if (cust.options && cust.options.length > 0) {
+                        for (const opt of cust.options) {
+                            const label = (opt.label || '').toLowerCase();
+                            if (label.includes('chicken') || label.includes('prawn') || label.includes('fish') || label.includes('mutton') || label.includes('lamb') || label.includes('non-veg') || label.includes('non veg')) {
+                                hasNonVegOption = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasNonVegOption) break;
+                }
+            }
+
             const isVeg = (item.diet_type === 'veg');
-            const dietBadge = isVeg 
-                ? `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`
-                : `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+            const vegSvg = `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#0f8a45" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#0f8a45"/></svg></span>`;
+            const nonVegSvg = `<span class="inline-flex shrink-0 align-middle ml-1.5" title="Non-Vegetarian"><svg viewBox="0 0 24 24" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="#c82333" stroke-width="2.5"/><circle cx="12" cy="12" r="5" fill="#c82333"/></svg></span>`;
+
+            let dietBadge = '';
+            if (isVeg) {
+                dietBadge += vegSvg;
+                if (hasNonVegOption) {
+                    dietBadge += nonVegSvg;
+                }
+            } else {
+                dietBadge += nonVegSvg;
+            }
+            dietBadge = `<div class="flex items-center gap-1.5 shrink-0">${dietBadge}</div>`;
 
             const cardClasses = isCarousel 
                 ? 'w-full sm:w-[calc(50%-12px)] xl:w-[calc(25%-18px)] shrink-0 snap-start'
@@ -1574,6 +1600,26 @@
                 extra += parseFloat(inp.dataset.price) || 0;
             });
             document.getElementById('custTotalDisplay').textContent = (base + extra).toFixed(0);
+
+            // Dynamic image toggle for Thai Curry
+            if (custCurrentItem.name && custCurrentItem.name.includes('Thai Curry')) {
+                let chosenStyle = 'green';
+                document.querySelectorAll('#custModalBody input:checked').forEach(inp => {
+                    const labelEl = inp.closest('label').querySelector('span');
+                    if (labelEl) {
+                        const text = labelEl.textContent.trim().toLowerCase();
+                        if (text === 'green') {
+                            chosenStyle = 'green';
+                        } else if (text === 'red') {
+                            chosenStyle = 'red';
+                        }
+                    }
+                });
+                const imgEl = document.getElementById('custDishImg');
+                if (imgEl) {
+                    imgEl.src = `uploads/thai_curry_${chosenStyle}.jpg`;
+                }
+            }
         }
 
         function confirmCustomAddToCart() {
