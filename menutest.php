@@ -552,27 +552,64 @@
         /* ============================================================
            DISPLAY MENU ITEMS
         ============================================================ */
-        function centerActivePill(index) {
+        function centerActivePill(index, instant = false) {
             const el = document.getElementById(`cat-pill-${index}`);
             const container = document.getElementById('categoryScroll');
             if (el && container) {
                 const offset = el.offsetLeft - (container.offsetWidth / 2) + (el.offsetWidth / 2);
-                container.scrollTo({ left: offset, behavior: 'smooth' });
+                if (instant) {
+                    container.classList.remove('scroll-smooth');
+                    container.scrollLeft = offset;
+                    container.offsetHeight; // Force reflow
+                    container.classList.add('scroll-smooth');
+                } else {
+                    container.classList.add('scroll-smooth');
+                    container.scrollTo({ left: offset, behavior: 'smooth' });
+                }
             }
+        }
+
+        function getCategoriesList() {
+            const midIndex = Math.floor(allCategories.length / 2);
+            return [
+                ...allCategories.slice(0, midIndex),
+                'All',
+                ...allCategories.slice(midIndex)
+            ];
         }
 
         function handleCategoryScroll() {
             const container = document.getElementById('categoryScroll');
             if (!container) return;
-            const items = container.children;
-            if (items.length === 0) return;
 
-            const midIndex = Math.floor(allCategories.length / 2);
-            const categories = [
-                ...allCategories.slice(0, midIndex),
-                'All',
-                ...allCategories.slice(midIndex)
-            ];
+            const categories = getCategoriesList();
+            const N = categories.length;
+            if (N === 0) return;
+
+            const items = container.querySelectorAll('.group');
+            if (items.length < 3 * N) return;
+
+            // Width of one full copy of the categories list
+            const copyWidth = items[N].offsetLeft - items[0].offsetLeft;
+
+            // Current scroll position
+            const currentScroll = container.scrollLeft;
+
+            // Bounds for the middle copy (copy 1)
+            const leftBoundary = items[N].offsetLeft - (container.clientWidth / 2);
+            const rightBoundary = items[2 * N].offsetLeft - (container.clientWidth / 2);
+
+            if (currentScroll < leftBoundary) {
+                container.classList.remove('scroll-smooth');
+                container.scrollLeft += copyWidth;
+                container.offsetHeight; // Force reflow
+                container.classList.add('scroll-smooth');
+            } else if (currentScroll > rightBoundary) {
+                container.classList.remove('scroll-smooth');
+                container.scrollLeft -= copyWidth;
+                container.offsetHeight; // Force reflow
+                container.classList.add('scroll-smooth');
+            }
 
             let activeIdx = 0;
             let minDistance = Infinity;
@@ -588,7 +625,8 @@
                 }
             }
 
-            const newActiveCategory = categories[activeIdx];
+            const realIdx = activeIdx % N;
+            const newActiveCategory = categories[realIdx];
             if (newActiveCategory && newActiveCategory !== activeCategory) {
                 activeCategory = newActiveCategory;
                 displayMenuItems();
@@ -627,7 +665,7 @@
 
                 const labelWrap = item.querySelector('.label-wrap');
                 const isActive = (i === activeIdx);
-                const cat = categories[i];
+                const cat = categories[i % N];
 
                 if (isActive) {
                     if (circle && !circle.classList.contains('bg-[#193627]')) {
@@ -656,66 +694,70 @@
 
         function renderCategories() {
             const container = document.getElementById('categoryScroll');
-            const midIndex = Math.floor(allCategories.length / 2);
-            const categories = [
-                ...allCategories.slice(0, midIndex),
-                'All',
-                ...allCategories.slice(midIndex)
-            ];
+            const categories = getCategoriesList();
+            const N = categories.length;
+            if (N === 0) return;
 
-            container.innerHTML = categories.map((cat, index) => {
-                let imgSrc = '';
-                if (cat === 'All') {
-                    imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
-                } else {
-                    const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
-                    imgSrc = itemWithImg ? itemWithImg.image_url : '';
-                }
-                
-                if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
-                    if (!imgSrc.startsWith('uploads/')) {
-                        imgSrc = 'uploads/' + imgSrc;
+            let html = '';
+            for (let copyIdx = 0; copyIdx < 3; copyIdx++) {
+                html += categories.map((cat, index) => {
+                    let imgSrc = '';
+                    if (cat === 'All') {
+                        imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
+                    } else {
+                        const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
+                        imgSrc = itemWithImg ? itemWithImg.image_url : '';
                     }
-                }
-                if (!imgSrc) {
-                    const PLACEHOLDERS = {
-                        'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
-                        'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
-                        'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
-                        'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
-                        'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
-                        'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
-                        'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
-                        'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
-                        'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
-                        'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
-                        'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
-                        'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=200&h=200&fit=crop',
-                        'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
-                        'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
-                        'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
-                        'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
-                        'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
-                        'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
-                        'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
-                        'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
-                    };
-                    imgSrc = PLACEHOLDERS[cat] || PLACEHOLDERS['All'];
-                }
+                    
+                    if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                        if (!imgSrc.startsWith('uploads/')) {
+                            imgSrc = 'uploads/' + imgSrc;
+                        }
+                    }
+                    if (!imgSrc) {
+                        const PLACEHOLDERS = {
+                            'All': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                            'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
+                            'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
+                            'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
+                            'Dim Sum': 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop',
+                            'Sushi': 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop',
+                            'Chinese & Korean': 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=200&h=200&fit=crop',
+                            'Burgers & Sandwiches': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
+                            'Pasta & Risotto Station': 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop',
+                            'Brick Oven Pizza': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop',
+                            'Main Course': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                            'Beverages': 'https://images.unsplash.com/photo-1497534446932-c925b458314e?w=200&h=200&fit=crop',
+                            'Sharing Boards': 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop',
+                            'Appetizer': 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?w=200&h=200&fit=crop',
+                            'Indian': 'https://images.unsplash.com/photo-1585938338392-50a59970d8ee?w=200&h=200&fit=crop',
+                            'Bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                            'Bread Basket': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop',
+                            'Sides': 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=200&h=200&fit=crop',
+                            'Choice of Noodle': 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=200&h=200&fit=crop',
+                            'Choice of Rice': 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&h=200&fit=crop'
+                        };
+                        imgSrc = PLACEHOLDERS[cat] || PLACEHOLDERS['All'];
+                    }
 
-                return `
-                    <div onclick="filterCategory('${cat}', ${index})" id="cat-pill-${index}"
-                         class="flex flex-col items-center gap-2 cursor-pointer group shrink-0 transition-all duration-300 py-3 select-none"
-                         style="width: 100px;">
-                        <div class="circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md">
-                            <img src="${imgSrc}" alt="${cat}" class="w-full h-full rounded-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
+                    const globalIdx = copyIdx * N + index;
+
+                    return `
+                        <div onclick="filterCategory('${cat}', ${globalIdx})" id="cat-pill-${globalIdx}"
+                             class="flex flex-col items-center gap-2 cursor-pointer group shrink-0 transition-all duration-300 py-3 select-none"
+                             style="width: 100px;" data-category="${cat}" data-real-index="${index}" data-copy="${copyIdx}">
+                            <div class="circle-wrap w-20 h-20 md:w-24 md:h-24 rounded-full border border-[#dfba86]/30 overflow-hidden transition-all duration-300 shadow-md">
+                                <img src="${imgSrc}" alt="${cat}" class="w-full h-full rounded-full object-cover" onerror="this.onerror=null; this.src='uploads/default.jpg';">
+                            </div>
+                            <div class="label-wrap flex flex-col items-center min-h-[30px] justify-start w-full">
+                                <span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
+                            </div>
                         </div>
-                        <div class="label-wrap flex flex-col items-center min-h-[30px] justify-start w-full">
-                            <span class="text-[9px] md:text-[10px] font-bold text-gray-500 group-hover:text-[#193627] uppercase tracking-widest text-center mt-2">${cat}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = html;
 
             if (!container.dataset.hasScrollListener) {
                 container.addEventListener('scroll', handleCategoryScroll);
@@ -723,12 +765,35 @@
             }
 
             setTimeout(() => {
+                const items = container.querySelectorAll('.group');
+                if (items.length >= 2 * N) {
+                    const activeIdx = categories.indexOf(activeCategory);
+                    const middleGlobalIdx = N + (activeIdx !== -1 ? activeIdx : 0);
+                    centerActivePill(middleGlobalIdx, true);
+                }
                 updateScrollButtons();
-                const activeIdx = categories.indexOf(activeCategory);
-                centerActivePill(activeIdx);
                 handleCategoryScroll();
             }, 50);
         }
+
+        function filterCategory(catName, index) {
+            activeCategory = catName;
+            const categories = getCategoriesList();
+            const N = categories.length;
+            
+            let targetIdx = index;
+            if (targetIdx === undefined) {
+                const baseIdx = categories.indexOf(catName);
+                targetIdx = baseIdx !== -1 ? N + baseIdx : -1;
+            }
+            
+            displayMenuItems();
+            
+            if (targetIdx !== -1) {
+                centerActivePill(targetIdx);
+            }
+        }
+
 
         // Drag scroll navigation helpers
         window.scrollCategories = function(amount) {
@@ -769,8 +834,8 @@
             const rightBtn = document.getElementById('scrollRightBtn');
             if (!container || !leftBtn || !rightBtn) return;
 
-            leftBtn.disabled = container.scrollLeft <= 0;
-            rightBtn.disabled = Math.ceil(container.scrollLeft) >= container.scrollWidth - container.clientWidth;
+            leftBtn.disabled = false;
+            rightBtn.disabled = false;
         };
 
         // Explore Categories Banner generator
