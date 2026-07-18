@@ -1612,7 +1612,10 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <!-- Left Side: Items -->
                                         <div class="col-md-7 p-4 border-end" style="border-color: rgba(0,0,0,0.05) !important;">
                                             <?php foreach ($order['items'] as $item): ?>
-                                                <?php $img_src = !empty($item['image_url']) ? htmlspecialchars($item['image_url']) : 'assets/images/hero_steak.png'; ?>
+                                                <?php 
+                                                $raw_img = !empty($item['image_url']) ? htmlspecialchars($item['image_url']) : 'assets/images/hero_steak.png'; 
+                                                $img_src = (strpos($raw_img, 'http') === 0 || strpos($raw_img, '//') === 0 || strpos($raw_img, 'assets/') === 0 || strpos($raw_img, 'uploads/') === 0) ? $raw_img : 'uploads/' . $raw_img;
+                                                ?>
                                                 <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" style="border-color: rgba(0,0,0,0.03) !important;">
                                                     <div class="d-flex align-items-center gap-3">
                                                         <div class="rounded-3 overflow-hidden d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #143628;">
@@ -2282,13 +2285,13 @@ $trusted_devices = $trusted_devices_stmt->fetchAll(PDO::FETCH_ASSOC);
                             } elseif (strpos($name_lower, 'vodka') !== false) {
                                 $cat_badge = 'PREMIUM VODKA';
                                 $bg_circle = '#223843'; 
-                                $img_src = 'assets/images/vodka.png';
+                                $img_src = 'assets/images/absolut_vodka.png';
                             }
                         ?>
                         <div class="col-lg-6">
                             <div class="bg-card-custom rounded-4 border p-4 position-relative" style="border-color: rgba(0,0,0,0.05) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow: hidden;">
                                 <div class="position-absolute" style="top: 50%; right: -20px; transform: translateY(-50%); opacity: 0.08; pointer-events: none; z-index: 0;">
-                                    <img src="assets/images/floral_watermark.png" width="180" alt="" onerror="this.style.display='none'">
+                                    <img src="assets/images/leaf_watermark.png" width="180" alt="" onerror="this.style.display='none'">
                                 </div>
                                 
                                 <div class="d-flex position-relative mb-4" style="z-index: 1;">
