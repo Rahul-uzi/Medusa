@@ -294,37 +294,6 @@
                     overlay.classList.add('nav-pt-fadeout');
                 });
             });
-
-            // On nav-link click: fade curtain in, then hard-navigate
-            document.addEventListener('click', function _navTransClick(e) {
-                var link = e.target.closest('a');
-                if (!link) return;
-                var href = link.getAttribute('href');
-                if (!href || href === '#' || href.startsWith('#')
-                    || href.startsWith('javascript:')
-                    || href.startsWith('mailto:')
-                    || href.startsWith('tel:')
-                    || link.target === '_blank') return;
-                try {
-                    var url = new URL(link.href, window.location.origin);
-                    if (url.origin !== window.location.origin) return;
-                    if (url.pathname.includes('/api/') || url.pathname.includes('/admin/')) return;
-                } catch (_) { return; }
-
-                e.preventDefault();
-                var dest = link.href;
-                
-                // Remove fadeout class so it returns to opacity: 1
-                overlay.classList.remove('nav-pt-fadeout');
-                
-                overlay.addEventListener('transitionend', function _go() {
-                    overlay.removeEventListener('transitionend', _go);
-                    window.location.href = dest;
-                }, { once: true });
-                
-                // Fallback in case transitionend doesn't fire
-                setTimeout(function() { window.location.href = dest; }, 200);
-            });
             
             // Handle back/forward bfcache
             window.addEventListener('pageshow', function(e) {
