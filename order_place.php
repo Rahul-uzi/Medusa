@@ -288,6 +288,24 @@ if ($db_user_id && $save_address) {
 try {
     $pdo->beginTransaction();
 
+    // If guest, save info to guest_info table
+    if (!$db_user_id) {
+        $ins_guest = $pdo->prepare("
+            INSERT INTO guest_info 
+            (name, email, phone, address, city, state, pincode) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        $ins_guest->execute([
+            $customer_name,
+            $customer_email ?? '',
+            $customer_phone,
+            $delivery_address,
+            $delivery_city,
+            $delivery_state,
+            $delivery_pincode
+        ]);
+    }
+
     // 1. Insert order into orders table
     $ins_order = $pdo->prepare("
         INSERT INTO orders 
@@ -521,6 +539,11 @@ try {
                 $ins_cust_notif->execute([$db_user_id, $cust_notif_title, $cust_notif_msg]);
             }
         }
+    } else {
+        // Clear database cart for guest user upon successful order placement
+        $session_id = session_id();
+        $clear_cart = $pdo->prepare("DELETE FROM cart WHERE session_id = ? AND user_id IS NULL");
+        $clear_cart->execute([$session_id]);
     }
         // Trigger notification triggers for admin panel
         require_once __DIR__ . '/includes/notifications_helper.php';

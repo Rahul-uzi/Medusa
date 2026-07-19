@@ -990,8 +990,19 @@ if (!$order) {
                 <?php foreach ($order['cart_items'] as $item): ?>
                     <div class="invoice-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px dashed rgba(255,255,255,0.1);">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <?php if (!empty($item['image_url'])): ?>
-                                <img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <?php 
+                                $imgSrc = $item['image_url'] ?? '';
+                                if (!empty($imgSrc) && !str_starts_with($imgSrc, 'http') && !str_starts_with($imgSrc, 'uploads/') && !str_starts_with($imgSrc, 'assets/')) {
+                                    if (!str_contains($imgSrc, '/')) {
+                                        $imgSrc = 'uploads/' . $imgSrc;
+                                    }
+                                }
+                            ?>
+                            <?php if (!empty($imgSrc)): ?>
+                                <img src="<?php echo htmlspecialchars($imgSrc); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="width: 60px; height: 60px; border-radius: 8px; background: rgba(255,255,255,0.05); display: none; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--gold);">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
                             <?php else: ?>
                                 <div style="width: 60px; height: 60px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--gold);">
                                     <i class="fas fa-utensils"></i>
@@ -1133,9 +1144,15 @@ if (!$order) {
     </div>
 
     <script>
+        // Auto-redirect to menu page after 12 seconds
+        let redirectTimer = setTimeout(() => {
+            window.location.href = 'menutest.html';
+        }, 12000);
+
         // Auto-trigger print/PDF download dialog if the print parameter is set to 1
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('print') === '1') {
+            clearTimeout(redirectTimer); // Don't auto-redirect if trying to print
             window.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     window.print();
@@ -1175,6 +1192,10 @@ if (!$order) {
                     stars[0].focus();
                 }
             }, 1000);
+
+            // Pause redirect if they start interacting with the feedback modal
+            overlay.addEventListener('mousedown', () => clearTimeout(redirectTimer));
+            overlay.addEventListener('touchstart', () => clearTimeout(redirectTimer), {passive: true});
 
             // 2. Rating selection logic (click and hover support)
             stars.forEach((star, index) => {
@@ -1296,7 +1317,11 @@ if (!$order) {
                         if (data.couponGenerated) {
                             // Update details and show coupon reward
                             document.getElementById('feedbackSuccessTitle').textContent = '🎉 Thank You For Your Review!';
-                            document.getElementById('feedbackSuccessSubtitle').textContent = "You've unlocked a reward.";
+                            if (data.isGuest) {
+                                document.getElementById('feedbackSuccessSubtitle').innerHTML = 'To use this coupon you need to join us or be a part of our family. <a href="login.html" style="color: #dfba86; text-decoration: underline;">Join Now</a>';
+                            } else {
+                                document.getElementById('feedbackSuccessSubtitle').textContent = "You've unlocked a reward.";
+                            }
                             document.getElementById('rewardDiscount').textContent = data.discount || '10% OFF';
                             document.getElementById('rewardCouponCode').textContent = data.couponCode;
                             document.getElementById('rewardExpiry').textContent = data.expiresAt;
@@ -1317,6 +1342,10 @@ if (!$order) {
                                 });
                             });
                         } else {
+                            // Normal success without coupon
+                            document.getElementById('feedbackSuccessTitle').textContent = '✅ Thank you for your feedback!';
+                            document.getElementById('feedbackSuccessSubtitle').textContent = 'Your feedback helps us improve our service.';
+                            
                             // Wait 2 seconds, then close automatically
                             setTimeout(() => {
                                 closeFeedbackPopup();

@@ -1408,14 +1408,7 @@
                 const result = await response.json();
                 
                 if (response.status === 401 || (result && result.message && result.message.includes('Unauthorized'))) {
-                    const params = new URLSearchParams(window.location.search);
-                    if (params.get('table')) {
-                        throw new Error('Guest mode, using local cart');
-                    } else {
-                        alert('Please login first');
-                        window.location.href = 'login.html';
-                        return;
-                    }
+                    throw new Error('Unauthorized');
                 }
 
                 if (result.success && result.items.length > 0) {

@@ -498,6 +498,15 @@ if (isset($pdo)) {
                 $clear_defaults = $pdo->prepare("UPDATE user_addresses SET is_default = 0 WHERE user_id = ? AND id != ?");
                 $clear_defaults->execute([$db_user_id, $address_id]);
             }
+        } else {
+            // Save guest info
+            $ins_guest = $pdo->prepare("
+                INSERT INTO guest_info (order_id, first_name, last_name, phone, email, country, street, apartment, city, state, zip)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $ins_guest->execute([
+                $db_order_id, $first_name, $last_name, $customer_phone, $customer_email, $country, $street, $apartment, $city, $state, $zip
+            ]);
         }
 
         // If coupon is valid, redeem it inside the transaction!
@@ -509,6 +518,10 @@ if (isset($pdo)) {
         if ($db_user_id) {
             $clear_cart = $pdo->prepare("DELETE FROM cart WHERE user_id = ?");
             $clear_cart->execute([$db_user_id]);
+        } else {
+            $session_id = session_id();
+            $clear_cart = $pdo->prepare("DELETE FROM cart WHERE session_id = ? AND user_id IS NULL");
+            $clear_cart->execute([$session_id]);
         }
 
         // Trigger notification triggers for admin panel

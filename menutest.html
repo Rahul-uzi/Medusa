@@ -836,18 +836,24 @@
                     
                     if (!isGrid) {
                         if (currentTab === 'beverages') {
-                            imgSrc = BEVERAGE_IMAGES[cat] || BEVERAGE_IMAGES['All'];
-                        } else {
-                            const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
-                            imgSrc = itemWithImg ? itemWithImg.image_url : '';
-                            
-                            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
-                                if (!imgSrc.startsWith('uploads/')) {
-                                    imgSrc = 'uploads/' + imgSrc;
-                                }
+                            const mapping = BEVERAGE_MAPPING[cat];
+                            let itemWithImg = null;
+                            if (mapping) {
+                                itemWithImg = allMenuItems.find(i => i.category === 'Beverages' && mapping.filterFn(i) && i.image_url && i.image_url !== 'default.jpg' && i.image_url !== 'image.jpg');
                             }
-                            if (!imgSrc) {
-                                const PLACEHOLDERS = {
+                            imgSrc = itemWithImg ? itemWithImg.image_url : (BEVERAGE_IMAGES[cat] || BEVERAGE_IMAGES['All']);
+                        } else {
+                            const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url && i.image_url !== 'default.jpg' && i.image_url !== 'image.jpg');
+                            imgSrc = itemWithImg ? itemWithImg.image_url : '';
+                        }
+                        
+                        if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
+                            if (!imgSrc.startsWith('uploads/')) {
+                                imgSrc = 'uploads/' + imgSrc;
+                            }
+                        }
+                        if (!imgSrc) {
+                            const PLACEHOLDERS = {
                                     'Soups': 'https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=200&h=200&fit=crop',
                                     'Salad': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop',
                                     'Meals in the Bowl': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop',
@@ -870,7 +876,6 @@
                                 imgSrc = PLACEHOLDERS[cat] || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
                             }
                         }
-                    }
 
                     let displayName = cat;
                     if (cat === 'Pasta & Risotto Station') displayName = 'Pasta & Risotto';
@@ -1429,17 +1434,7 @@
                 });
                 const result = await res.json();
                 if (res.status === 401 || (result && result.message && result.message.includes('Unauthorized'))) {
-                    const params = new URLSearchParams(window.location.search);
-                    if (params.get('table')) throw new Error('Guest mode, using local cart');
-                    else {
-                        if (!window.hasAlertedForLogin) {
-                            window.hasAlertedForLogin = true;
-                            alert('Please login first to add items to cart.', () => {
-                                window.location.href = 'login.html';
-                            });
-                        }
-                        return;
-                    }
+                    throw new Error('Unauthorized');
                 }
                 if (result.success) {
                     localCart[id] = 1;

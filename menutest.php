@@ -705,7 +705,7 @@
                     if (cat === 'All') {
                         imgSrc = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop';
                     } else {
-                        const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url);
+                        const itemWithImg = allMenuItems.find(i => i.category === cat && i.image_url && i.image_url !== 'default.jpg' && i.image_url !== 'image.jpg');
                         imgSrc = itemWithImg ? itemWithImg.image_url : '';
                     }
                     
@@ -843,7 +843,7 @@
             const bannerCategories = allCategories.map(cat => ({ name: cat, label: cat }));
 
             const itemsHtml = bannerCategories.map(cat => {
-                const itemWithImg = allMenuItems.find(i => i.category === cat.name && i.image_url);
+                const itemWithImg = allMenuItems.find(i => i.category === cat.name && i.image_url && i.image_url !== 'default.jpg' && i.image_url !== 'image.jpg');
                 let imgSrc = itemWithImg ? itemWithImg.image_url : '';
                 if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('//')) {
                     if (!imgSrc.startsWith('uploads/')) {
@@ -1480,15 +1480,7 @@
                     body: JSON.stringify({ food_item_id: id, quantity: 1, customizations, custom_price: finalPrice })
                 });
                 if (res.status === 401) {
-                    const params = new URLSearchParams(window.location.search);
-                    if (params.get('table')) {
-                        // In QR Code Mode, bypass login and throw an error to use local cart fallback
-                        throw new Error('Guest mode, using local cart');
-                    } else {
-                        alert('Please login first to add items to cart.');
-                        window.location.href = 'login.html';
-                        return;
-                    }
+                    throw new Error('Unauthorized');
                 }
                 const result = await res.json();
                 if (result.success) {

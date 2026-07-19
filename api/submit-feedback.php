@@ -104,8 +104,20 @@ try {
     $couponCode = '';
     $discountText = '';
     $expiresAtStr = '';
+    $isGuest = empty($_SESSION['user_id']);
 
+    $shouldGiveCoupon = false;
     if ($rating === 5) {
+        if ($isGuest) {
+            // 50% chance for guests to get a coupon
+            $shouldGiveCoupon = (rand(1, 100) <= 50);
+        } else {
+            // Logged in users always get a coupon for 5 stars
+            $shouldGiveCoupon = true;
+        }
+    }
+
+    if ($shouldGiveCoupon) {
         require_once __DIR__ . '/CouponService.php';
         try {
             $couponService = new CouponService($pdo);
@@ -151,7 +163,8 @@ try {
     $response = [
         'success' => true,
         'message' => 'Thank you for your feedback!',
-        'couponGenerated' => $couponGenerated
+        'couponGenerated' => $couponGenerated,
+        'isGuest' => $isGuest
     ];
     if ($couponGenerated) {
         $response['couponCode'] = $couponCode;
