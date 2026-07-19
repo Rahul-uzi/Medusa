@@ -9,7 +9,75 @@ $token = trim($_GET['token'] ?? $_SESSION['active_order_token'] ?? '');
 
 // Validate token format
 if (strlen($token) < 32 || !ctype_xdigit($token)) {
-    header('Location: menutest.html');
+    $show_form = true;
+}
+
+// Handle form submission
+$error_msg = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_number'], $_POST['customer_phone'])) {
+    $order_num = trim($_POST['order_number']);
+    $phone = trim($_POST['customer_phone']);
+    
+    $stmt = $pdo->prepare("SELECT tracking_token FROM orders WHERE order_number = ? AND customer_phone = ? LIMIT 1");
+    $stmt->execute([$order_num, $phone]);
+    $token_row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($token_row) {
+        $_SESSION['active_order_token'] = $token_row['tracking_token'];
+        header('Location: track.php?token=' . $token_row['tracking_token']);
+        exit;
+    } else {
+        $show_form = true;
+        $error_msg = 'Order not found or phone number is incorrect.';
+    }
+}
+
+if (!empty($show_form)) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Track Your Order - LA-MEDUSAA</title>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+        <style>
+            body { background: #000000; color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+            .track-card { background: #0a0a0a; border: 1px solid rgba(223, 186, 134, 0.15); border-radius: 16px; padding: 3rem; width: 90%; max-width: 400px; text-align: center; }
+            .track-card h2 { color: #dfba86; margin-top: 0; margin-bottom: 2rem; font-size: 1.5rem; }
+            .form-group { margin-bottom: 1.5rem; text-align: left; }
+            .form-group label { display: block; margin-bottom: 0.5rem; color: #aaa; font-size: 0.9rem; }
+            .form-control { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #111; color: #fff; font-size: 1rem; box-sizing: border-box; }
+            .form-control:focus { outline: none; border-color: #dfba86; }
+            .btn-submit { background: #dfba86; color: #000; font-weight: 600; padding: 0.9rem; border-radius: 8px; width: 100%; border: none; cursor: pointer; font-size: 1rem; margin-top: 1rem; transition: 0.3s; }
+            .btn-submit:hover { background: #e8c99b; }
+            .error-msg { color: #ff6b6b; margin-bottom: 1rem; font-size: 0.9rem; }
+            .back-link { display: block; margin-top: 1.5rem; color: #888; text-decoration: none; font-size: 0.9rem; }
+            .back-link:hover { color: #dfba86; }
+        </style>
+    </head>
+    <body>
+        <div class="track-card">
+            <h2>Track Your Order</h2>
+            <?php if ($error_msg): ?>
+                <div class="error-msg"><?php echo htmlspecialchars($error_msg); ?></div>
+            <?php endif; ?>
+            <form method="POST" action="track.php">
+                <div class="form-group">
+                    <label>Order Number</label>
+                    <input type="text" name="order_number" class="form-control" placeholder="e.g. ORD-..." required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="customer_phone" class="form-control" placeholder="Enter phone number" required>
+                </div>
+                <button type="submit" class="btn-submit">Track Order</button>
+            </form>
+            <a href="menutest.html" class="back-link">Return to Menu</a>
+        </div>
+    </body>
+    </html>
+    <?php
     exit;
 }
 

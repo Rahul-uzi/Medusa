@@ -1760,6 +1760,7 @@ $csrf_token = csrf_token();
                                 </div>
                             </div>
 
+                            <?php if (!empty($_SESSION['user_id'])): ?>
                             <div class="coupon-container">
                                 <div class="coupon-title">
                                     <i class="fas fa-tag"></i> Have a coupon code?
@@ -1802,6 +1803,7 @@ $csrf_token = csrf_token();
                                     <i class="fas fa-gift text-success me-1"></i> You will earn <strong class="text-success"><span id="earned-points-value">0</span> points</strong> on this order!
                                 </div>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -1944,8 +1946,10 @@ if (couponToggle) {
     });
 }
 
-document.getElementById('applyCouponBtn').addEventListener('click', () => {
-    const code = document.getElementById('couponCodeInput').value.trim();
+const applyCouponBtn = document.getElementById('applyCouponBtn');
+if (applyCouponBtn) {
+    applyCouponBtn.addEventListener('click', () => {
+        const code = document.getElementById('couponCodeInput').value.trim();
     const messageBox = document.getElementById('couponMessage');
     
     if (!code) {
@@ -1993,7 +1997,8 @@ document.getElementById('applyCouponBtn').addEventListener('click', () => {
             messageBox.style.color = '#ef4444';
             messageBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed to validate coupon due to network error.';
         });
-});
+    });
+}
 function setPaymentMode(mode, element) {
     // Update active class on items
     document.querySelectorAll('input[name="payment_method"]').forEach(radio => {

@@ -1125,6 +1125,46 @@ if (isset($_REQUEST['action'])) {
         $stmt = $pdo->prepare("UPDATE orders SET order_status = ?, tracking_status = ? WHERE id = ?");
         $stmt->execute([$status, $tracking_status, $order_id]);
         
+        // Proper functional logic for order cancellation
+        if ($status === 'cancelled' && !empty($ord_info['user_id'])) {
+            $c_user_id = $ord_info['user_id'];
+            
+            // Revert Points Earned
+            $earn_stmt = $pdo->prepare("SELECT points_earned FROM loyalty_transactions WHERE order_id = ? AND transaction_type = 'earn'");
+            $earn_stmt->execute([$order_id]);
+            $earned = (int)$earn_stmt->fetchColumn();
+            if ($earned > 0) {
+                $pdo->prepare("UPDATE reward_points SET points_earned = GREATEST(0, points_earned - ?), current_balance = GREATEST(0, current_balance - ?) WHERE user_id = ?")
+                    ->execute([$earned, $earned, $c_user_id]);
+                $pdo->prepare("INSERT INTO loyalty_transactions (user_id, order_id, points_earned, transaction_type) VALUES (?, ?, ?, 'revert_earn')")
+                    ->execute([$c_user_id, $order_id, -$earned]);
+            }
+            
+            // Refund Points Redeemed
+            $red_stmt = $pdo->prepare("SELECT points_redeemed FROM loyalty_transactions WHERE order_id = ? AND transaction_type = 'redeem'");
+            $red_stmt->execute([$order_id]);
+            $redeemed = (int)$red_stmt->fetchColumn();
+            if ($redeemed > 0) {
+                $pdo->prepare("UPDATE reward_points SET points_redeemed = GREATEST(0, points_redeemed - ?), current_balance = current_balance + ? WHERE user_id = ?")
+                    ->execute([$redeemed, $redeemed, $c_user_id]);
+                $pdo->prepare("INSERT INTO loyalty_transactions (user_id, order_id, points_redeemed, transaction_type) VALUES (?, ?, ?, 'refund_redeem')")
+                    ->execute([$c_user_id, $order_id, -$redeemed]);
+            }
+            
+            // Revert Liquor Quota Pegs
+            $items_stmt = $pdo->prepare("SELECT fi.is_liquor, oi.quantity FROM order_items oi JOIN food_items fi ON oi.food_item_id = fi.id WHERE oi.order_id = ? AND fi.is_liquor = 1");
+            $items_stmt->execute([$order_id]);
+            $liquor_items = $items_stmt->fetchAll(PDO::FETCH_ASSOC);
+            $pegs_to_revert = 0;
+            foreach ($liquor_items as $l_item) {
+                $pegs_to_revert += (int)$l_item['quantity'];
+            }
+            if ($pegs_to_revert > 0) {
+                $pdo->prepare("UPDATE users SET liquor_quota_pegs = GREATEST(0, liquor_quota_pegs - ?) WHERE id = ?")
+                    ->execute([$pegs_to_revert, $c_user_id]);
+            }
+        }
+        
         if ($ord_info) {
             require_once dirname(__DIR__) . '/includes/notifications_helper.php';
             
@@ -1230,6 +1270,19 @@ if (isset($_REQUEST['action'])) {
         $id = $_POST['id'];
         $stmt = $pdo->prepare("DELETE FROM food_items WHERE id = ?");
         $stmt->execute([$id]);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // Delete Multiple Menu Items
+    if ($action === 'delete_multiple_menu_items') {
+        $ids = json_decode($_POST['ids'] ?? '[]');
+        if (is_array($ids) && count($ids) > 0) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $pdo->prepare("DELETE FROM food_items WHERE id IN ($placeholders)");
+            $stmt->execute($ids);
+        }
         
         echo json_encode(['success' => true]);
         exit;
@@ -3894,6 +3947,8 @@ html:not(.light-mode) .form-select:focus{
                                                         <option value="preparing" <?php echo strtolower($ord['order_status'])=='preparing'?'selected':''; ?>>Preparing</option>
                                                         <option value="ready" <?php echo strtolower($ord['order_status'])=='ready'?'selected':''; ?>>Ready</option>
                                                         <option value="completed" <?php echo strtolower($ord['order_status'])=='completed'?'selected':''; ?>>Completed</option>
+                                                        <option value="cancelled">Cancel Order</option>
+                                                        <option value="cancelled">Reject</option>
                                                     </select>
                                                 <?php endif; ?>
                                             </td>
@@ -4197,9 +4252,14 @@ html:not(.light-mode) .form-select:focus{
             <div id="menu-search-results-card" class="content-card mb-4" style="display:none;">
                 <div class="card-header-premium">
                     <span>Menu Search Results</span>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="resetMenuSearch()">
-                        <i class="fas fa-times me-1"></i> Clear Results
-                    </button>
+                    <div>
+                        <button class="btn btn-sm btn-outline-danger me-2" onclick="deleteSelectedMenuItems('.search-result-checkbox')">
+                            <i class="fas fa-trash-alt me-1"></i> Delete Selected
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="resetMenuSearch()">
+                            <i class="fas fa-times me-1"></i> Clear Results
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table premium-table align-middle" id="menu-search-results-table">
@@ -5560,23 +5620,14 @@ html:not(.light-mode) .form-select:focus{
                         <div class="mb-3">
                             <label class="form-label text-muted">Category</label>
                             <select id="menu_category" class="form-select bg-dark text-white border-secondary" required>
-                                <option value="Beverages">Beverages</option>
-                                <option value="Soups">Soups</option>
-                                <option value="Salad">Salad</option>
-                                <option value="Bread Basket">Bread Basket</option>
-                                <option value="Sides">Sides</option>
-                                <option value="Meals in the Bowl">Meals in the Bowl</option>
-                                <option value="Main Course">Main Course</option>
-                                <option value="Chinese & Korean">Chinese & Korean</option>
-                                <option value="Indian">Indian</option>
-                                <option value="Dim Sum Cart">Dim Sum Cart</option>
-                                <option value="Sushi Rolls">Sushi Rolls</option>
-                                <option value="Burgers & Sandwiches">Burgers & Sandwiches</option>
-                                <option value="Sharing Boards">Sharing Boards</option>
-                                <option value="Brick Oven Pizza">Brick Oven Pizza</option>
-                                <option value="Non-Veg Appetizer">Non-Veg Appetizer</option>
-                                <option value="Pasta & Risotto Station">Pasta & Risotto Station</option>
-                                <option value="Veg Appetizer">Veg Appetizer</option>
+                                <option value="">-- Select Category --</option>
+                                <?php
+                                $cat_file = __DIR__ . '/categories.json';
+                                $cats = file_exists($cat_file) ? json_decode(file_get_contents($cat_file), true) : [];
+                                foreach ($cats as $c) {
+                                    echo '<option value="' . htmlspecialchars($c) . '">' . htmlspecialchars($c) . '</option>';
+                                }
+                                ?>
                             </select>
                         </div>
 
@@ -6643,7 +6694,18 @@ html:not(.light-mode) .form-select:focus{
                 if (data.success) {
                     bootstrap.Modal.getInstance(document.getElementById('menuCrudModal')).hide();
                     showToast(id ? 'Dish updated successfully!' : 'New dish added successfully!', 'success');
-                    setTimeout(() => location.reload(), 1200);
+                    setTimeout(() => {
+                        const searchCard = document.getElementById('menu-search-results-card');
+                        if (searchCard && searchCard.style.display !== 'none') {
+                            // If user is currently looking at search results, just refresh the search
+                            // instead of reloading the page (which hides the dish)
+                            const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+                            document.getElementById('menuSearchForm').dispatchEvent(submitEvent);
+                            // Also silently reload the background table if possible, or just ignore since search is active
+                        } else {
+                            location.reload();
+                        }
+                    }, 1200);
                 } else {
                     showToast('Error saving dish: ' + (data.message || 'Unknown error'), 'error');
                     submitBtn.disabled = false;
@@ -6674,6 +6736,47 @@ html:not(.light-mode) .form-select:focus{
                     location.reload();
                 } else {
                     alert('Error deleting menu item');
+                }
+            });
+        }
+
+        function deleteSelectedMenuItems(selector) {
+            const selected = Array.from(document.querySelectorAll(selector + ':checked')).map(cb => cb.value);
+            if (selected.length === 0) {
+                alert('Please select at least one item to delete.');
+                return;
+            }
+            
+            let message = 'Do you want to delete the selected item?';
+            if (selected.length > 1) {
+                message = 'Do you want to delete the ' + selected.length + ' selected items?';
+            }
+            
+            document.getElementById('bulkDeleteMessage').innerText = message;
+            document.getElementById('bulkDeleteIds').value = JSON.stringify(selected);
+            
+            const bulkModal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+            bulkModal.show();
+        }
+
+        function confirmBulkDelete() {
+            const selectedStr = document.getElementById('bulkDeleteIds').value;
+            if (!selectedStr) return;
+            
+            fetch('dashboardtest.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    action: 'delete_multiple_menu_items',
+                    ids: selectedStr
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error deleting menu items');
                 }
             });
         }
@@ -9194,6 +9297,26 @@ function printTableQR() {
         .then(() => fetchCampaigns());
     }
 </script>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary text-white">
+            <div class="modal-header border-bottom border-dark">
+                <h5 class="modal-title text-danger" id="bulkDeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="bulkDeleteMessage" class="mb-0">Are you sure you want to delete?</p>
+                <input type="hidden" id="bulkDeleteIds">
+            </div>
+            <div class="modal-footer border-top border-dark">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmBulkDelete()">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Campaign Modal -->
 <div class="modal fade" id="campaignModal" tabindex="-1">

@@ -1324,3 +1324,41 @@ Download URL: http://192.168.1.6/restaurant_medusa/download_bill.php?id=109&toke
 [2026-07-16 03:06:34] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [2026-07-16 03:06:48] [LOGIN_ALERT] OTP for customer@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [2026-07-16 03:13:27] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[2026-07-19 09:06:37] [SMS_GATEWAY_ERROR] SMS failed for 1234567888: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 3011 ms: Timeout was reached
+[2026-07-19 09:06:41] [ORDER_BILL_ATTACHMENT] Email queued/sent to mehakdhiman123@gmail.com:
+----------------------------------------
+Name: Rahul Dhiman
+Email: mehakdhiman123@gmail.com
+Phone: 1234567888
+Order ID: ORD-DAAD9
+PDF Path: bills/order_110_20260719_090637.pdf
+Download URL: http://192.168.1.9/restaurant_medusa/download_bill.php?id=110&token=7f498b7d55299929723260071295c32b48a694a2474ec7675ab11d898c748561
+----------------------------------------
+
+[2026-07-19 09:06:46] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 1234567888 with attachment: bills/order_110_20260719_090637.pdf
+[2026-07-19 09:16:41] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[2026-07-19 09:19:18] [SMS_GATEWAY_ERROR] SMS failed for 0234567186: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 2128 ms: Couldn't connect to server
+[2026-07-19 09:19:20] [ORDER_BILL_ATTACHMENT] Email queued/sent to test2@gmail.com:
+----------------------------------------
+Name: test2
+Email: test2@gmail.com
+Phone: 0234567186
+Order ID: ORD-5C7D4
+PDF Path: bills/order_111_20260719_091918.pdf
+Download URL: http://192.168.1.9/restaurant_medusa/download_bill.php?id=111&token=a8c5fbc6532d0228edbdbdbb7b9b9effc8d4578f3413e5d71b1f429e17ec85da
+----------------------------------------
+
+[2026-07-19 09:19:23] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 0234567186 with attachment: bills/order_111_20260719_091918.pdf
+[2026-07-19 10:00:46] [SMS_GATEWAY_ERROR] SMS failed for 0123456799: cURL Error: Failed to connect to 192.168.1.3 port 8080 after 3004 ms: Timeout was reached
+[2026-07-19 10:00:49] [ORDER_BILL_ATTACHMENT] Email queued/sent to tester3@gmail.com:
+----------------------------------------
+Name: hfhdh
+Email: tester3@gmail.com
+Phone: 0123456799
+Order ID: ORD-DD53C
+PDF Path: bills/order_112_20260719_100046.pdf
+Download URL: http://192.168.1.9/restaurant_medusa/download_bill.php?id=112&token=a0d1f1668c2e5b8109c617d908e79dfa51bef721fa559eab8354b6ebd9ca23a4
+----------------------------------------
+
+[2026-07-19 10:00:52] [WHATSAPP_INVOICE] WhatsApp dispatch skipped (API not configured) for 0123456799 with attachment: bills/order_112_20260719_100046.pdf
+[2026-07-19 19:25:16] [LOGIN_ALERT] OTP for admin@example.com: Login alert triggered from IP ::1 / Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36

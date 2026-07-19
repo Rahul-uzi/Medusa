@@ -348,5 +348,30 @@
             // Already pre-rendered in server-side PHP include
             initNavbar();
         }
+        
+        // Load active order tracking widget globally (for HTML pages)
+        fetch('api/get-active-order-bar.php')
+            .then(res => res.text())
+            .then(html => {
+                if (html.trim() && !document.getElementById('activeOrderBar')) {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    document.body.appendChild(temp);
+                    
+                    // Execute scripts from the fetched HTML
+                    const scripts = temp.querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            newScript.src = script.src;
+                        } else {
+                            newScript.textContent = script.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                        script.remove();
+                    });
+                }
+            })
+            .catch(err => console.error('Error loading active order bar:', err));
     });
 })();
